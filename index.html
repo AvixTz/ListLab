@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ListLab V30 - IP Core (Fixed)</title>
+    <title>ListLab V30 - IP Core (Final)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -175,6 +175,17 @@
                                     <option value="other">Other</option>
                                     <option value="blacklist">Blacklist</option>
                                 </select>
+                                
+                                <div class="flex items-center gap-2 mr-4 border-r border-slate-200 pr-4">
+                                    <label class="flex items-center gap-1 text-[10px] text-slate-500 font-bold cursor-pointer select-none" title="הוסף /24 לכתובות">
+                                        <input type="checkbox" id="chk-copy-cidr" checked class="chk-input accent-indigo-600">
+                                        CIDR
+                                    </label>
+                                    <button onclick="copyIPs()" id="btn-copy" class="flex items-center gap-1 bg-white border border-slate-200 text-slate-600 px-2 py-1 rounded hover:bg-slate-50 text-[10px] font-bold transition-all group">
+                                        <i data-lucide="copy" class="w-3 h-3"></i>
+                                        <span>העתק רשימה</span>
+                                    </button>
+                                </div>
                             </div>
                             <div class="text-[10px] text-slate-400 font-medium">סה"כ: <span id="disp-count" class="font-bold text-slate-800 num-font text-sm">0</span></div>
                         </div>
@@ -649,6 +660,41 @@
 
             if(cnt) XLSX.writeFile(wb, "IP_Analysis_Export.xlsx");
             else alert("Please select a list");
+        }
+
+        // NEW: COPY TO CLIPBOARD FUNCTION
+        function copyIPs() {
+            const list = state.display;
+            if(!list.length) return alert("אין נתונים להעתקה");
+
+            const useCidr = document.getElementById('chk-copy-cidr').checked;
+            
+            const text = list.map(r => {
+                let ip = String(r.ip).trim();
+                // Simple logic: if CIDR requested and no slash present, append /24
+                if(useCidr && !ip.includes('/')) {
+                    ip += '/24'; 
+                }
+                return ip;
+            }).join('\n');
+
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('btn-copy');
+                const span = btn.querySelector('span');
+                const origText = span.innerText;
+                
+                // Visual Feedback
+                span.innerText = "הועתק!";
+                btn.classList.add('text-green-600', 'border-green-200');
+                
+                setTimeout(() => {
+                    span.innerText = origText;
+                    btn.classList.remove('text-green-600', 'border-green-200');
+                }, 2000);
+            }).catch(err => {
+                console.error(err);
+                alert("שגיאה בהעתקה");
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
