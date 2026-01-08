@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ListLab V30 - IP Core</title>
+    <title>ListLab V30 - IP Core (Fixed)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -154,6 +154,7 @@
                         <label class="chk-label"><input type="checkbox" id="chk-cust" checked class="chk-input"> Custom</label>
                         <label class="chk-label"><input type="checkbox" id="chk-bl" class="chk-input"> Blacklist</label>
                         <label class="chk-label col-span-2 justify-center"><input type="checkbox" id="chk-other" class="chk-input"> Other (Residual)</label>
+                        <label class="chk-label col-span-2 justify-center"><input type="checkbox" id="chk-cidr" class="chk-input"> Convert to CIDR /24</label>
                     </div>
                     <button onclick="exportData()" class="w-full bg-slate-900 text-white py-2 rounded-md text-xs font-bold hover:bg-slate-800 transition flex items-center justify-center gap-2 shadow"><i data-lucide="download" class="w-3 h-3"></i> ייצוא נבחרים</button>
                 </div>
@@ -431,7 +432,15 @@
         }
 
         function removeFilter(fid) { document.getElementById(`f-${fid}`).remove(); state.activeFilters = state.activeFilters.filter(f=>f.id!==fid); dom.btnAddFilter.classList.remove('hidden'); reprocessData(); }
-        function togglePopup(fid) { document.querySelectorAll('.filter-popup').forEach(p=>p.classList.remove('show')); document.getElementById(`p-${fid}`).classList.toggle('show'); }
+        
+        // FIXED TOGGLE FUNCTION
+        function togglePopup(fid) { 
+            const el = document.getElementById(`p-${fid}`);
+            const isOpen = el.classList.contains('show'); 
+            document.querySelectorAll('.filter-popup').forEach(p=>p.classList.remove('show')); 
+            if(!isOpen) el.classList.add('show'); 
+        }
+
         function filterOpts(fid, txt) { 
             const term = txt.toLowerCase();
             const opts = document.getElementById(`lst-${fid}`).children;
@@ -445,7 +454,7 @@
             const lbl = document.getElementById(`l-${fid}`);
             lbl.innerText = vals.length ? `${vals.length} נבחרו` : '(הכל)';
             lbl.className = vals.length ? 'text-blue-600 font-bold' : '';
-            togglePopup(fid);
+            togglePopup(fid); // This will now close it because it's already open
             reprocessData();
         }
 
