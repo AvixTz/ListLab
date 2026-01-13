@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ListLab V30 - IP Core (Final)</title>
+    <title>ListLab V32 - Hierarchy Aware</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -12,97 +12,161 @@
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Assistant', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); height: 100vh; overflow: hidden; color: #1e293b; }
+        body { font-family: 'Assistant', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); height: 100vh; overflow: hidden; color: #1e293b; font-size: 14px; }
         .num-font { font-family: 'Inter', sans-serif; }
         
-        /* Layout */
         .main-wrapper { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 0.5rem; }
-        .glass-header { background: white; border-radius: 10px; padding: 0 1.5rem; margin-bottom: 0.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; height: 60px; shrink: 0; }
+        .glass-header { background: white; border-radius: 10px; padding: 0 1.5rem; margin-bottom: 0.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; height: 64px; shrink: 0; }
         .dash-container { flex: 1; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05); display: flex; overflow: hidden; border: 1px solid #e2e8f0; }
-        .dash-sidebar { width: 340px; background: #ffffff; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow-y: auto; padding: 1rem; }
+        .dash-sidebar { width: 370px; background: #ffffff; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow-y: auto; padding: 1rem; }
         .dash-content { flex: 1; background: #f8fafc; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* Controls */
         .control-box { border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid; }
         .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; row-gap: 0.5rem; }
         .control-item { display: flex; flex-direction: column; }
         .lbl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
-        .lbl-sm { font-size: 11px; font-weight: 700; color: #64748b; white-space: nowrap; }
+        .lbl-sm { font-size: 12px; font-weight: 700; color: #64748b; white-space: nowrap; }
         
-        input[type=range] { height: 4px; border-radius: 2px; background: rgba(0,0,0,0.1); outline: none; appearance: none; cursor: pointer; width: 100%; display: block; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: currentColor; border: 2px solid white; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-        .dash-input { width: 42px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 11px; text-align: center; border: 1px solid #cbd5e1; border-radius: 4px; padding: 1px; background: white; height: 22px; }
+        input[type=range] { height: 5px; border-radius: 2px; background: rgba(0,0,0,0.1); outline: none; appearance: none; cursor: pointer; width: 100%; display: block; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: currentColor; border: 2px solid white; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .dash-input { width: 46px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 12px; text-align: center; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px; background: white; height: 24px; }
         
-        /* Filter UI */
         .filter-item { margin-bottom: 8px; position: relative; }
-        .filter-header { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 2px; }
-        .filter-btn { width: 100%; text-align: right; background: #f8fafc; border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .filter-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 2px; }
+        .filter-btn { width: 100%; text-align: right; background: #f8fafc; border: 1px solid #cbd5e1; padding: 7px 11px; border-radius: 6px; font-size: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .filter-btn:hover { border-color: #94a3b8; }
-        .filter-popup { position: absolute; top: 100%; left: 0; width: 240px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 50; display: none; flex-direction: column; padding: 8px; margin-top: 4px; }
+        .filter-popup { position: absolute; top: 100%; left: 0; width: 270px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 50; display: none; flex-direction: column; padding: 8px; margin-top: 4px; }
         .filter-popup.show { display: flex; }
-        .filter-search { width: 100%; padding: 4px 8px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 11px; margin-bottom: 6px; }
-        .filter-list { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; border: 1px solid #f1f5f9; padding: 4px; border-radius: 4px; margin-bottom: 6px; }
-        .filter-opt { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #334155; cursor: pointer; user-select: none; }
+        .filter-search { width: 100%; padding: 5px 9px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; margin-bottom: 6px; }
+        .filter-list { max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; border: 1px solid #f1f5f9; padding: 4px; border-radius: 4px; margin-bottom: 6px; }
+        .filter-opt { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #334155; cursor: pointer; user-select: none; padding: 3px 5px; border-radius: 3px; }
         .filter-opt:hover { background: #f8fafc; }
         .filter-actions { display: flex; justify-content: space-between; }
-        .btn-tiny { font-size: 10px; padding: 2px 8px; border-radius: 3px; cursor: pointer; font-weight: 600; }
+        .btn-tiny { font-size: 11px; padding: 3px 10px; border-radius: 3px; cursor: pointer; font-weight: 600; }
         .btn-apply { background: #3b82f6; color: white; }
         .btn-cancel { background: #f1f5f9; color: #64748b; }
 
-        /* KPI & Stats */
-        .kpi-card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; overflow: visible; transition: transform 0.2s; display: flex; flex-direction: column; padding: 1rem; height: 100%; justify-content: space-between; }
+        .kpi-card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; overflow: visible; transition: transform 0.2s; display: flex; flex-direction: column; padding: 0.75rem; height: 100%; }
         .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -4px rgba(0,0,0,0.1); }
-        .stat-lbl { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; }
-        .stat-val { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px; color: #334155; line-height: 1.1; }
-        .g-item { text-align: center; border-left: 1px solid #f1f5f9; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .stat-lbl { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 1px; }
+        .stat-val { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; color: #334155; line-height: 1.1; }
+        .g-item { text-align: center; border-left: 1px solid #f1f5f9; flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 8px; }
         .g-item:last-child { border: none; }
-        .g-lbl { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
-        .g-val { font-size: 14px; font-weight: 700; color: #334155; font-family: 'Inter', sans-serif; }
+        .g-lbl { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+        .g-val { font-size: 15px; font-weight: 700; color: #334155; font-family: 'Inter', sans-serif; }
 
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        .chk-input { width: 14px; height: 14px; accent-color: #1e293b; cursor: pointer; border-radius: 3px; }
-        th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 700; background: #f8fafc; position: sticky; top: 0; z-index: 10; padding: 10px; }
-        td { font-size: 12px; border-bottom: 1px solid #f1f5f9; padding: 8px 10px; }
+        .chk-input { width: 15px; height: 15px; accent-color: #1e293b; cursor: pointer; border-radius: 3px; }
+        th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 700; background: #f8fafc; position: sticky; top: 0; z-index: 10; padding: 9px 11px; }
+        td { font-size: 12px; border-bottom: 1px solid #f1f5f9; padding: 7px 11px; }
         tr:hover td { background-color: #f8fafc; }
-        .btn-upload { background: #e0e7ff; color: #4338ca; border: 1px dashed #a5b4fc; padding: 0.75rem; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        
+        .row-summary { background: linear-gradient(90deg, #fef3c7 0%, #fefce8 100%); }
+        .row-summary td { font-weight: 700; border-bottom: 2px solid #fcd34d; }
+        .level-badge { font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 4px; }
+        .level-1 { background: #fee2e2; color: #991b1b; }
+        .level-2 { background: #fef3c7; color: #92400e; }
+        .level-3 { background: #d1fae5; color: #065f46; }
+        
+        .btn-upload { background: #e0e7ff; color: #4338ca; border: 1px dashed #a5b4fc; padding: 0.85rem; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.2s; }
         .btn-upload:hover { background: #c7d2fe; border-color: #6366f1; }
+        
+        .hierarchy-info { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #f59e0b; border-radius: 6px; padding: 6px 10px; margin-bottom: 10px; }
+        .hierarchy-levels { display: flex; gap: 4px; flex-wrap: wrap; }
+        .hierarchy-levels .lvl { font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: 700; }
+        
+        /* IP Layer Badge */
+        .ip-layer-badge { 
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); 
+            border: 1px solid #3b82f6; 
+            border-radius: 6px; 
+            padding: 4px 10px; 
+            font-size: 11px; 
+            font-weight: 800; 
+            color: #1e40af;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .ip-layer-badge i { width: 12px; height: 12px; }
+        
+        /* Zero Cost Gold Indicator */
+        .zero-cost-gold { 
+            background: linear-gradient(135deg, #fef9c3 0%, #fde047 100%) !important; 
+            border-left: 3px solid #eab308 !important;
+        }
+        .zero-cost-badge {
+            font-size: 8px;
+            background: #fbbf24;
+            color: #78350f;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: 800;
+            margin-right: 4px;
+        }
     </style>
 </head>
 <body>
 
     <div class="main-wrapper">
         <div class="glass-header">
-            <div class="flex items-center gap-3 shrink-0 w-48">
+            <div class="flex items-center gap-3 shrink-0 w-52">
                 <div class="bg-indigo-600 text-white p-1.5 rounded-lg shadow-md"><i data-lucide="layers" class="w-5 h-5"></i></div>
-                <div><h1 class="text-sm font-bold text-slate-800 leading-tight">ListLab</h1><div class="text-[10px] text-indigo-500 font-bold">V30 IP Core</div></div>
+                <div><h1 class="text-sm font-bold text-slate-800 leading-tight">ListLab</h1><div class="text-[11px] text-indigo-500 font-bold">V32 Hierarchy Aware</div></div>
             </div>
-            <div id="global-stats" class="flex-1 flex justify-between px-2 h-full"><span class="text-xs text-slate-400 w-full text-center">המתן לטעינת קובץ...</span></div>
+            <div id="global-stats" class="flex-1 flex justify-between px-2 h-full"><span class="text-sm text-slate-400 w-full text-center self-center">טען קובץ להתחלה...</span></div>
+            <div id="ip-layer-indicator" class="shrink-0 hidden">
+                <div class="ip-layer-badge"><i data-lucide="network" class="w-3 h-3"></i><span id="ip-layer-text">IP/24</span></div>
+            </div>
         </div>
 
         <div class="dash-container">
             <aside class="dash-sidebar custom-scrollbar">
                 
-                <div class="btn-upload mb-4 group" id="drop-zone">
+                <div class="btn-upload mb-3 group" id="drop-zone">
                     <input type="file" id="file-input" class="hidden" accept=".xlsx, .csv">
                     <div class="flex items-center justify-center gap-2 mb-1 text-indigo-700"><i data-lucide="upload-cloud" class="w-4 h-4"></i><span class="text-xs font-bold">טען קובץ</span></div>
-                    <div id="filename" class="text-[9px] text-indigo-400 truncate">תומך בכל פורמט</div>
+                    <div id="filename" class="text-[9px] text-indigo-400 truncate">תומך CSV / XLSX</div>
                 </div>
 
-                <div id="ip-selector-box" class="hidden mb-4 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                <div id="hierarchy-box" class="hierarchy-info hidden">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 text-amber-700">
+                            <i data-lucide="git-branch" class="w-3 h-3"></i>
+                            <span class="text-[11px] font-bold">היררכיה</span>
+                        </div>
+                        <div class="hierarchy-levels flex gap-1" id="level-badges"></div>
+                    </div>
+                </div>
+
+                <div id="ip-selector-box" class="hidden mb-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
                     <div class="text-[10px] font-bold text-blue-800 mb-1">עמודת IP ראשית:</div>
                     <select id="ip-col-select" class="w-full text-[11px] border border-blue-300 rounded p-1 bg-white" onchange="reprocessData()"></select>
                 </div>
 
                 <div class="control-box border-slate-300 bg-slate-50 shadow-sm relative">
                     <div class="flex items-center justify-between mb-2 pb-1 border-b border-slate-200">
-                        <div class="flex items-center gap-2 text-slate-700"><i data-lucide="filter" class="w-3 h-3"></i><span class="text-xs font-bold uppercase">סינון מתקדם (עד 4)</span></div>
+                        <div class="flex items-center gap-2 text-slate-700"><i data-lucide="filter" class="w-3 h-3"></i><span class="text-xs font-bold uppercase">סינון מתקדם</span></div>
                     </div>
                     <div id="filters-list" class="space-y-2"></div>
-                    <button onclick="showAddFilterMenu()" id="btn-add-filter" class="hidden w-full mt-2 border border-dashed border-indigo-300 text-indigo-600 rounded p-1.5 text-[10px] font-bold hover:bg-indigo-50 flex items-center justify-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> הוסף מסנן חדש</button>
+                    <button onclick="showAddFilterMenu()" id="btn-add-filter" class="hidden w-full mt-2 border border-dashed border-indigo-300 text-indigo-600 rounded p-1.5 text-[10px] font-bold hover:bg-indigo-50 flex items-center justify-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> הוסף מסנן</button>
                     <select id="col-selector" class="hidden w-full mt-1 text-[10px] border border-slate-300 rounded p-1" onchange="createNewFilter(this.value)"><option value="">בחר עמודה...</option></select>
                     <div id="filter-msg" class="text-[10px] text-slate-400 text-center py-2 italic">טען קובץ כדי להתחיל</div>
+                </div>
+
+                <!-- Dynamic Zero Cost Gold Alert -->
+                <div id="zero-cost-alert" class="hidden bg-gradient-to-r from-yellow-50 to-amber-50 border border-amber-200 rounded-lg p-2 mb-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-amber-700 text-[11px] font-bold">
+                            <i data-lucide="sparkles" class="w-3 h-3"></i>
+                            <span>טווחי זהב</span>
+                        </div>
+                        <span id="zero-cost-count" class="text-[10px] font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded">0</span>
+                    </div>
+                    <div class="text-[9px] text-amber-600 mt-1">Profit+ & Cost=0 - מוגנים מסינון ROI</div>
                 </div>
 
                 <div class="control-box border-indigo-100 bg-indigo-50/30">
@@ -148,42 +212,52 @@
                 </div>
 
                 <div class="mt-auto border-t pt-3">
-                    <div class="grid grid-cols-2 gap-2 mb-2 text-[10px] font-medium text-slate-600">
-                        <label class="chk-label"><input type="checkbox" id="chk-pure" checked class="chk-input"> Pure</label>
-                        <label class="chk-label"><input type="checkbox" id="chk-gold" checked class="chk-input"> Gold</label>
-                        <label class="chk-label"><input type="checkbox" id="chk-cust" checked class="chk-input"> Custom</label>
-                        <label class="chk-label"><input type="checkbox" id="chk-bl" class="chk-input"> Blacklist</label>
-                        <label class="chk-label col-span-2 justify-center"><input type="checkbox" id="chk-other" class="chk-input"> Other (Residual)</label>
-                        <label class="chk-label col-span-2 justify-center"><input type="checkbox" id="chk-cidr" class="chk-input"> Convert to CIDR /24</label>
+                    <div class="grid grid-cols-3 gap-2 mb-2 text-[10px] font-medium text-slate-600">
+                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-pure" checked class="chk-input"> Pure</label>
+                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-gold" checked class="chk-input"> Gold</label>
+                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-cust" checked class="chk-input"> Custom</label>
+                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-bl" class="chk-input"> Blacklist</label>
+                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-other" class="chk-input"> Other</label>
+                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-cidr" class="chk-input"> CIDR /24</label>
                     </div>
                     <button onclick="exportData()" class="w-full bg-slate-900 text-white py-2 rounded-md text-xs font-bold hover:bg-slate-800 transition flex items-center justify-center gap-2 shadow"><i data-lucide="download" class="w-3 h-3"></i> ייצוא נבחרים</button>
                 </div>
             </aside>
 
             <main class="dash-content">
-                <div class="p-4 bg-white border-b border-slate-100 shrink-0"><div id="kpi-cards-container" class="grid grid-cols-4 gap-4 w-full"></div></div>
-                <div class="flex-1 p-4 min-h-0 flex flex-col bg-slate-50">
+                <div class="p-3 bg-white border-b border-slate-100 shrink-0"><div id="kpi-cards-container" class="grid grid-cols-4 gap-3 w-full"></div></div>
+                <div class="flex-1 p-3 min-h-0 flex flex-col bg-slate-50">
                     <div class="bg-white rounded-xl border border-slate-200 flex-1 flex flex-col overflow-hidden shadow-sm">
                         <div class="px-4 py-2 border-b border-slate-200 bg-white flex justify-between items-center shrink-0">
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">תצוגה:</span>
-                                <select id="filter-view" class="text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 font-medium focus:outline-none w-32">
-                                    <option value="all">הצג הכל</option>
-                                    <option value="custom">Custom List</option>
-                                    <option value="gold">Gold List</option>
-                                    <option value="pure">Pure List</option>
-                                    <option value="other">Other</option>
-                                    <option value="blacklist">Blacklist</option>
-                                </select>
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase">תצוגה:</span>
+                                    <select id="filter-view" class="text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 font-medium focus:outline-none w-28">
+                                        <option value="all">הכל</option>
+                                        <option value="custom">Custom</option>
+                                        <option value="gold">Gold</option>
+                                        <option value="pure">Pure</option>
+                                        <option value="other">Other</option>
+                                        <option value="blacklist">Blacklist</option>
+                                    </select>
+                                </div>
                                 
-                                <div class="flex items-center gap-2 mr-4 border-r border-slate-200 pr-4">
-                                    <label class="flex items-center gap-1 text-[10px] text-slate-500 font-bold cursor-pointer select-none" title="הוסף /24 לכתובות">
+                                <div class="flex items-center gap-2" id="level-filter-box" style="display:none;">
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase">שכבה:</span>
+                                    <select id="level-view" class="text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 font-medium focus:outline-none w-36">
+                                        <option value="detail">פירוט בלבד</option>
+                                        <option value="all">הכל (כולל סיכומים)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex items-center gap-2 mr-3 border-r border-slate-200 pr-3">
+                                    <label class="flex items-center gap-1 text-[10px] text-slate-500 font-bold cursor-pointer select-none">
                                         <input type="checkbox" id="chk-copy-cidr" checked class="chk-input accent-indigo-600">
                                         CIDR
                                     </label>
-                                    <button onclick="copyIPs()" id="btn-copy" class="flex items-center gap-1 bg-white border border-slate-200 text-slate-600 px-2 py-1 rounded hover:bg-slate-50 text-[10px] font-bold transition-all group">
+                                    <button onclick="copyIPs()" id="btn-copy" class="flex items-center gap-1 bg-white border border-slate-200 text-slate-600 px-2 py-1 rounded hover:bg-slate-50 text-[10px] font-bold transition-all">
                                         <i data-lucide="copy" class="w-3 h-3"></i>
-                                        <span>העתק רשימה</span>
+                                        <span>העתק</span>
                                     </button>
                                 </div>
                             </div>
@@ -192,7 +266,18 @@
                         <div class="flex-1 overflow-auto custom-scrollbar bg-white">
                             <table class="w-full text-xs text-left relative">
                                 <thead class="bg-slate-50 text-slate-500 font-bold uppercase sticky top-0 z-10 shadow-sm">
-                                    <tr><th class="pl-4 text-left w-48">IP Range</th><th class="text-right">Clicks</th><th class="text-right">Conv</th><th class="text-right">Rev</th><th class="text-right">Cost</th><th class="text-right">Profit</th><th class="text-right">CR %</th><th class="text-right">ROI %</th><th class="text-center">Tag</th></tr>
+                                    <tr>
+                                        <th class="text-center w-12">Lvl</th>
+                                        <th class="pl-4 text-left">Identifier</th>
+                                        <th class="text-right">Clicks</th>
+                                        <th class="text-right">Conv</th>
+                                        <th class="text-right">Rev</th>
+                                        <th class="text-right">Cost</th>
+                                        <th class="text-right">Profit</th>
+                                        <th class="text-right">CR %</th>
+                                        <th class="text-right">ROI %</th>
+                                        <th class="text-center">Tag</th>
+                                    </tr>
                                 </thead>
                                 <tbody id="table-body" class="divide-y divide-slate-100 text-slate-600 num-font"></tbody>
                             </table>
@@ -211,39 +296,68 @@
     <script>
         lucide.createIcons();
 
-        // 1. ROBUST NUMBER PARSER (The Fix for 0 KPIs)
+        // ═══════════════════════════════════════════════════════════════
+        // ROBUST NUMBER PARSER
+        // ═══════════════════════════════════════════════════════════════
         const parseNum = (v) => {
             if (typeof v === 'number') return v;
             if (!v) return 0;
-            // Remove comma, currency symbols ($ € £), spaces
-            const clean = String(v).replace(/[, \$\€\£]/g, '');
+            const clean = String(v).replace(/[, \$\€\£%]/g, '');
             const num = parseFloat(clean);
             return isNaN(num) ? 0 : num;
         };
 
+        // ═══════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════
         const state = { 
-            rawData: [], // All rows parsed
-            aggregatedData: [], // Grouped by IP
-            processed: [], // Classified
-            display: [], // Table view
-            page: 1, pageSize: 100, thresholds: { pure: 0, gold: 0, cust: 0 },
-            dimensions: {}, activeFilters: [],
-            ipColumn: '' // The currently selected IP column
+            allRows: [],           // All parsed rows
+            detailRows: [],        // Only lowest level rows (for aggregation)
+            aggregatedData: [],    // Grouped by IP (from detail only)
+            processed: [],         // Classified
+            display: [],           // Table view
+            page: 1, 
+            pageSize: 100, 
+            thresholds: { pure: 0, gold: 0, cust: 0 },
+            dimensions: {}, 
+            activeFilters: [],
+            ipColumn: '',
+            hasHierarchy: false,
+            levelColumn: null,
+            maxLevel: 1,
+            headers: []
         };
 
         const getEl = (id) => document.getElementById(id);
         
-        // --- Controls Sync ---
+        // ═══════════════════════════════════════════════════════════════
+        // DOM ELEMENTS
+        // ═══════════════════════════════════════════════════════════════
         const dom = {
             pure: { min: getEl('rng-pure-min'), pct: getEl('rng-pure-pct'), roi: getEl('rng-pure-roi'), mcr: getEl('rng-pure-mcr'), numMin: getEl('num-pure-min'), numPct: getEl('num-pure-pct'), numRoi: getEl('num-pure-roi'), numMcr: getEl('num-pure-mcr') },
             gold: { min: getEl('rng-gold-min'), pct: getEl('rng-gold-pct'), roi: getEl('rng-gold-roi'), mcr: getEl('rng-gold-mcr'), numMin: getEl('num-gold-min'), numPct: getEl('num-gold-pct'), numRoi: getEl('num-gold-roi'), numMcr: getEl('num-gold-mcr') },
             cust: { min: getEl('rng-cust-min'), pct: getEl('rng-cust-pct'), roi: getEl('rng-cust-roi'), mcr: getEl('rng-cust-mcr'), numMin: getEl('num-cust-min'), numPct: getEl('num-cust-pct'), numRoi: getEl('num-cust-roi'), numMcr: getEl('num-cust-mcr') },
             bl: { roi: getEl('rng-bl-roi'), numRoi: getEl('num-bl-roi'), clicks: getEl('rng-bl-clicks'), numClicks: getEl('num-bl-clicks') },
-            filterView: getEl('filter-view'), otherAlert: getEl('other-alert'), otherCount: getEl('other-count'),
-            filtersList: getEl('filters-list'), btnAddFilter: getEl('btn-add-filter'), colSelector: getEl('col-selector'), filterMsg: getEl('filter-msg'),
-            ipSelect: getEl('ip-col-select'), ipBox: getEl('ip-selector-box')
+            filterView: getEl('filter-view'), 
+            levelView: getEl('level-view'),
+            otherAlert: getEl('other-alert'), 
+            otherCount: getEl('other-count'),
+            zeroCostAlert: getEl('zero-cost-alert'),
+            zeroCostCount: getEl('zero-cost-count'),
+            filtersList: getEl('filters-list'), 
+            btnAddFilter: getEl('btn-add-filter'), 
+            colSelector: getEl('col-selector'), 
+            filterMsg: getEl('filter-msg'),
+            ipSelect: getEl('ip-col-select'), 
+            ipBox: getEl('ip-selector-box'),
+            hierarchyBox: getEl('hierarchy-box'),
+            levelBadges: getEl('level-badges'),
+            levelFilterBox: getEl('level-filter-box')
         };
 
+        // ═══════════════════════════════════════════════════════════════
+        // SYNC CONTROLS
+        // ═══════════════════════════════════════════════════════════════
         const sync = (range, number) => {
             range.addEventListener('input', () => { number.value = range.value; runEngine(); });
             number.addEventListener('input', () => { range.value = number.value; runEngine(); });
@@ -252,14 +366,18 @@
         initSync(dom.pure); initSync(dom.gold); initSync(dom.cust);
         sync(dom.bl.roi, dom.bl.numRoi); sync(dom.bl.clicks, dom.bl.numClicks);
         dom.filterView.addEventListener('change', () => { state.page = 1; renderTable(); });
+        dom.levelView.addEventListener('change', () => { state.page = 1; renderTable(); });
 
-        const dz = getEl('drop-zone'); const fi = getEl('file-input');
+        // ═══════════════════════════════════════════════════════════════
+        // FILE HANDLING
+        // ═══════════════════════════════════════════════════════════════
+        const dz = getEl('drop-zone'); 
+        const fi = getEl('file-input');
         dz.addEventListener('click', () => fi.click());
         fi.addEventListener('change', e => loadFile(e.target.files[0]));
         dz.addEventListener('dragover', e => e.preventDefault());
         dz.addEventListener('drop', e => { e.preventDefault(); loadFile(e.dataTransfer.files[0]); });
 
-        // --- CORE LOAD LOGIC ---
         function loadFile(file) {
             if(!file) return;
             const reader = new FileReader();
@@ -269,107 +387,148 @@
                 if(json.length < 2) return alert("Empty File");
 
                 const headers = json[0].map(h => String(h).trim());
+                state.headers = headers;
                 const hLower = headers.map(h => h.toLowerCase());
 
-                // Find Metrics
+                // ─── DETECT HIERARCHY COLUMN ───
+                const levelIdx = hLower.findIndex(x => x === 'level' || x === 'lvl' || x === 'depth');
+                state.levelColumn = levelIdx !== -1 ? headers[levelIdx] : null;
+                state.hasHierarchy = levelIdx !== -1;
+
+                // ─── FIND METRIC COLUMNS ───
                 const map = {
-                    clk: hLower.findIndex(x => x.includes('click') || x.includes('imp')),
+                    clk: hLower.findIndex(x => x.includes('click') || x === 'impressions' || x === 'imp'),
                     conv: hLower.findIndex(x => x.includes('conv') || x.includes('sale')),
-                    rev: hLower.findIndex(x => x.includes('rev') || x.includes('pay') || x.includes('total')),
-                    roi: hLower.findIndex(x => x.includes('roi')),
-                    cost: hLower.findIndex(x => x.includes('cost') || x.includes('spend'))
+                    rev: hLower.findIndex(x => x.includes('rev') || x.includes('pay') || x === 'total'),
+                    roi: hLower.findIndex(x => x === 'roi' || x.includes('roi%')),
+                    cost: hLower.findIndex(x => x.includes('cost') || x.includes('spend')),
+                    cr: hLower.findIndex(x => x === 'cr' || x === 'cvr' || x.includes('cr%'))
                 };
 
-                // Find Potential IP Columns
-                const ipCandidates = headers.filter(h => h.toLowerCase().includes('ip') || h.toLowerCase().includes('range'));
+                // ─── FIND IP COLUMN ───
+                const ipCandidates = headers.filter(h => {
+                    const l = h.toLowerCase();
+                    return l.includes('ip') || l.includes('range') || l.includes('subnet');
+                });
                 
-                // Populate IP Selector
                 dom.ipSelect.innerHTML = '';
                 if(ipCandidates.length > 0) {
                     ipCandidates.forEach(c => dom.ipSelect.innerHTML += `<option value="${c}">${c}</option>`);
                     dom.ipBox.classList.remove('hidden');
-                    state.ipColumn = ipCandidates[0]; // Default to first found
+                    state.ipColumn = ipCandidates[0];
                 } else {
-                    // Fallback to first column if no IP found (Legacy Mode)
                     dom.ipSelect.innerHTML = `<option value="${headers[0]}">${headers[0]} (Default)</option>`;
                     dom.ipBox.classList.remove('hidden');
                     state.ipColumn = headers[0];
                 }
 
-                // Analyze Dimensions for Filter
+                // ─── PARSE ALL ROWS ───
+                let maxLevel = 1;
+                state.allRows = json.slice(1).map(row => {
+                    const r = {};
+                    headers.forEach((h, i) => r[h] = row[i]);
+                    
+                    // Level detection
+                    let level = 1;
+                    if (state.levelColumn) {
+                        level = parseNum(r[state.levelColumn]) || 1;
+                        if (level > maxLevel) maxLevel = level;
+                    }
+
+                    // Parse metrics
+                    const clicks = parseNum(row[map.clk]);
+                    const conv = parseNum(row[map.conv]);
+                    const rev = map.rev !== -1 ? parseNum(row[map.rev]) : 0;
+                    let cost = 0, roi = 0, cr = 0;
+
+                    if (map.cost !== -1) cost = parseNum(row[map.cost]);
+                    if (map.roi !== -1) roi = parseNum(String(row[map.roi]||'').replace('%',''));
+                    if (map.cr !== -1) cr = parseNum(String(row[map.cr]||'').replace('%','')) / 100;
+
+                    // Fallback calculations
+                    if (cost === 0 && rev > 0 && roi > -100 && roi !== 0) {
+                        cost = rev / (1 + (roi / 100));
+                    }
+                    const profit = rev - cost;
+                    if (cost > 0 && roi === 0) roi = (profit / cost) * 100;
+                    if (clicks > 0 && cr === 0) cr = conv / clicks;
+
+                    // Build identifier for display
+                    let identifier = r[state.ipColumn] || '';
+                    
+                    return { 
+                        raw: r, 
+                        level,
+                        identifier,
+                        clicks, conv, rev, cost, profit, roi, cr
+                    };
+                });
+
+                state.maxLevel = maxLevel;
+
+                // ─── SHOW HIERARCHY INFO ───
+                if (state.hasHierarchy && maxLevel > 1) {
+                    dom.hierarchyBox.classList.remove('hidden');
+                    dom.levelFilterBox.style.display = 'flex';
+                    
+                    let badges = '';
+                    for (let i = 1; i <= maxLevel; i++) {
+                        const cnt = state.allRows.filter(r => r.level === i).length;
+                        const cls = i === maxLevel ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
+                        badges += `<span class="lvl ${cls}">L${i}:${cnt > 1000 ? Math.round(cnt/1000)+'K' : cnt}</span>`;
+                    }
+                    dom.levelBadges.innerHTML = badges;
+                } else {
+                    dom.hierarchyBox.classList.add('hidden');
+                    dom.levelFilterBox.style.display = 'none';
+                }
+
+                // ─── SETUP DIMENSION FILTERS ───
                 state.dimensions = {};
                 headers.forEach((h, idx) => {
-                    const isMetric = Object.values(map).includes(idx);
-                    if (!isMetric) {
-                        // Collect unique values (limit to avoid freezing)
+                    const isMetric = Object.values(map).includes(idx) || h === state.levelColumn;
+                    if (!isMetric && h !== state.ipColumn) {
                         const uniques = new Set();
-                        for(let i=1; i<json.length; i++) {
+                        for(let i=1; i<json.length && uniques.size < 500; i++) {
                             const val = json[i][idx];
-                            if(val !== undefined && val !== '') uniques.add(val);
-                            if(uniques.size > 2000) break; 
+                            if(val !== undefined && val !== '' && val !== null) uniques.add(String(val));
                         }
-                        if(uniques.size > 0 && uniques.size < 2000) {
+                        if(uniques.size > 0 && uniques.size < 500) {
                             state.dimensions[h] = Array.from(uniques).sort();
                         }
                     }
                 });
 
-                // Parse All Data
-                state.rawData = json.slice(1).map(row => {
-                    const r = {};
-                    headers.forEach((h, i) => r[h] = row[i]); // Object mapping
-                    
-                    // Parse Metrics Robustly
-                    const clicks = parseNum(row[map.clk]);
-                    const conv = parseNum(row[map.conv]);
-                    const rev = map.rev !== -1 ? parseNum(row[map.rev]) : 0;
-                    let cost = 0, roi = 0;
-
-                    // ROI/Cost Logic
-                    if (map.roi !== -1) {
-                        const val = String(row[map.roi]||'').replace('%','');
-                        roi = parseNum(val);
-                    }
-                    
-                    if (map.cost !== -1) {
-                        cost = parseNum(row[map.cost]);
-                    } else if (rev > 0 && roi > -100) {
-                        cost = rev / (1 + (roi / 100)); // Reverse Calc
-                    }
-
-                    // Recalc Profit to ensure consistency
-                    const profit = rev - cost;
-                    
-                    // Recalc ROI if cost exists, else keep original or 0
-                    if (cost > 0) roi = (profit / cost) * 100;
-
-                    return { 
-                        raw: r, 
-                        clicks, conv, rev, cost, profit, roi
-                    };
-                });
-
-                // Setup Filters UI
                 dom.filterMsg.classList.add('hidden');
                 dom.btnAddFilter.classList.remove('hidden');
                 dom.colSelector.innerHTML = '<option value="">בחר עמודה...</option>' + 
-                    Object.keys(state.dimensions).map((c, i) => `<option value="${c}">${i+1}. ${c}</option>`).join('');
+                    Object.keys(state.dimensions).map((c, i) => `<option value="${c}">${c}</option>`).join('');
                 
                 dom.filtersList.innerHTML = '';
                 state.activeFilters = [];
 
                 getEl('filename').innerText = file.name;
-                reprocessData(); // Initial Run
+                reprocessData();
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // --- AGGREGATION & ENGINE START ---
+        // ═══════════════════════════════════════════════════════════════
+        // REPROCESS DATA (CORE LOGIC - HIERARCHY AWARE)
+        // ═══════════════════════════════════════════════════════════════
         function reprocessData() {
             state.ipColumn = dom.ipSelect.value;
-            
-            // 1. Filter Raw Data
-            let subset = state.rawData.filter(r => {
+
+            // Update identifier based on selected IP column
+            state.allRows.forEach(r => {
+                r.identifier = r.raw[state.ipColumn] || buildIdentifier(r);
+            });
+
+            // ─── DETECT IP LAYER TYPE ───
+            updateIPLayerIndicator();
+
+            // ─── FILTER BY ACTIVE FILTERS ───
+            let filtered = state.allRows.filter(r => {
                 for(const f of state.activeFilters) {
                     if(f.values.length > 0) {
                         const val = String(r.raw[f.col] || '');
@@ -379,14 +538,31 @@
                 return true;
             });
 
-            // 2. Aggregate by IP (Crucial for KPI)
+            // ─── SEPARATE DETAIL ROWS (LOWEST LEVEL ONLY) ───
+            if (state.hasHierarchy) {
+                state.detailRows = filtered.filter(r => r.level === state.maxLevel);
+            } else {
+                // No hierarchy - use heuristic: rows with actual IP/value in IP column
+                state.detailRows = filtered.filter(r => {
+                    const ip = r.raw[state.ipColumn];
+                    return ip && String(ip).trim() !== '';
+                });
+            }
+
+            // ─── AGGREGATE BY IP (FROM DETAIL ONLY!) ───
             const grouped = {};
-            subset.forEach(r => {
-                const ip = r.raw[state.ipColumn] || 'Unknown';
-                if(!grouped[ip]) {
-                    grouped[ip] = { ip, clicks:0, conv:0, rev:0, cost:0, profit:0, raw: r.raw };
+            state.detailRows.forEach(r => {
+                const key = r.identifier || 'Unknown';
+                if(!grouped[key]) {
+                    grouped[key] = { 
+                        identifier: key, 
+                        level: r.level,
+                        clicks: 0, conv: 0, rev: 0, cost: 0, profit: 0,
+                        raw: r.raw,
+                        isSummary: false
+                    };
                 }
-                const g = grouped[ip];
+                const g = grouped[key];
                 g.clicks += r.clicks;
                 g.conv += r.conv;
                 g.rev += r.rev;
@@ -394,46 +570,113 @@
                 g.profit += r.profit;
             });
 
-            // 3. Finalize Aggregated Data
+            // Finalize aggregated data
             state.aggregatedData = Object.values(grouped).map(g => {
                 const cr = g.clicks > 0 ? (g.conv / g.clicks) : 0;
                 const roi = g.cost > 0 ? (g.profit / g.cost) * 100 : 0;
                 return { ...g, cr, roi };
             });
 
+            // Also prepare summary rows for display (not for aggregation)
+            state.summaryRows = filtered.filter(r => r.level < state.maxLevel).map(r => ({
+                ...r,
+                identifier: buildIdentifier(r),
+                isSummary: true
+            }));
+
             updateGlobalStats(state.aggregatedData);
             runEngine();
         }
 
-        // --- FILTER UI ---
+        // ─── IP LAYER DETECTION ───
+        function updateIPLayerIndicator() {
+            const indicator = getEl('ip-layer-indicator');
+            const text = getEl('ip-layer-text');
+            const colName = state.ipColumn.toLowerCase();
+            
+            // Try to detect from column name first
+            let layerType = 'IP';
+            if (colName.includes('/24') || colName.includes('24')) {
+                layerType = 'IP/24';
+            } else if (colName.includes('/32') || colName.includes('32')) {
+                layerType = 'IP/32';
+            } else if (colName.includes('/16') || colName.includes('16')) {
+                layerType = 'IP/16';
+            } else if (colName.includes('/8') || colName.includes('8')) {
+                layerType = 'IP/8';
+            } else if (colName.includes('range')) {
+                // Detect from actual data
+                const sample = state.detailRows.slice(0, 100);
+                let has24 = 0, has32 = 0;
+                sample.forEach(r => {
+                    const ip = String(r.identifier || '');
+                    if (ip.includes('/24')) has24++;
+                    else if (ip.includes('/32')) has32++;
+                    else if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.0$/.test(ip)) has24++;
+                    else if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) has32++;
+                });
+                if (has24 > has32) layerType = 'IP/24';
+                else if (has32 > 0) layerType = 'IP/32';
+                else layerType = 'IP Range';
+            }
+            
+            text.innerText = layerType;
+            indicator.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function buildIdentifier(row) {
+            // Build a meaningful identifier from non-empty dimension columns
+            const parts = [];
+            const skip = ['Level', 'Clicks', 'Conversions', 'Revenue', 'Cost', 'Profit', 'ROI', 'CR', 'CPC', 'EPC'];
+            for (const h of state.headers) {
+                if (skip.some(s => h.toLowerCase().includes(s.toLowerCase()))) continue;
+                const val = row.raw[h];
+                if (val && String(val).trim() !== '') {
+                    parts.push(String(val).trim());
+                }
+            }
+            return parts.join(' | ') || 'Unknown';
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // FILTER UI
+        // ═══════════════════════════════════════════════════════════════
         function showAddFilterMenu() {
-            if (state.activeFilters.length >= 4) return alert("Max 4 filters");
+            if (state.activeFilters.length >= 4) return alert("Maximum 4 filters");
             dom.btnAddFilter.classList.add('hidden');
             dom.colSelector.classList.remove('hidden');
             dom.colSelector.value = "";
         }
 
         function createNewFilter(col) {
-            if(!col) { dom.colSelector.classList.add('hidden'); dom.btnAddFilter.classList.remove('hidden'); return; }
+            if(!col) { 
+                dom.colSelector.classList.add('hidden'); 
+                dom.btnAddFilter.classList.remove('hidden'); 
+                return; 
+            }
             
             const fid = Date.now();
             const div = document.createElement('div');
             div.className = 'filter-item';
             div.id = `f-${fid}`;
             div.innerHTML = `
-                <div class="filter-header"><span>${col}</span><i data-lucide="x" class="w-3 h-3 cursor-pointer text-red-400" onclick="removeFilter(${fid})"></i></div>
+                <div class="filter-header"><span>${col}</span><i data-lucide="x" class="w-3 h-3 cursor-pointer text-red-400 hover:text-red-600" onclick="removeFilter(${fid})"></i></div>
                 <div class="filter-btn" onclick="togglePopup(${fid})"><span id="l-${fid}">(הכל)</span><i data-lucide="chevron-down" class="w-3 h-3"></i></div>
                 <div class="filter-popup" id="p-${fid}">
                     <input type="text" class="filter-search" placeholder="חפש..." oninput="filterOpts(${fid}, this.value)">
                     <div class="filter-list custom-scrollbar" id="lst-${fid}"></div>
-                    <div class="filter-actions mt-2"><div class="btn-tiny btn-cancel" onclick="togglePopup(${fid})">סגור</div><div class="btn-tiny btn-apply" onclick="applyFilter(${fid})">החל</div></div>
+                    <div class="filter-actions mt-2">
+                        <div class="btn-tiny btn-cancel" onclick="togglePopup(${fid})">סגור</div>
+                        <div class="btn-tiny btn-apply" onclick="applyFilter(${fid})">החל</div>
+                    </div>
                 </div>
             `;
             dom.filtersList.appendChild(div);
             lucide.createIcons();
 
             const lst = document.getElementById(`lst-${fid}`);
-            state.dimensions[col].forEach(v => {
+            (state.dimensions[col] || []).forEach(v => {
                 lst.innerHTML += `<div class="filter-opt"><input type="checkbox" class="chk-input" value="${v}"> <span>${v}</span></div>`;
             });
 
@@ -442,13 +685,17 @@
             if(state.activeFilters.length < 4) dom.btnAddFilter.classList.remove('hidden');
         }
 
-        function removeFilter(fid) { document.getElementById(`f-${fid}`).remove(); state.activeFilters = state.activeFilters.filter(f=>f.id!==fid); dom.btnAddFilter.classList.remove('hidden'); reprocessData(); }
+        function removeFilter(fid) { 
+            document.getElementById(`f-${fid}`).remove(); 
+            state.activeFilters = state.activeFilters.filter(f => f.id !== fid); 
+            dom.btnAddFilter.classList.remove('hidden'); 
+            reprocessData(); 
+        }
         
-        // FIXED TOGGLE FUNCTION
         function togglePopup(fid) { 
             const el = document.getElementById(`p-${fid}`);
             const isOpen = el.classList.contains('show'); 
-            document.querySelectorAll('.filter-popup').forEach(p=>p.classList.remove('show')); 
+            document.querySelectorAll('.filter-popup').forEach(p => p.classList.remove('show')); 
             if(!isOpen) el.classList.add('show'); 
         }
 
@@ -457,69 +704,96 @@
             const opts = document.getElementById(`lst-${fid}`).children;
             for(let o of opts) o.style.display = o.innerText.toLowerCase().includes(term) ? 'flex' : 'none';
         }
+
         function applyFilter(fid) {
             const lst = document.getElementById(`lst-${fid}`);
-            const vals = Array.from(lst.querySelectorAll('input:checked')).map(c=>c.value);
-            const f = state.activeFilters.find(x=>x.id===fid);
+            const vals = Array.from(lst.querySelectorAll('input:checked')).map(c => c.value);
+            const f = state.activeFilters.find(x => x.id === fid);
             f.values = vals;
             const lbl = document.getElementById(`l-${fid}`);
             lbl.innerText = vals.length ? `${vals.length} נבחרו` : '(הכל)';
             lbl.className = vals.length ? 'text-blue-600 font-bold' : '';
-            togglePopup(fid); // This will now close it because it's already open
+            togglePopup(fid);
             reprocessData();
         }
 
-        // --- KPI & ENGINE ---
+        // ═══════════════════════════════════════════════════════════════
+        // GLOBAL STATS (FROM DETAIL ONLY!)
+        // ═══════════════════════════════════════════════════════════════
         function updateGlobalStats(d) {
-            const sum = (k) => d.reduce((a,b)=>a+b[k],0);
-            const clicks = sum('clicks'), cost = sum('cost'), rev = sum('rev'), prof = sum('profit');
+            const sum = (k) => d.reduce((a, b) => a + b[k], 0);
+            const clicks = sum('clicks'), cost = sum('cost'), rev = sum('rev'), prof = sum('profit'), convs = sum('conv');
             
-            const relevant = d.filter(r=>r.clicks>0);
-            const avCr = relevant.length ? (relevant.reduce((a,b)=>a+b.cr,0)/relevant.length) : 0;
-            const mCr = relevant.length ? relevant.map(r=>r.cr).sort((a,b)=>a-b)[Math.floor(relevant.length/2)] : 0;
+            const withClicks = d.filter(r => r.clicks > 0);
+            const avgCr = withClicks.length ? (withClicks.reduce((a, b) => a + b.cr, 0) / withClicks.length) : 0;
+            const medCr = withClicks.length ? median(withClicks.map(r => r.cr)) : 0;
             
-            const convs = d.filter(r=>r.conv>0);
-            const avRoi = convs.length ? (convs.reduce((a,b)=>a+b.roi,0)/convs.length) : 0;
-            const mRoi = convs.length ? convs.map(r=>r.roi).sort((a,b)=>a-b)[Math.floor(convs.length/2)] : 0;
+            const withConv = d.filter(r => r.conv > 0);
+            const avgRoi = withConv.length ? (withConv.reduce((a, b) => a + b.roi, 0) / withConv.length) : 0;
+            const medRoi = withConv.length ? median(withConv.map(r => r.roi)) : 0;
 
-            const pill = (l,v,c) => `<div class="g-item"><span class="g-lbl">${l}</span><span class="g-val ${c}">${v}</span></div>`;
+            const pill = (l, v, c) => `<div class="g-item"><span class="g-lbl">${l}</span><span class="g-val ${c}">${v}</span></div>`;
             getEl('global-stats').innerHTML = 
                 pill('RANGES', d.length.toLocaleString(), 'text-slate-700') +
                 pill('CLICKS', clicks.toLocaleString(), 'text-blue-600') +
-                pill('COST', '$'+cost.toLocaleString(undefined,{maximumFractionDigits:0}), 'text-slate-500') +
-                pill('REVENUE', '$'+rev.toLocaleString(undefined,{maximumFractionDigits:0}), 'text-green-600') +
-                pill('PROFIT', '$'+prof.toLocaleString(undefined,{maximumFractionDigits:0}), prof>=0?'text-green-600':'text-red-500') +
-                pill('AVG ROI', avRoi.toFixed(0)+'%', 'text-slate-700') +
-                pill('MED ROI', mRoi.toFixed(0)+'%', 'text-slate-700') +
-                pill('AVG CR', (avCr*100).toFixed(2)+'%', 'text-blue-600') +
-                pill('MED CR', (mCr*100).toFixed(2)+'%', 'text-blue-600');
+                pill('CONV', convs.toLocaleString(), 'text-green-600') +
+                pill('COST', '$' + cost.toLocaleString(undefined, {maximumFractionDigits: 0}), 'text-slate-500') +
+                pill('REVENUE', '$' + rev.toLocaleString(undefined, {maximumFractionDigits: 0}), 'text-green-600') +
+                pill('PROFIT', '$' + prof.toLocaleString(undefined, {maximumFractionDigits: 0}), prof >= 0 ? 'text-green-600' : 'text-red-500') +
+                pill('AVG ROI', avgRoi.toFixed(0) + '%', 'text-slate-700') +
+                pill('MED ROI', medRoi.toFixed(0) + '%', 'text-slate-700') +
+                pill('AVG CR', (avgCr * 100).toFixed(2) + '%', 'text-blue-600');
+        }
+
+        function median(arr) {
+            if (!arr.length) return 0;
+            const sorted = [...arr].sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+            return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
         }
 
         function getPercentile(d, pct) {
-            const arr = d.filter(r=>r.conv>0).map(r=>r.cr).sort((a,b)=>a-b);
+            const arr = d.filter(r => r.conv > 0).map(r => r.cr).sort((a, b) => a - b);
             if(!arr.length) return 0;
-            const i = Math.floor(arr.length * (1 - (pct/100)));
-            return arr[Math.max(0, Math.min(i, arr.length-1))];
+            const i = Math.floor(arr.length * (1 - (pct / 100)));
+            return arr[Math.max(0, Math.min(i, arr.length - 1))];
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // CLASSIFICATION ENGINE (WITH ZERO-COST GOLD PROTECTION)
+        // ═══════════════════════════════════════════════════════════════
         function runEngine() {
-            // Thresholds
             state.thresholds.pure = getPercentile(state.aggregatedData, dom.pure.numPct.value);
             state.thresholds.gold = getPercentile(state.aggregatedData, dom.gold.numPct.value);
             state.thresholds.cust = getPercentile(state.aggregatedData, dom.cust.numPct.value);
 
-            const getP = (g) => ({ c: parseInt(g.numMin.value), r: parseFloat(g.numRoi.value), mcr: parseFloat(g.numMcr.value)/100 });
+            const getP = (g) => ({ 
+                c: parseInt(g.numMin.value), 
+                r: parseFloat(g.numRoi.value), 
+                mcr: parseFloat(g.numMcr.value) / 100 
+            });
             const p = getP(dom.pure), g = getP(dom.gold), c = getP(dom.cust);
             const blR = parseFloat(dom.bl.numRoi.value), blC = parseInt(dom.bl.numClicks.value);
 
             let oCount = 0;
             state.processed = state.aggregatedData.map(r => {
                 let status = 'Other', rank = 0;
-                const isBl = r.clicks >= blC && (r.conv === 0 || (r.conv > 0 && r.roi < blR));
                 
-                const isPure = !isBl && r.conv >= p.c && r.roi >= p.r && r.cr >= state.thresholds.pure && r.cr >= p.mcr;
-                const isGold = !isBl && r.conv >= g.c && r.roi >= g.r && r.cr >= state.thresholds.gold && r.cr >= g.mcr;
-                const isCust = !isBl && r.conv >= c.c && r.roi >= c.r && r.cr >= state.thresholds.cust && r.cr >= c.mcr;
+                // ─── ZERO-COST GOLD DETECTION ───
+                // If cost is 0 and profit > 0, this is a "golden range" that should NOT be filtered by ROI
+                const isZeroCostGold = r.cost === 0 && r.profit > 0;
+                
+                // Blacklist check (zero-cost gold ranges are NEVER blacklisted if profitable)
+                const isBl = !isZeroCostGold && r.clicks >= blC && (r.conv === 0 || (r.conv > 0 && r.roi < blR));
+                
+                // For positive lists: if ROI filter > 0 but this is zero-cost-gold, bypass ROI check
+                const roiCheckPure = isZeroCostGold ? true : (r.roi >= p.r);
+                const roiCheckGold = isZeroCostGold ? true : (r.roi >= g.r);
+                const roiCheckCust = isZeroCostGold ? true : (r.roi >= c.r);
+                
+                const isPure = !isBl && r.conv >= p.c && roiCheckPure && r.cr >= state.thresholds.pure && r.cr >= p.mcr;
+                const isGold = !isBl && r.conv >= g.c && roiCheckGold && r.cr >= state.thresholds.gold && r.cr >= g.mcr;
+                const isCust = !isBl && r.conv >= c.c && roiCheckCust && r.cr >= state.thresholds.cust && r.cr >= c.mcr;
 
                 if (isBl) { status = 'Blacklist'; rank = -1; }
                 else if (isPure) { status = 'Pure'; rank = 4; }
@@ -527,58 +801,79 @@
                 else if (isCust) { status = 'Custom'; rank = 2; }
                 else if (r.conv > 0) { status = 'Other'; rank = 1; oCount++; }
 
-                return { ...r, isBl, isPure, isGold, isCust, status, rank };
+                return { ...r, isBl, isPure, isGold, isCust, status, rank, isZeroCostGold };
             });
 
             dom.otherCount.innerText = oCount;
             dom.otherAlert.classList.toggle('hidden', oCount === 0);
+            
+            // Count and show zero-cost gold ranges
+            const zeroCostGoldCount = state.processed.filter(r => r.isZeroCostGold && (r.isPure || r.isGold || r.isCust)).length;
+            dom.zeroCostCount.innerText = zeroCostGoldCount;
+            dom.zeroCostAlert.classList.toggle('hidden', zeroCostGoldCount === 0);
+            
             renderCards();
             renderTable();
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // KPI CARDS (ENHANCED)
+        // ═══════════════════════════════════════════════════════════════
         function renderCards() {
             const groups = {
-                'Blacklist': { c: 'red', i: 'ban', f: r=>r.isBl },
-                'Custom List': { c: 'indigo', i: 'list-filter', f: r=>r.isCust },
-                'Gold List': { c: 'amber', i: 'award', f: r=>r.isGold },
-                'Pure List': { c: 'emerald', i: 'gem', f: r=>r.isPure }
+                'Blacklist': { c: 'red', i: 'ban', f: r => r.isBl },
+                'Custom List': { c: 'indigo', i: 'list-filter', f: r => r.isCust },
+                'Gold List': { c: 'amber', i: 'award', f: r => r.isGold },
+                'Pure List': { c: 'emerald', i: 'gem', f: r => r.isPure }
             };
             
-            const totalClicks = state.aggregatedData.reduce((s,r)=>s+r.clicks,0);
+            const totalClicks = state.aggregatedData.reduce((s, r) => s + r.clicks, 0);
             let h = '';
             
             for(const [t, d] of Object.entries(groups)) {
                 const rows = state.processed.filter(d.f);
                 const count = rows.length;
-                const clicks = rows.reduce((s,r)=>s+r.clicks,0);
-                const conv = rows.reduce((s,r)=>s+r.conv,0);
-                const profit = rows.reduce((s,r)=>s+r.profit,0);
-                const share = totalClicks ? (clicks/totalClicks*100).toFixed(1)+'%' : '0%';
+                const clicks = rows.reduce((s, r) => s + r.clicks, 0);
+                const conv = rows.reduce((s, r) => s + r.conv, 0);
+                const cost = rows.reduce((s, r) => s + r.cost, 0);
+                const rev = rows.reduce((s, r) => s + r.rev, 0);
+                const profit = rows.reduce((s, r) => s + r.profit, 0);
+                const share = totalClicks ? (clicks / totalClicks * 100).toFixed(1) + '%' : '0%';
                 
-                const crs = rows.map(r=>r.cr).sort((a,b)=>a-b);
-                const mCr = crs.length ? crs[Math.floor(crs.length/2)] : 0;
-                const roiRows = rows.filter(r=>r.conv>0);
-                const aRoi = roiRows.length ? roiRows.reduce((a,b)=>a+b.roi,0)/roiRows.length : 0;
+                const crs = rows.map(r => r.cr).sort((a, b) => a - b);
+                const medCr = crs.length ? median(crs) : 0;
+                const roiRows = rows.filter(r => r.conv > 0);
+                const avgRoi = roiRows.length ? roiRows.reduce((a, b) => a + b.roi, 0) / roiRows.length : 0;
 
                 h += `
-                <div class="kpi-card group hover:border-${d.c}-300 border-t-4 border-t-${d.c}-500">
+                <div class="kpi-card hover:border-${d.c}-300 border-t-4 border-t-${d.c}-500">
                     <div class="flex justify-between items-start mb-2">
-                        <div class="flex items-center gap-2"><div class="p-1.5 rounded bg-${d.c}-50 text-${d.c}-600 border border-${d.c}-100"><i data-lucide="${d.i}" class="w-4 h-4"></i></div><span class="text-sm font-black text-${d.c}-700 uppercase tracking-widest">${t}</span></div>
-                        <div class="text-3xl font-black text-slate-800 num-font leading-none">${count.toLocaleString()}</div>
-                    </div>
-                    <div class="bg-slate-50 border border-slate-100 rounded px-2 py-1.5 flex justify-between items-center mb-3">
-                        <div class="flex gap-1 items-baseline"><span class="stat-val text-xs text-slate-600">${share}</span><span class="stat-lbl text-[9px]">Share</span></div>
-                        <div class="flex gap-1 items-baseline"><span class="stat-val text-xs text-slate-600">${clicks.toLocaleString()}</span><span class="stat-lbl text-[9px]">Clicks</span></div>
-                    </div>
-                    <div class="flex-1 flex flex-col justify-between gap-1">
-                        <div class="flex justify-between items-center border-b border-slate-50 pb-2">
-                            <div class="flex flex-col"><span class="stat-lbl mb-0.5">CONVERSIONS</span><span class="stat-val text-sm text-slate-600">${conv.toLocaleString()}</span></div>
-                            <div class="flex flex-col text-right"><span class="stat-lbl mb-0.5">PROFIT</span><span class="stat-val text-sm ${profit>=0?'text-green-600':'text-red-500'}">$${profit.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>
+                        <div class="flex items-center gap-2">
+                            <div class="p-1 rounded bg-${d.c}-50 text-${d.c}-600 border border-${d.c}-100">
+                                <i data-lucide="${d.i}" class="w-3 h-3"></i>
+                            </div>
+                            <span class="text-xs font-black text-${d.c}-700 uppercase tracking-wide">${t}</span>
                         </div>
-                        <div class="flex justify-between items-center pt-1">
-                            <div class="flex flex-col"><span class="stat-lbl mb-0.5">MEDIAN CR</span><span class="stat-val text-sm text-blue-600">${(mCr*100).toFixed(2)}%</span></div>
-                            <div class="flex flex-col text-right"><span class="stat-lbl mb-0.5">AVG ROI</span><span class="stat-val text-sm text-slate-700">${aRoi.toFixed(0)}%</span></div>
-                        </div>
+                        <div class="text-2xl font-black text-slate-800 num-font leading-none">${count.toLocaleString()}</div>
+                    </div>
+                    
+                    <div class="bg-slate-50 border border-slate-100 rounded px-2 py-1 flex justify-between items-center mb-2">
+                        <div class="flex gap-1 items-baseline"><span class="stat-val text-xs">${share}</span><span class="stat-lbl text-[8px]">Share</span></div>
+                        <div class="flex gap-1 items-baseline"><span class="stat-val text-xs">${clicks.toLocaleString()}</span><span class="stat-lbl text-[8px]">Clicks</span></div>
+                    </div>
+                    
+                    <!-- ROW 1: COST, REVENUE, PROFIT -->
+                    <div class="grid grid-cols-3 gap-1 mb-2 text-center border-b border-slate-100 pb-2">
+                        <div><span class="stat-lbl block">COST</span><span class="stat-val text-xs text-slate-500">$${cost.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+                        <div><span class="stat-lbl block">REVENUE</span><span class="stat-val text-xs text-green-600">$${rev.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+                        <div><span class="stat-lbl block">PROFIT</span><span class="stat-val text-xs ${profit >= 0 ? 'text-green-600' : 'text-red-500'}">$${profit.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+                    </div>
+                    
+                    <!-- ROW 2: AVG ROI, MEDIAN CR, CONVERSIONS -->
+                    <div class="grid grid-cols-3 gap-1 text-center">
+                        <div><span class="stat-lbl block">AVG ROI</span><span class="stat-val text-xs text-slate-700">${avgRoi.toFixed(0)}%</span></div>
+                        <div><span class="stat-lbl block">MED CR</span><span class="stat-val text-xs text-blue-600">${(medCr * 100).toFixed(2)}%</span></div>
+                        <div><span class="stat-lbl block">CONV</span><span class="stat-val text-xs text-slate-700">${conv.toLocaleString()}</span></div>
                     </div>
                 </div>`;
             }
@@ -586,38 +881,79 @@
             lucide.createIcons();
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // TABLE RENDERING
+        // ═══════════════════════════════════════════════════════════════
         function renderTable() {
-            const v = dom.filterView.value;
-            let lst = state.processed;
-            if(v === 'custom') lst = lst.filter(r=>r.isCust);
-            else if(v === 'gold') lst = lst.filter(r=>r.isGold);
-            else if(v === 'pure') lst = lst.filter(r=>r.isPure);
-            else if(v === 'blacklist') lst = lst.filter(r=>r.isBl);
-            else if(v === 'other') lst = lst.filter(r=>r.status === 'Other');
+            const statusFilter = dom.filterView.value;
+            const levelFilter = dom.levelView.value;
+            
+            let lst = [...state.processed];
+            
+            // Add summary rows if requested
+            if (levelFilter === 'all' && state.hasHierarchy) {
+                // Classify summary rows too (for display purposes)
+                const classifiedSummaries = state.summaryRows.map(r => ({
+                    ...r,
+                    status: 'Summary',
+                    rank: 10,
+                    isBl: false, isPure: false, isGold: false, isCust: false,
+                    isZeroCostGold: false
+                }));
+                lst = [...lst, ...classifiedSummaries];
+            }
 
-            lst.sort((a,b) => b.rank - a.rank || b.conv - a.conv);
+            // Filter by status
+            if (statusFilter === 'custom') lst = lst.filter(r => r.isCust);
+            else if (statusFilter === 'gold') lst = lst.filter(r => r.isGold);
+            else if (statusFilter === 'pure') lst = lst.filter(r => r.isPure);
+            else if (statusFilter === 'blacklist') lst = lst.filter(r => r.isBl);
+            else if (statusFilter === 'other') lst = lst.filter(r => r.status === 'Other');
+
+            // Sort: summaries first (by level), then by rank/conv
+            lst.sort((a, b) => {
+                if (a.isSummary && !b.isSummary) return -1;
+                if (!a.isSummary && b.isSummary) return 1;
+                if (a.isSummary && b.isSummary) return a.level - b.level;
+                return b.rank - a.rank || b.conv - a.conv;
+            });
+
             state.display = lst;
             getEl('disp-count').innerText = lst.length.toLocaleString();
 
-            const start = (state.page-1)*state.pageSize;
-            const chunk = lst.slice(start, start+state.pageSize);
+            const start = (state.page - 1) * state.pageSize;
+            const chunk = lst.slice(start, start + state.pageSize);
             const tb = getEl('table-body');
             tb.innerHTML = '';
 
-            const cols = { 'Pure': 'bg-emerald-100 text-emerald-700', 'Gold': 'bg-amber-100 text-amber-700', 'Custom': 'bg-indigo-100 text-indigo-700', 'Blacklist': 'bg-red-50 text-red-600', 'Other': 'bg-slate-100 text-slate-400' };
+            const statusColors = { 
+                'Pure': 'bg-emerald-100 text-emerald-700', 
+                'Gold': 'bg-amber-100 text-amber-700', 
+                'Custom': 'bg-indigo-100 text-indigo-700', 
+                'Blacklist': 'bg-red-50 text-red-600', 
+                'Other': 'bg-slate-100 text-slate-400',
+                'Summary': 'bg-yellow-100 text-yellow-700'
+            };
 
             chunk.forEach(r => {
                 const tr = document.createElement('tr');
+                if (r.isSummary) tr.className = 'row-summary';
+                else if (r.isZeroCostGold) tr.className = 'zero-cost-gold';
+                
+                const levelClass = r.level === 1 ? 'level-1' : (r.level === 2 ? 'level-2' : 'level-3');
+                const zeroCostBadge = r.isZeroCostGold ? '<span class="zero-cost-badge">$0</span>' : '';
+                
                 tr.innerHTML = `
-                    <td class="pl-4 font-mono text-slate-600 font-bold text-[12px]">${r.ip}</td>
+                    <td class="text-center"><span class="level-badge ${levelClass}">${r.level}</span></td>
+                    <td class="pl-4 font-mono text-slate-600 ${r.isSummary ? 'font-bold text-amber-800' : ''} text-[12px] truncate max-w-xs" title="${r.identifier}">${zeroCostBadge}${r.identifier}</td>
                     <td class="text-right">${r.clicks.toLocaleString()}</td>
                     <td class="text-right font-bold text-slate-700">${r.conv}</td>
                     <td class="text-right text-green-600">$${r.rev.toFixed(0)}</td>
                     <td class="text-right text-slate-400">$${r.cost.toFixed(0)}</td>
-                    <td class="text-right ${r.profit>=0?'text-green-600':'text-red-500'} font-bold">$${r.profit.toFixed(0)}</td>
-                    <td class="text-right text-blue-600 font-bold">${(r.cr*100).toFixed(2)}%</td>
+                    <td class="text-right ${r.profit >= 0 ? 'text-green-600' : 'text-red-500'} font-bold">$${r.profit.toFixed(0)}</td>
+                    <td class="text-right text-blue-600 font-bold">${(r.cr * 100).toFixed(2)}%</td>
                     <td class="text-right">${r.roi.toFixed(0)}%</td>
-                    <td class="text-center"><span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase ${cols[r.status]}">${v==='custom'?'Custom':r.status}</span></td>
+                    <td class="text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${statusColors[r.status] || statusColors['Other']}">${r.status}</span></td>
                 `;
                 tb.appendChild(tr);
             });
@@ -626,20 +962,33 @@
 
         function changePage(d) {
             const max = Math.ceil(state.display.length / state.pageSize);
-            if(state.page + d > 0 && state.page + d <= max) { state.page += d; renderTable(); }
+            if(state.page + d > 0 && state.page + d <= max) { 
+                state.page += d; 
+                renderTable(); 
+            }
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // EXPORT
+        // ═══════════════════════════════════════════════════════════════
         function exportData() {
             const wb = XLSX.utils.book_new();
             const cidr = getEl('chk-cidr').checked;
-            const fmt = ip => cidr && !String(ip).includes('/') && String(ip).includes('.') ? ip+'/24' : ip;
+            const fmt = ip => {
+                if (!ip) return ip;
+                const str = String(ip);
+                if (cidr && !str.includes('/') && /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(str)) {
+                    return str + '/24';
+                }
+                return str;
+            };
             
             const chks = [
-                { id: 'chk-pure', n: 'Pure List', f: r=>r.isPure },
-                { id: 'chk-gold', n: 'Gold List', f: r=>r.isGold },
-                { id: 'chk-cust', n: 'Custom List', f: r=>r.isCust },
-                { id: 'chk-other', n: 'Other Active', f: r=>r.status === 'Other' },
-                { id: 'chk-bl', n: 'Blacklist', f: r=>r.isBl }
+                { id: 'chk-pure', n: 'Pure List', f: r => r.isPure },
+                { id: 'chk-gold', n: 'Gold List', f: r => r.isGold },
+                { id: 'chk-cust', n: 'Custom List', f: r => r.isCust },
+                { id: 'chk-other', n: 'Other Active', f: r => r.status === 'Other' },
+                { id: 'chk-bl', n: 'Blacklist', f: r => r.isBl }
             ];
 
             let cnt = 0;
@@ -648,8 +997,14 @@
                     const rows = state.processed.filter(c.f);
                     if(rows.length) {
                         const data = rows.map(r => ({
-                            Identifier: fmt(r.ip),
-                            ...r.raw, // Full raw data context
+                            Identifier: fmt(r.identifier),
+                            Clicks: r.clicks,
+                            Conversions: r.conv,
+                            Revenue: r.rev,
+                            Cost: r.cost,
+                            Profit: r.profit,
+                            'CR%': (r.cr * 100).toFixed(2),
+                            'ROI%': r.roi.toFixed(0),
                             Tag: r.status
                         }));
                         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), c.n);
@@ -659,20 +1014,22 @@
             });
 
             if(cnt) XLSX.writeFile(wb, "IP_Analysis_Export.xlsx");
-            else alert("Please select a list");
+            else alert("בחר לפחות רשימה אחת לייצוא");
         }
 
-        // NEW: COPY TO CLIPBOARD FUNCTION
+        // ═══════════════════════════════════════════════════════════════
+        // COPY TO CLIPBOARD
+        // ═══════════════════════════════════════════════════════════════
         function copyIPs() {
-            const list = state.display;
+            // Only copy detail rows (not summaries)
+            const list = state.display.filter(r => !r.isSummary);
             if(!list.length) return alert("אין נתונים להעתקה");
 
             const useCidr = document.getElementById('chk-copy-cidr').checked;
             
             const text = list.map(r => {
-                let ip = String(r.ip).trim();
-                // Simple logic: if CIDR requested and no slash present, append /24
-                if(useCidr && !ip.includes('/')) {
+                let ip = String(r.identifier).trim();
+                if(useCidr && !ip.includes('/') && /^\d{1,3}\.\d{1,3}\.\d{1,3}/.test(ip)) {
                     ip += '/24'; 
                 }
                 return ip;
@@ -681,22 +1038,22 @@
             navigator.clipboard.writeText(text).then(() => {
                 const btn = document.getElementById('btn-copy');
                 const span = btn.querySelector('span');
-                const origText = span.innerText;
-                
-                // Visual Feedback
-                span.innerText = "הועתק!";
-                btn.classList.add('text-green-600', 'border-green-200');
-                
+                const orig = span.innerText;
+                span.innerText = "✓";
+                btn.classList.add('text-green-600', 'border-green-300');
                 setTimeout(() => {
-                    span.innerText = origText;
-                    btn.classList.remove('text-green-600', 'border-green-200');
-                }, 2000);
+                    span.innerText = orig;
+                    btn.classList.remove('text-green-600', 'border-green-300');
+                }, 1500);
             }).catch(err => {
                 console.error(err);
                 alert("שגיאה בהעתקה");
             });
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════
         document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
     </script>
 </body>
