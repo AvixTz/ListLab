@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ListLab V32 - Hierarchy Aware</title>
+    <title>ListLab V33 - Sweetspot + CIDR Engine</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -1066,19 +1066,166 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // EXPORT
+        // CIDR CONVERSION ENGINE (MATCHING IP TOOL)
+        // ═══════════════════════════════════════════════════════════════
+        
+        function ipToLong(ip) {
+            return ip.split('.').reduce((long, octet) => (long << 8) + parseInt(octet, 10), 0) >>> 0;
+        }
+
+        function longToIp(long) {
+            return [
+                (long >>> 24) & 255,
+                (long >>> 16) & 255,
+                (long >>> 8) & 255,
+                long & 255
+            ].join('.');
+        }
+
+        function isValidIP(ip) {
+            const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            if (ip.startsWith('0.0.0.')) return false;
+            return ipRegex.test(ip);
+        }
+
+        function isValidCIDR(cidr) {
+            const cidrRegex = /^(\d{1,3}\.){3}\d{1,3}\/([0-9]|[1-2][0-9]|3[0-2])$/;
+            if (!cidrRegex.test(cidr)) return false;
+            const [ip, mask] = cidr.split('/');
+            return isValidIP(ip) && parseInt(mask) >= 0 && parseInt(mask) <= 32;
+        }
+
+        function cidrToRangeLong(cidrString) {
+            const [ip, mask] = cidrString.split('/');
+            const maskBits = parseInt(mask);
+            const ipLong = ipToLong(ip.trim());
+            const netMask = (0xFFFFFFFF << (32 - maskBits)) >>> 0;
+            const networkLong = ipLong & netMask;
+            const broadcastLong = networkLong | (~netMask >>> 0);
+            return { start: networkLong, end: broadcastLong };
+        }
+
+        function mergeIPRangesForCIDR(ranges) {
+            if (ranges.length === 0) return [];
+            ranges.sort((a, b) => a.start - b.start);
+            let merged = [{ ...ranges[0] }];
+            for (let i = 1; i < ranges.length; i++) {
+                let last = merged[merged.length - 1];
+                if (ranges[i].start <= last.end + 1) {
+                    last.end = Math.max(last.end, ranges[i].end);
+                } else {
+                    merged.push({ ...ranges[i] });
+                }
+            }
+            return merged;
+        }
+
+        // Proper CIDR calculation with alignment check
+        function rangeToOptimalCIDRs(startLong, endLong) {
+            let result = [];
+            let current = startLong;
+            
+            while (current <= endLong) {
+                let remainingSize = endLong - current + 1;
+                let bestBits = 32; // Start with /32 (single IP)
+                
+                // Find largest aligned block that fits
+                // NOTE: Stop at 31 because 1 << 32 wraps to 0 in JavaScript
+                for (let bits = 0; bits <= 31; bits++) {
+                    let blockSize = 1 << bits;
+                    // Check alignment: current must be divisible by blockSize
+                    if ((current % blockSize) !== 0) continue;
+                    // Check if block fits
+                    if (blockSize <= remainingSize) {
+                        bestBits = 32 - bits;
+                    }
+                }
+                
+                let blockSize = 1 << (32 - bestBits);
+                result.push(longToIp(current) + '/' + bestBits);
+                current += blockSize;
+            }
+            
+            return result;
+        }
+
+        // Parse any IP format to range
+        function parseIPToRange(line) {
+            line = String(line).trim();
+            if (!line) return null;
+            
+            try {
+                // Already CIDR
+                if (line.includes('/')) {
+                    if (!isValidCIDR(line)) return null;
+                    return cidrToRangeLong(line);
+                }
+                
+                // IP Range with dash
+                if (line.includes('–') || line.includes('-')) {
+                    const [start, end] = line.split(/[–\-]/).map(ip => ip.trim());
+                    if (!isValidIP(start) || !isValidIP(end)) return null;
+                    return { start: ipToLong(start), end: ipToLong(end) };
+                }
+                
+                // Single IP - detect network type
+                if (isValidIP(line)) {
+                    const parts = line.split('.');
+                    let ipLong = ipToLong(line);
+                    
+                    // x.x.0.0 → /16
+                    if (parts[2] === '0' && parts[3] === '0') {
+                        const mask = (0xFFFFFFFF << 16) >>> 0;
+                        return { start: ipLong & mask, end: (ipLong & mask) | (~mask >>> 0) };
+                    }
+                    // x.x.x.0 → /24
+                    if (parts[3] === '0') {
+                        const mask = (0xFFFFFFFF << 8) >>> 0;
+                        return { start: ipLong & mask, end: (ipLong & mask) | (~mask >>> 0) };
+                    }
+                    // Single IP → /32
+                    return { start: ipLong, end: ipLong };
+                }
+            } catch (e) {
+                return null;
+            }
+            return null;
+        }
+
+        // Convert list of IPs to optimized CIDR list
+        function convertToCIDRList(ipList, shouldMerge = true) {
+            let ranges = [];
+            let invalidCount = 0;
+            
+            for (const ip of ipList) {
+                const range = parseIPToRange(ip);
+                if (range) {
+                    ranges.push(range);
+                } else if (String(ip).trim()) {
+                    invalidCount++;
+                }
+            }
+            
+            if (ranges.length === 0) return { cidrs: [], invalidCount };
+            
+            // Merge overlapping/adjacent ranges
+            const processedRanges = shouldMerge ? mergeIPRangesForCIDR(ranges) : ranges;
+            
+            // Convert to optimal CIDRs
+            let cidrs = [];
+            for (const range of processedRanges) {
+                cidrs = cidrs.concat(rangeToOptimalCIDRs(range.start, range.end));
+            }
+            
+            return { cidrs, invalidCount, originalCount: ranges.length, mergedCount: processedRanges.length };
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // EXPORT (WITH FULL CIDR SUPPORT)
         // ═══════════════════════════════════════════════════════════════
         function exportData() {
             const wb = XLSX.utils.book_new();
-            const cidr = getEl('chk-cidr').checked;
-            const fmt = ip => {
-                if (!ip) return ip;
-                const str = String(ip);
-                if (cidr && !str.includes('/') && /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(str)) {
-                    return str + '/24';
-                }
-                return str;
-            };
+            const useCidr = getEl('chk-cidr').checked;
             
             const chks = [
                 { id: 'chk-pure', n: 'Pure List', f: r => r.isPure },
@@ -1093,29 +1240,57 @@
                 if(getEl(c.id).checked) {
                     const rows = state.processed.filter(c.f);
                     if(rows.length) {
-                        const data = rows.map(r => ({
-                            Identifier: fmt(r.identifier),
-                            Clicks: r.clicks,
-                            Conversions: r.conv,
-                            Revenue: r.rev,
-                            Cost: r.cost,
-                            Profit: r.profit,
-                            'CR%': (r.cr * 100).toFixed(2),
-                            'ROI%': r.roi.toFixed(0),
-                            Tag: r.status
-                        }));
+                        let data;
+                        
+                        if (useCidr) {
+                            // Use full CIDR conversion engine
+                            const ipStrings = rows.map(r => String(r.identifier).trim());
+                            const result = convertToCIDRList(ipStrings, true);
+                            
+                            // Stats for summary
+                            const totalClicks = rows.reduce((s, r) => s + r.clicks, 0);
+                            const totalConv = rows.reduce((s, r) => s + r.conv, 0);
+                            const totalProfit = rows.reduce((s, r) => s + r.profit, 0);
+                            
+                            data = result.cidrs.map((cidr, i) => ({ CIDR: cidr, '#': i + 1 }));
+                            
+                            // Add summary
+                            data.push({ 
+                                CIDR: '--- SUMMARY ---', 
+                                '#': `${result.cidrs.length} CIDRs | ${rows.length} ranges | ${result.mergedCount} merged | Conv: ${totalConv} | Profit: $${totalProfit.toFixed(0)}`
+                            });
+                            
+                            console.log(`${c.n}: ${rows.length} IPs → ${result.mergedCount} merged → ${result.cidrs.length} CIDRs`);
+                        } else {
+                            data = rows.map(r => ({
+                                Identifier: r.identifier,
+                                Clicks: r.clicks,
+                                Conversions: r.conv,
+                                Revenue: r.rev,
+                                Cost: r.cost,
+                                Profit: r.profit,
+                                'CR%': (r.cr * 100).toFixed(2),
+                                'ROI%': r.roi.toFixed(0),
+                                Tag: r.status
+                            }));
+                        }
+                        
                         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), c.n);
                         cnt++;
                     }
                 }
             });
 
-            if(cnt) XLSX.writeFile(wb, "IP_Analysis_Export.xlsx");
-            else alert("בחר לפחות רשימה אחת לייצוא");
+            if(cnt) {
+                const filename = useCidr ? "IP_CIDR_Export.xlsx" : "IP_Analysis_Export.xlsx";
+                XLSX.writeFile(wb, filename);
+            } else {
+                alert("בחר לפחות רשימה אחת לייצוא");
+            }
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // COPY TO CLIPBOARD
+        // COPY TO CLIPBOARD (WITH FULL CIDR SUPPORT)
         // ═══════════════════════════════════════════════════════════════
         function copyIPs() {
             // Only copy detail rows (not summaries)
@@ -1124,24 +1299,29 @@
 
             const useCidr = document.getElementById('chk-copy-cidr').checked;
             
-            const text = list.map(r => {
-                let ip = String(r.identifier).trim();
-                if(useCidr && !ip.includes('/') && /^\d{1,3}\.\d{1,3}\.\d{1,3}/.test(ip)) {
-                    ip += '/24'; 
-                }
-                return ip;
-            }).join('\n');
+            let text, resultInfo;
+            if (useCidr) {
+                // Use full CIDR conversion engine (same as the attached IP tool)
+                const ipStrings = list.map(r => String(r.identifier).trim());
+                const result = convertToCIDRList(ipStrings, true);
+                text = result.cidrs.join('\n');
+                resultInfo = `✓ ${result.cidrs.length} CIDRs`;
+                console.log(`Copy CIDR: ${result.originalCount} IPs → ${result.mergedCount} merged → ${result.cidrs.length} CIDRs`);
+            } else {
+                text = list.map(r => String(r.identifier).trim()).join('\n');
+                resultInfo = "✓";
+            }
 
             navigator.clipboard.writeText(text).then(() => {
                 const btn = document.getElementById('btn-copy');
                 const span = btn.querySelector('span');
                 const orig = span.innerText;
-                span.innerText = "✓";
+                span.innerText = resultInfo;
                 btn.classList.add('text-green-600', 'border-green-300');
                 setTimeout(() => {
                     span.innerText = orig;
                     btn.classList.remove('text-green-600', 'border-green-300');
-                }, 1500);
+                }, 2000);
             }).catch(err => {
                 console.error(err);
                 alert("שגיאה בהעתקה");
