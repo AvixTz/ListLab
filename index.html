@@ -107,6 +107,33 @@
             font-weight: 800;
             margin-right: 4px;
         }
+        /* Sweetspot Active Indicator */
+        .sweetspot-active {
+            position: relative;
+            box-shadow: 0 0 0 2px #f59e0b, 0 4px 12px rgba(245, 158, 11, 0.3) !important;
+        }
+        .sweetspot-active::before {
+            content: '🎯';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 14px;
+            z-index: 10;
+        }
+        .sweetspot-badge {
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+            color: white;
+            font-size: 8px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
@@ -115,8 +142,45 @@
         <div class="glass-header">
             <div class="flex items-center gap-3 shrink-0 w-52">
                 <div class="bg-indigo-600 text-white p-1.5 rounded-lg shadow-md"><i data-lucide="layers" class="w-5 h-5"></i></div>
-                <div><h1 class="text-sm font-bold text-slate-800 leading-tight">ListLab</h1><div class="text-[11px] text-indigo-500 font-bold">V32 Hierarchy Aware</div></div>
+                <div><h1 class="text-sm font-bold text-slate-800 leading-tight">ListLab</h1><div class="text-[11px] text-indigo-500 font-bold">V33 Sweetspot</div></div>
             </div>
+            
+            <!-- Sweetspot Button -->
+            <div class="shrink-0 relative" id="sweetspot-container">
+                <button onclick="toggleSweetspotMenu()" id="btn-sweetspot" class="hidden flex items-center gap-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md hover:shadow-lg transition-all">
+                    <i data-lucide="target" class="w-4 h-4"></i>
+                    <span>Sweetspot</span>
+                    <i data-lucide="chevron-down" class="w-3 h-3"></i>
+                </button>
+                <div id="sweetspot-menu" class="hidden absolute top-full left-0 mt-2 bg-white border border-slate-200 rounded-lg shadow-xl z-50 w-64 overflow-hidden">
+                    <div class="p-2 bg-slate-50 border-b border-slate-100">
+                        <div class="text-[10px] font-bold text-slate-500 uppercase">בחר אלגוריתם חישוב</div>
+                    </div>
+                    <div class="p-1">
+                        <button onclick="applySweetspot('roi')" class="w-full text-right px-3 py-2 hover:bg-amber-50 rounded flex items-center gap-2 transition">
+                            <div class="w-7 h-7 rounded bg-green-100 text-green-600 flex items-center justify-center"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
+                            <div><div class="text-xs font-bold text-slate-700">ROI Sweetspot</div><div class="text-[10px] text-slate-400">Pareto 80/20 - מקסום רווחיות</div></div>
+                        </button>
+                        <button onclick="applySweetspot('cr')" class="w-full text-right px-3 py-2 hover:bg-blue-50 rounded flex items-center gap-2 transition">
+                            <div class="w-7 h-7 rounded bg-blue-100 text-blue-600 flex items-center justify-center"><i data-lucide="percent" class="w-4 h-4"></i></div>
+                            <div><div class="text-xs font-bold text-slate-700">CR Sweetspot</div><div class="text-[10px] text-slate-400">IQR Q3 - סינון איכות</div></div>
+                        </button>
+                        <button onclick="applySweetspot('revenue')" class="w-full text-right px-3 py-2 hover:bg-purple-50 rounded flex items-center gap-2 transition">
+                            <div class="w-7 h-7 rounded bg-purple-100 text-purple-600 flex items-center justify-center"><i data-lucide="dollar-sign" class="w-4 h-4"></i></div>
+                            <div><div class="text-xs font-bold text-slate-700">Revenue Sweetspot</div><div class="text-[10px] text-slate-400">Lorenz Knee - ווליום גבוה</div></div>
+                        </button>
+                        <button onclick="applySweetspot('combined')" class="w-full text-right px-3 py-2 hover:bg-amber-50 rounded flex items-center gap-2 transition border-t border-slate-100 mt-1 pt-2">
+                            <div class="w-7 h-7 rounded bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+                            <div><div class="text-xs font-bold text-slate-700">Combined Sweetspot</div><div class="text-[10px] text-slate-400">ציון משוקלל - אופטימיזציה כוללת</div></div>
+                        </button>
+                    </div>
+                    <div id="sweetspot-result" class="hidden p-2 bg-gradient-to-r from-amber-50 to-orange-50 border-t border-amber-200">
+                        <div class="text-[10px] font-bold text-amber-700 mb-1">תוצאה:</div>
+                        <div id="sweetspot-values" class="text-[11px] text-amber-800 font-mono"></div>
+                    </div>
+                </div>
+            </div>
+            
             <div id="global-stats" class="flex-1 flex justify-between px-2 h-full"><span class="text-sm text-slate-400 w-full text-center self-center">טען קובץ להתחלה...</span></div>
             <div id="ip-layer-indicator" class="shrink-0 hidden">
                 <div class="ip-layer-badge"><i data-lucide="network" class="w-3 h-3"></i><span id="ip-layer-text">IP/24</span></div>
@@ -325,7 +389,8 @@
             hasHierarchy: false,
             levelColumn: null,
             maxLevel: 1,
-            headers: []
+            headers: [],
+            activeSweetspot: null  // Track active sweetspot type
         };
 
         const getEl = (id) => document.getElementById(id);
@@ -358,13 +423,29 @@
         // ═══════════════════════════════════════════════════════════════
         // SYNC CONTROLS
         // ═══════════════════════════════════════════════════════════════
-        const sync = (range, number) => {
-            range.addEventListener('input', () => { number.value = range.value; runEngine(); });
-            number.addEventListener('input', () => { range.value = number.value; runEngine(); });
+        const sync = (range, number, resetSweetspot = false) => {
+            range.addEventListener('input', () => { 
+                number.value = range.value; 
+                if (resetSweetspot) state.activeSweetspot = null;
+                runEngine(); 
+            });
+            number.addEventListener('input', () => { 
+                range.value = number.value; 
+                if (resetSweetspot) state.activeSweetspot = null;
+                runEngine(); 
+            });
         };
-        const initSync = (g) => { sync(g.min, g.numMin); sync(g.pct, g.numPct); sync(g.roi, g.numRoi); sync(g.mcr, g.numMcr); };
-        initSync(dom.pure); initSync(dom.gold); initSync(dom.cust);
-        sync(dom.bl.roi, dom.bl.numRoi); sync(dom.bl.clicks, dom.bl.numClicks);
+        const initSync = (g, reset = false) => { 
+            sync(g.min, g.numMin, reset); 
+            sync(g.pct, g.numPct, reset); 
+            sync(g.roi, g.numRoi, reset); 
+            sync(g.mcr, g.numMcr, reset); 
+        };
+        initSync(dom.pure); 
+        initSync(dom.gold); 
+        initSync(dom.cust, true); // Reset sweetspot when custom is changed manually
+        sync(dom.bl.roi, dom.bl.numRoi); 
+        sync(dom.bl.clicks, dom.bl.numClicks);
         dom.filterView.addEventListener('change', () => { state.page = 1; renderTable(); });
         dom.levelView.addEventListener('change', () => { state.page = 1; renderTable(); });
 
@@ -508,6 +589,8 @@
                 state.activeFilters = [];
 
                 getEl('filename').innerText = file.name;
+                getEl('btn-sweetspot').classList.remove('hidden');
+                state.activeSweetspot = null; // Reset sweetspot
                 reprocessData();
             };
             reader.readAsArrayBuffer(file);
@@ -821,14 +904,22 @@
         // ═══════════════════════════════════════════════════════════════
         function renderCards() {
             const groups = {
-                'Blacklist': { c: 'red', i: 'ban', f: r => r.isBl },
-                'Custom List': { c: 'indigo', i: 'list-filter', f: r => r.isCust },
-                'Gold List': { c: 'amber', i: 'award', f: r => r.isGold },
-                'Pure List': { c: 'emerald', i: 'gem', f: r => r.isPure }
+                'Blacklist': { c: 'red', i: 'ban', f: r => r.isBl, key: 'bl' },
+                'Custom List': { c: 'indigo', i: 'list-filter', f: r => r.isCust, key: 'cust' },
+                'Gold List': { c: 'amber', i: 'award', f: r => r.isGold, key: 'gold' },
+                'Pure List': { c: 'emerald', i: 'gem', f: r => r.isPure, key: 'pure' }
             };
             
             const totalClicks = state.aggregatedData.reduce((s, r) => s + r.clicks, 0);
             let h = '';
+            
+            // Sweetspot type labels
+            const sweetspotLabels = {
+                'roi': 'ROI',
+                'cr': 'CR',
+                'revenue': 'Revenue',
+                'combined': 'Combined'
+            };
             
             for(const [t, d] of Object.entries(groups)) {
                 const rows = state.processed.filter(d.f);
@@ -845,8 +936,14 @@
                 const roiRows = rows.filter(r => r.conv > 0);
                 const avgRoi = roiRows.length ? roiRows.reduce((a, b) => a + b.roi, 0) / roiRows.length : 0;
 
+                // Check if this is Custom and sweetspot is active
+                const isSweetspotActive = d.key === 'cust' && state.activeSweetspot;
+                const sweetspotClass = isSweetspotActive ? 'sweetspot-active' : '';
+                const sweetspotBadge = isSweetspotActive ? `<div class="sweetspot-badge">${sweetspotLabels[state.activeSweetspot]} Sweetspot</div>` : '';
+
                 h += `
-                <div class="kpi-card hover:border-${d.c}-300 border-t-4 border-t-${d.c}-500">
+                <div class="kpi-card hover:border-${d.c}-300 border-t-4 border-t-${d.c}-500 ${sweetspotClass}">
+                    ${sweetspotBadge}
                     <div class="flex justify-between items-start mb-2">
                         <div class="flex items-center gap-2">
                             <div class="p-1 rounded bg-${d.c}-50 text-${d.c}-600 border border-${d.c}-100">
@@ -1049,6 +1146,240 @@
                 console.error(err);
                 alert("שגיאה בהעתקה");
             });
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SWEETSPOT CALCULATIONS
+        // ═══════════════════════════════════════════════════════════════
+        
+        function toggleSweetspotMenu() {
+            const menu = getEl('sweetspot-menu');
+            menu.classList.toggle('hidden');
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const container = getEl('sweetspot-container');
+            const menu = getEl('sweetspot-menu');
+            if (container && !container.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+        
+        function percentile(arr, p) {
+            if (!arr.length) return 0;
+            const sorted = [...arr].sort((a, b) => a - b);
+            const idx = Math.floor(sorted.length * p / 100);
+            return sorted[Math.min(idx, sorted.length - 1)];
+        }
+        
+        function mean(arr) {
+            return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+        }
+        
+        function sum(arr) {
+            return arr.reduce((a, b) => a + b, 0);
+        }
+        
+        // ─── ROI SWEETSPOT: Pareto 80/20 ───
+        function calcROISweetspot(data) {
+            const profitable = data.filter(r => r.conv > 0 && r.profit > 0);
+            if (!profitable.length) return { roi: 0, minConv: 1 };
+            
+            const sorted = [...profitable].sort((a, b) => b.roi - a.roi);
+            const totalProfit = sum(sorted.map(r => r.profit));
+            
+            let cumProfit = 0;
+            let threshold = 0;
+            for (const r of sorted) {
+                cumProfit += r.profit;
+                if (cumProfit >= totalProfit * 0.8) {
+                    threshold = r.roi;
+                    break;
+                }
+            }
+            
+            // Find appropriate min conversions (median of qualifying ranges)
+            const qualifying = profitable.filter(r => r.roi >= threshold);
+            const minConv = Math.max(1, Math.floor(percentile(qualifying.map(r => r.conv), 25)));
+            
+            return { roi: Math.round(threshold), minConv, coverage: qualifying.length };
+        }
+        
+        // ─── CR SWEETSPOT: IQR Q3 ───
+        function calcCRSweetspot(data) {
+            // Only ranges with meaningful sample size
+            const minClicks = Math.max(50, percentile(data.map(r => r.clicks), 25));
+            const significant = data.filter(r => r.clicks >= minClicks && r.conv > 0);
+            if (!significant.length) return { cr: 0, minConv: 1 };
+            
+            const crs = significant.map(r => r.cr * 100);
+            const q3 = percentile(crs, 75);
+            
+            // Find appropriate min conversions
+            const qualifying = significant.filter(r => r.cr * 100 >= q3);
+            const minConv = Math.max(1, Math.floor(percentile(qualifying.map(r => r.conv), 25)));
+            
+            return { cr: parseFloat(q3.toFixed(2)), minConv, coverage: qualifying.length };
+        }
+        
+        // ─── REVENUE SWEETSPOT: Lorenz Knee ───
+        function calcRevenueSweetspot(data) {
+            const withRev = data.filter(r => r.rev > 0);
+            if (!withRev.length) return { minRev: 0, minConv: 1 };
+            
+            const sorted = [...withRev].sort((a, b) => b.rev - a.rev);
+            const totalRev = sum(sorted.map(r => r.rev));
+            const n = sorted.length;
+            
+            // Find knee point (max distance from diagonal)
+            let cumRev = 0;
+            let maxDist = 0;
+            let kneeIdx = 0;
+            
+            sorted.forEach((r, i) => {
+                cumRev += r.rev;
+                const xPct = (i + 1) / n;
+                const yPct = cumRev / totalRev;
+                const dist = yPct - xPct;
+                if (dist > maxDist) {
+                    maxDist = dist;
+                    kneeIdx = i;
+                }
+            });
+            
+            const kneeRev = sorted[kneeIdx].rev;
+            const qualifying = sorted.slice(0, kneeIdx + 1);
+            const minConv = Math.max(1, Math.floor(percentile(qualifying.map(r => r.conv), 25)));
+            
+            return { minRev: Math.round(kneeRev), minConv, coverage: qualifying.length };
+        }
+        
+        // ─── COMBINED SWEETSPOT: Weighted Composite ───
+        function calcCombinedSweetspot(data) {
+            const withConv = data.filter(r => r.conv > 0);
+            if (!withConv.length) return { roi: 0, cr: 0, minConv: 1 };
+            
+            // Normalize each metric
+            const normalize = (arr, key) => {
+                const vals = arr.map(r => r[key]);
+                const min = Math.min(...vals);
+                const max = Math.max(...vals);
+                const range = max - min || 1;
+                return arr.map(r => ({ ...r, [key + '_n']: (r[key] - min) / range * 100 }));
+            };
+            
+            let scored = withConv;
+            scored = normalize(scored, 'roi');
+            scored = normalize(scored, 'cr');
+            scored = normalize(scored, 'profit');
+            scored = normalize(scored, 'conv');
+            
+            // Dynamic weights based on campaign characteristics
+            const avgROI = mean(withConv.map(r => r.roi));
+            const avgCR = mean(withConv.map(r => r.cr));
+            
+            const roiWeight = avgROI < 50 ? 0.35 : 0.25;
+            const crWeight = avgCR < 0.01 ? 0.30 : 0.20;
+            const profitWeight = 0.30;
+            const convWeight = 1 - roiWeight - crWeight - profitWeight;
+            
+            scored = scored.map(r => ({
+                ...r,
+                score: r.roi_n * roiWeight + r.cr_n * crWeight + r.profit_n * profitWeight + r.conv_n * convWeight
+            }));
+            
+            // Custom threshold = top 50% by score
+            const scores = scored.map(r => r.score).sort((a, b) => a - b);
+            const threshold = percentile(scores, 50);
+            
+            const qualifying = scored.filter(r => r.score >= threshold);
+            
+            // Extract thresholds from qualifying ranges
+            const roiThreshold = Math.max(0, Math.floor(percentile(qualifying.map(r => r.roi), 25)));
+            const crThreshold = percentile(qualifying.map(r => r.cr * 100), 25);
+            const minConv = Math.max(1, Math.floor(percentile(qualifying.map(r => r.conv), 25)));
+            
+            return { 
+                roi: roiThreshold, 
+                cr: parseFloat(crThreshold.toFixed(2)), 
+                minConv,
+                coverage: qualifying.length,
+                weights: { roi: roiWeight, cr: crWeight, profit: profitWeight, conv: convWeight }
+            };
+        }
+        
+        // ─── APPLY SWEETSPOT ───
+        function applySweetspot(type) {
+            const data = state.aggregatedData;
+            if (!data.length) return alert('אין נתונים לניתוח');
+            
+            let result, displayText;
+            state.activeSweetspot = type;
+            
+            switch(type) {
+                case 'roi':
+                    result = calcROISweetspot(data);
+                    dom.cust.numMin.value = result.minConv;
+                    dom.cust.min.value = result.minConv;
+                    dom.cust.numRoi.value = result.roi;
+                    dom.cust.roi.value = result.roi;
+                    dom.cust.numMcr.value = 0;
+                    dom.cust.mcr.value = 0;
+                    displayText = `ROI ≥ ${result.roi}% | Conv ≥ ${result.minConv} | ${result.coverage} טווחים`;
+                    break;
+                    
+                case 'cr':
+                    result = calcCRSweetspot(data);
+                    dom.cust.numMin.value = result.minConv;
+                    dom.cust.min.value = result.minConv;
+                    dom.cust.numMcr.value = result.cr;
+                    dom.cust.mcr.value = result.cr;
+                    dom.cust.numRoi.value = 0;
+                    dom.cust.roi.value = 0;
+                    displayText = `CR ≥ ${result.cr}% | Conv ≥ ${result.minConv} | ${result.coverage} טווחים`;
+                    break;
+                    
+                case 'revenue':
+                    result = calcRevenueSweetspot(data);
+                    dom.cust.numMin.value = result.minConv;
+                    dom.cust.min.value = result.minConv;
+                    dom.cust.numRoi.value = 0;
+                    dom.cust.roi.value = 0;
+                    dom.cust.numMcr.value = 0;
+                    dom.cust.mcr.value = 0;
+                    displayText = `Rev ≥ $${result.minRev} | Conv ≥ ${result.minConv} | ${result.coverage} טווחים`;
+                    break;
+                    
+                case 'combined':
+                    result = calcCombinedSweetspot(data);
+                    dom.cust.numMin.value = result.minConv;
+                    dom.cust.min.value = result.minConv;
+                    dom.cust.numRoi.value = result.roi;
+                    dom.cust.roi.value = result.roi;
+                    dom.cust.numMcr.value = result.cr;
+                    dom.cust.mcr.value = result.cr;
+                    displayText = `ROI ≥ ${result.roi}% | CR ≥ ${result.cr}% | Conv ≥ ${result.minConv} | ${result.coverage} טווחים`;
+                    break;
+            }
+            
+            // Show result
+            const resultBox = getEl('sweetspot-result');
+            const valuesEl = getEl('sweetspot-values');
+            resultBox.classList.remove('hidden');
+            valuesEl.innerText = displayText;
+            
+            // Close menu after short delay
+            setTimeout(() => {
+                getEl('sweetspot-menu').classList.add('hidden');
+            }, 1500);
+            
+            // Run engine to apply new thresholds
+            runEngine();
+            
+            // Switch view to Custom
+            dom.filterView.value = 'custom';
+            renderTable();
         }
 
         // ═══════════════════════════════════════════════════════════════
