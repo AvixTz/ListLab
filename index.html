@@ -470,26 +470,71 @@
 
         function loadFile(file) {
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = e => {
-                const wb = XLSX.read(e.target.result, { type: 'array' });
-                const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 });
-                if (json.length < 2) return alert('קובץ ריק');
+            
+            // Check file size and warn
+            const sizeMB = file.size / (1024 * 1024);
+            if (sizeMB > 50) {
+                alert('קובץ גדול מדי (מעל 50MB). נסה לפצל את הקובץ.');
+                return;
+            }
+            
+            // Show loading indicator
+            $('filename').innerHTML = '<span class="animate-pulse">⏳ טוען ' + file.name + ' (' + sizeMB.toFixed(1) + 'MB)...</span>';
+            $('global-stats').innerHTML = '<span class="text-amber-500 animate-pulse">🔄 מעבד נתונים...</span>';
+            
+            // Use setTimeout to allow UI to update before heavy processing
+            setTimeout(() => {
+                const reader = new FileReader();
+                reader.onerror = () => {
+                    alert('שגיאה בקריאת הקובץ');
+                    $('filename').textContent = '';
+                };
+                reader.onload = e => {
+                    try {
+                        // Parse with optimizations for large files
+                        const wb = XLSX.read(e.target.result, { 
+                            type: 'array',
+                            cellDates: false,
+                            cellNF: false,
+                            cellStyles: false
+                        });
+                        
+                        const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { 
+                            header: 1,
+                            defval: '',
+                            raw: true
+                        });
+                        
+                        if (json.length < 2) {
+                            alert('קובץ ריק');
+                            $('filename').textContent = '';
+                            return;
+                        }
 
-                state.headers = json[0].map(h => String(h || '').trim());
-                state.rawData = json.slice(1).filter(row => row.some(c => c !== '' && c != null));
-                $('filename').textContent = file.name;
-                
-                const hLower = state.headers.map(h => h.toLowerCase());
-                const levelIdx = hLower.findIndex(x => x === 'level' || x === 'lvl' || x === 'depth');
-                state.levelColumn = levelIdx !== -1 ? state.headers[levelIdx] : null;
-                state.hasHierarchy = levelIdx !== -1;
+                        state.headers = json[0].map(h => String(h || '').trim());
+                        state.rawData = json.slice(1).filter(row => row.some(c => c !== '' && c != null));
+                        $('filename').textContent = file.name + ' (' + state.rawData.length.toLocaleString() + ' שורות)';
+                        
+                        const hLower = state.headers.map(h => h.toLowerCase());
+                        const levelIdx = hLower.findIndex(x => x === 'level' || x === 'lvl' || x === 'depth');
+                        state.levelColumn = levelIdx !== -1 ? state.headers[levelIdx] : null;
+                        state.hasHierarchy = levelIdx !== -1;
 
-                setupMapping();
-                setupFilters();
-                processData();
-            };
-            reader.readAsArrayBuffer(file);
+                        setupMapping();
+                        setupFilters();
+                        
+                        // Process data async for large files
+                        setTimeout(() => processData(), 10);
+                        
+                    } catch (err) {
+                        console.error('Error processing file:', err);
+                        alert('שגיאה בעיבוד הקובץ: ' + err.message);
+                        $('filename').textContent = '';
+                        $('global-stats').innerHTML = '<span class="text-red-500">שגיאה בטעינה</span>';
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }, 50);
         }
 
         function setupMapping() {
@@ -579,84 +624,113 @@
         // DATA PROCESSING
         // ═══════════════════════════════════════════════════════════════
         function processData() {
-            const cols = { ip: +$('col-ip').value, clicks: +$('col-clicks').value, conv: +$('col-conv').value, rev: +$('col-rev').value, cost: +$('col-cost').value };
-            state.ipColumn = state.headers[cols.ip];
-            const levelIdx = state.levelColumn ? state.headers.indexOf(state.levelColumn) : -1;
+            try {
+                console.log('Starting processData with', state.rawData.length, 'rows');
+                $('global-stats').innerHTML = '<span class="text-amber-500">🔄 מעבד ' + state.rawData.length.toLocaleString() + ' שורות...</span>';
+                
+                const cols = { ip: +$('col-ip').value, clicks: +$('col-clicks').value, conv: +$('col-conv').value, rev: +$('col-rev').value, cost: +$('col-cost').value };
+                state.ipColumn = state.headers[cols.ip];
+                const levelIdx = state.levelColumn ? state.headers.indexOf(state.levelColumn) : -1;
 
-            state.allRows = state.rawData.map((row, idx) => {
-                const level = levelIdx >= 0 ? parseNum(row[levelIdx]) : 1;
-                return { idx, raw: row, identifier: String(row[cols.ip] || '').trim(), level, clicks: parseNum(row[cols.clicks]), conv: parseNum(row[cols.conv]), rev: parseNum(row[cols.rev]), cost: parseNum(row[cols.cost]), profit: parseNum(row[cols.rev]) - parseNum(row[cols.cost]) };
-            });
+                console.log('Parsing rows...');
+                state.allRows = state.rawData.map((row, idx) => {
+                    const level = levelIdx >= 0 ? parseNum(row[levelIdx]) : 1;
+                    return { idx, raw: row, identifier: String(row[cols.ip] || '').trim(), level, clicks: parseNum(row[cols.clicks]), conv: parseNum(row[cols.conv]), rev: parseNum(row[cols.rev]), cost: parseNum(row[cols.cost]), profit: parseNum(row[cols.rev]) - parseNum(row[cols.cost]) };
+                });
+                console.log('Parsed', state.allRows.length, 'rows');
 
-            if (state.hasHierarchy) {
-                state.maxLevel = Math.max(...state.allRows.map(r => r.level));
-                const levels = [...new Set(state.allRows.map(r => r.level))].sort((a, b) => a - b);
-                $('level-badges').innerHTML = levels.map(l => '<span class="level-badge level-' + Math.min(l, 3) + '">' + l + '</span>').join('');
+                if (state.hasHierarchy) {
+                    // Avoid spread operator on large arrays - causes stack overflow
+                    let maxLvl = 1;
+                    const levelSet = new Set();
+                    for (let i = 0; i < state.allRows.length; i++) {
+                        const lvl = state.allRows[i].level;
+                        if (lvl > maxLvl) maxLvl = lvl;
+                        levelSet.add(lvl);
+                    }
+                    state.maxLevel = maxLvl;
+                    const levels = [...levelSet].sort((a, b) => a - b);
+                    $('level-badges').innerHTML = levels.map(l => '<span class="level-badge level-' + Math.min(l, 3) + '">' + l + '</span>').join('');
+                }
+
+                let filtered = state.allRows.filter(r => {
+                    for (const f of state.activeFilters) { if (f.values.length > 0) { const val = String(r.raw[f.colIdx] || ''); if (!f.values.includes(val)) return false; } }
+                    return true;
+                });
+
+                if (state.hasHierarchy) {
+                    state.detailRows = filtered.filter(r => r.level === state.maxLevel);
+                    state.summaryRows = filtered.filter(r => r.level < state.maxLevel);
+                } else {
+                    state.detailRows = filtered.filter(r => r.identifier !== '');
+                    state.summaryRows = [];
+                }
+
+                console.log('Aggregating', state.detailRows.length, 'detail rows...');
+                
+                // Aggregate by identifier
+                const grouped = {};
+                state.detailRows.forEach(r => {
+                    const key = r.identifier || 'Unknown';
+                    if (!grouped[key]) grouped[key] = { identifier: key, level: r.level, clicks: 0, conv: 0, rev: 0, cost: 0, profit: 0, isSummary: false };
+                    const g = grouped[key];
+                    g.clicks += r.clicks; g.conv += r.conv; g.rev += r.rev; g.cost += r.cost; g.profit += r.profit;
+                });
+
+                // Calculate metrics
+                state.aggregatedData = Object.values(grouped).map(g => ({
+                    ...g,
+                    roi: g.cost > 0 ? (g.profit / g.cost) * 100 : (g.profit > 0 ? 999 : 0),
+                    cr: g.clicks > 0 ? g.conv / g.clicks : 0,
+                    epc: g.clicks > 0 ? g.profit / g.clicks : 0
+                }));
+                
+                console.log('Aggregated to', state.aggregatedData.length, 'unique IPs');
+
+                // Calculate campaign-wide CR for threshold
+                const totalClicks = state.aggregatedData.reduce((s, r) => s + r.clicks, 0);
+                const totalConv = state.aggregatedData.reduce((s, r) => s + r.conv, 0);
+                state.campaignCR = totalClicks > 0 ? totalConv / totalClicks : 0;
+
+                // Calculate medians from CONVERTING ranges with positive EPC
+                const profitable = state.aggregatedData.filter(r => r.conv > 0 && r.epc > 0);
+                if (profitable.length > 0) {
+                    const epcs = profitable.map(r => r.epc).sort((a, b) => a - b);
+                    const crs = profitable.map(r => r.cr).sort((a, b) => a - b);
+                    state.medianPPC = epcs[Math.floor(epcs.length / 2)];
+                    state.medianCR = crs[Math.floor(crs.length / 2)];
+                } else {
+                    state.medianPPC = 0.001;
+                    state.medianCR = 0.001;
+                }
+
+                // Calculate click threshold based on campaign CR and IP level
+                calculateClickThreshold();
+
+                $('med-ppc').textContent = '$' + state.medianPPC.toFixed(4);
+                $('med-cr').textContent = (state.medianCR * 100).toFixed(3) + '%';
+
+                // Check if custom list is enabled
+                state.customEnabled = $('custom-enabled').checked;
+                $('custom-badge').classList.toggle('hidden', !state.customEnabled);
+
+                console.log('Classifying ranges...');
+                // Score and classify
+                state.processed = classifyRanges(state.aggregatedData);
+                console.log('Classified', state.processed.length, 'ranges');
+                
+                applyFilter();
+                renderKPIs();
+                renderTable();
+                renderGlobalStats();
+                
+                console.log('processData completed successfully');
+                
+            } catch (err) {
+                console.error('Error in processData:', err);
+                $('global-stats').innerHTML = '<span class="text-red-500">❌ שגיאה: ' + err.message + '</span>';
+                alert('שגיאה בעיבוד: ' + err.message);
             }
-
-            let filtered = state.allRows.filter(r => {
-                for (const f of state.activeFilters) { if (f.values.length > 0) { const val = String(r.raw[f.colIdx] || ''); if (!f.values.includes(val)) return false; } }
-                return true;
-            });
-
-            if (state.hasHierarchy) {
-                state.detailRows = filtered.filter(r => r.level === state.maxLevel);
-                state.summaryRows = filtered.filter(r => r.level < state.maxLevel);
-            } else {
-                state.detailRows = filtered.filter(r => r.identifier !== '');
-                state.summaryRows = [];
-            }
-
-            // Aggregate by identifier
-            const grouped = {};
-            state.detailRows.forEach(r => {
-                const key = r.identifier || 'Unknown';
-                if (!grouped[key]) grouped[key] = { identifier: key, level: r.level, clicks: 0, conv: 0, rev: 0, cost: 0, profit: 0, isSummary: false };
-                const g = grouped[key];
-                g.clicks += r.clicks; g.conv += r.conv; g.rev += r.rev; g.cost += r.cost; g.profit += r.profit;
-            });
-
-            // Calculate metrics
-            state.aggregatedData = Object.values(grouped).map(g => ({
-                ...g,
-                roi: g.cost > 0 ? (g.profit / g.cost) * 100 : (g.profit > 0 ? 999 : 0),
-                cr: g.clicks > 0 ? g.conv / g.clicks : 0,
-                epc: g.clicks > 0 ? g.profit / g.clicks : 0
-            }));
-
-            // Calculate campaign-wide CR for threshold
-            const totalClicks = state.aggregatedData.reduce((s, r) => s + r.clicks, 0);
-            const totalConv = state.aggregatedData.reduce((s, r) => s + r.conv, 0);
-            state.campaignCR = totalClicks > 0 ? totalConv / totalClicks : 0;
-
-            // Calculate medians from CONVERTING ranges with positive EPC
-            const profitable = state.aggregatedData.filter(r => r.conv > 0 && r.epc > 0);
-            if (profitable.length > 0) {
-                const epcs = profitable.map(r => r.epc).sort((a, b) => a - b);
-                const crs = profitable.map(r => r.cr).sort((a, b) => a - b);
-                state.medianPPC = epcs[Math.floor(epcs.length / 2)];
-                state.medianCR = crs[Math.floor(crs.length / 2)];
-            } else {
-                state.medianPPC = 0.001;
-                state.medianCR = 0.001;
-            }
-
-            // Calculate click threshold based on campaign CR and IP level
-            calculateClickThreshold();
-
-            $('med-ppc').textContent = '$' + state.medianPPC.toFixed(4);
-            $('med-cr').textContent = (state.medianCR * 100).toFixed(3) + '%';
-
-            // Check if custom list is enabled
-            state.customEnabled = $('custom-enabled').checked;
-            $('custom-badge').classList.toggle('hidden', !state.customEnabled);
-
-            // Score and classify
-            state.processed = classifyRanges(state.aggregatedData);
-            applyFilter();
-            renderKPIs();
-            renderTable();
-            renderGlobalStats();
         }
 
         // ═══════════════════════════════════════════════════════════════
