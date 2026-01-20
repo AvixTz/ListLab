@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ListLab V34 Production - Decision Support System</title>
+    <title>ListLab V35 Production - Decision Support System</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -134,7 +134,7 @@
                 </div>
                 <div>
                     <h1 class="text-base font-bold text-slate-800">ListLab</h1>
-                    <div class="text-[11px] text-amber-600 font-bold">V34 Production</div>
+                    <div class="text-[11px] text-amber-600 font-bold">V35 Production</div>
                 </div>
             </div>
             
@@ -243,7 +243,7 @@
                     </div>
                 </div>
 
-                <!-- Custom List - Collapsed -->
+                <!-- Custom List with Min/Max - 2 per row -->
                 <div class="control-box border-purple-200 bg-purple-50">
                     <div class="collapsible-header" onclick="toggleSection('custom')">
                         <div class="text-xs font-bold text-purple-700 flex items-center gap-1">
@@ -253,40 +253,102 @@
                         <i data-lucide="chevron-down" class="w-4 h-4 text-purple-600 collapse-icon" id="custom-icon"></i>
                     </div>
                     <div class="collapsible-content" id="custom-content">
-                        <div class="flex items-center gap-2 mb-2 mt-2">
+                        <div class="flex items-center gap-2 mb-3 mt-2">
                             <input type="checkbox" id="custom-enabled" class="chk-input">
                             <label for="custom-enabled" class="text-[11px] font-bold text-purple-700">הפעל Custom List</label>
                         </div>
-                        <div class="control-grid">
-                            <div class="control-item">
-                                <div class="lbl-row"><span class="lbl-sm">Min Conv</span><input type="number" id="cust-conv-num" value="1" class="dash-input text-purple-600"></div>
-                                <input type="range" id="cust-conv" min="0" max="20" value="1" class="text-purple-500">
+                        
+                        <!-- Row 1: Conv & Score -->
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <div class="bg-white rounded-lg p-2 border border-purple-100">
+                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">Conv</div>
+                                <div class="flex gap-1">
+                                    <div class="flex-1">
+                                        <input type="number" id="cust-conv-min" value="1" min="0" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
+                                    </div>
+                                    <span class="text-slate-300 self-center">-</span>
+                                    <div class="flex-1">
+                                        <input type="number" id="cust-conv-max" value="" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="control-item">
-                                <div class="lbl-row"><span class="lbl-sm">Min Score</span><input type="number" id="cust-score-num" value="0" step="0.1" class="dash-input text-purple-600"></div>
-                                <input type="range" id="cust-score" min="0" max="50" step="0.1" value="0" class="text-purple-500">
-                            </div>
-                            <div class="control-item">
-                                <div class="lbl-row"><span class="lbl-sm">Min ROI%</span><input type="number" id="cust-roi-num" value="-100" class="dash-input text-purple-600"></div>
-                                <input type="range" id="cust-roi" min="-100" max="100" value="-100" class="text-purple-500">
-                            </div>
-                            <div class="control-item">
-                                <div class="lbl-row"><span class="lbl-sm">Min CR%</span><input type="number" id="cust-cr-num" value="0" step="0.01" class="dash-input text-purple-600"></div>
-                                <input type="range" id="cust-cr" min="0" max="5" step="0.01" value="0" class="text-purple-500">
-                            </div>
-                            <div class="control-item">
-                                <div class="lbl-row"><span class="lbl-sm">Min EPC</span><input type="number" id="cust-epc-num" value="-1" step="0.001" class="dash-input text-purple-600"></div>
-                                <input type="range" id="cust-epc" min="-1" max="1" step="0.001" value="-1" class="text-purple-500">
-                            </div>
-                            <div class="control-item">
-                                <div class="lbl-row"><span class="lbl-sm">Min Clicks</span><input type="number" id="cust-clicks-num" value="0" class="dash-input text-purple-600"></div>
-                                <input type="range" id="cust-clicks" min="0" max="5000" step="100" value="0" class="text-purple-500">
+                            <div class="bg-white rounded-lg p-2 border border-purple-100">
+                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">Score</div>
+                                <div class="flex gap-1">
+                                    <div class="flex-1">
+                                        <input type="number" id="cust-score-min" value="0" step="0.1" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
+                                    </div>
+                                    <span class="text-slate-300 self-center">-</span>
+                                    <div class="flex-1">
+                                        <input type="number" id="cust-score-max" value="" step="0.1" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞">
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                        
+                        <!-- Row 2: Clicks & ROI -->
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <div class="bg-white rounded-lg p-2 border border-purple-100">
+                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">Clicks</div>
+                                <div class="flex gap-1">
+                                    <div class="flex-1">
+                                        <input type="number" id="cust-clicks-min" value="0" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
+                                    </div>
+                                    <span class="text-slate-300 self-center">-</span>
+                                    <div class="flex-1">
+                                        <input type="number" id="cust-clicks-max" value="" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-lg p-2 border border-purple-100">
+                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">ROI%</div>
+                                <div class="flex gap-1">
+                                    <div class="flex-1">
+                                        <input type="number" id="cust-roi-min" value="-100" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
+                                    </div>
+                                    <span class="text-slate-300 self-center">-</span>
+                                    <div class="flex-1">
+                                        <input type="number" id="cust-roi-max" value="" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Row 3: CR & EPC -->
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <div class="bg-white rounded-lg p-2 border border-purple-100">
+                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">CR%</div>
+                                <div class="flex gap-1">
+                                    <div class="flex-1">
+                                        <input type="number" id="cust-cr-min" value="0" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
+                                    </div>
+                                    <span class="text-slate-300 self-center">-</span>
+                                    <div class="flex-1">
+                                        <input type="number" id="cust-cr-max" value="" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-lg p-2 border border-purple-100">
+                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">EPC</div>
+                                <div class="flex gap-1">
+                                    <div class="flex-1">
+                                        <input type="number" id="cust-epc-min" value="-1" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
+                                    </div>
+                                    <span class="text-slate-300 self-center">-</span>
+                                    <div class="flex-1">
+                                        <input type="number" id="cust-epc-max" value="" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="processData()" class="w-full mt-1 bg-purple-600 text-white py-1.5 rounded text-xs font-bold hover:bg-purple-700 flex items-center justify-center gap-1">
+                            <i data-lucide="check" class="w-3 h-3"></i> החל פילטר
+                        </button>
                     </div>
                 </div>
 
-                <!-- KPI Visibility -->
+                <!-- KPI Visibility - ALL ACTIVE BY DEFAULT -->
                 <div class="control-box border-slate-200 bg-slate-50">
                     <div class="text-xs font-bold text-slate-700 mb-2">הצג KPIs</div>
                     <div class="kpi-toggle">
@@ -294,8 +356,8 @@
                         <button class="kpi-toggle-btn active" data-kpi="gold" onclick="toggleKpi('gold')">🥇 Gold</button>
                         <button class="kpi-toggle-btn active" data-kpi="potential" onclick="toggleKpi('potential')">🌱 Potential</button>
                         <button class="kpi-toggle-btn active" data-kpi="ignore" onclick="toggleKpi('ignore')">😐 Ignore</button>
-                        <button class="kpi-toggle-btn" data-kpi="blacklist" onclick="toggleKpi('blacklist')">🚫 Blacklist</button>
-                        <button class="kpi-toggle-btn" data-kpi="testing" onclick="toggleKpi('testing')">🔬 Testing</button>
+                        <button class="kpi-toggle-btn active" data-kpi="blacklist" onclick="toggleKpi('blacklist')">🚫 Blacklist</button>
+                        <button class="kpi-toggle-btn active" data-kpi="testing" onclick="toggleKpi('testing')">🔬 Testing</button>
                     </div>
                 </div>
 
@@ -307,7 +369,7 @@
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-potential" checked class="chk-input"> Potential</label>
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-bl" class="chk-input"> Blacklist</label>
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-custom" class="chk-input"> Custom</label>
-                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-cidr" class="chk-input"> CIDR /24</label>
+                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-cidr" class="chk-input"> CIDR</label>
                     </div>
                     <button onclick="exportData()" class="w-full bg-slate-900 text-white py-2 rounded-md text-sm font-bold hover:bg-slate-800 flex items-center justify-center gap-2">
                         <i data-lucide="download" class="w-4 h-4"></i> ייצוא Excel
@@ -328,6 +390,7 @@
                                     <span class="text-[11px] font-bold text-slate-400 uppercase">תצוגה:</span>
                                     <select id="filter-view" class="text-sm bg-slate-50 border border-slate-200 rounded px-2 py-1 font-medium w-36">
                                         <option value="all">הכל</option>
+                                        <option value="relevant">🎯 Relevant</option>
                                         <option value="winners">✨ Winners</option>
                                         <option value="pure">💎 Pure</option>
                                         <option value="gold">🥇 Gold</option>
@@ -404,13 +467,13 @@
         lucide.createIcons();
 
         // ═══════════════════════════════════════════════════════════════
-        // STATE
+        // STATE - ALL KPIs VISIBLE BY DEFAULT
         // ═══════════════════════════════════════════════════════════════
         const state = {
             rawData: [], allRows: [], detailRows: [], summaryRows: [], aggregatedData: [], processed: [], filtered: [],
             headers: [], dimensions: {}, activeFilters: [], page: 1, pageSize: 100,
             medianPPC: 0, medianCR: 0, campaignCR: 0, clickThreshold: 7000,
-            visibleKpis: ['pure', 'gold', 'potential', 'ignore'],
+            visibleKpis: ['pure', 'gold', 'potential', 'ignore', 'blacklist', 'testing'],
             hasHierarchy: false, levelColumn: null, maxLevel: 1, ipColumn: '',
             customEnabled: false
         };
@@ -433,23 +496,86 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
+        // CIDR CONVERSION - Smart Level Detection
+        // ═══════════════════════════════════════════════════════════════
+        function ipToLong(ip) {
+            return ip.split('.').reduce((long, octet) => (long << 8) + parseInt(octet, 10), 0) >>> 0;
+        }
+        
+        function longToIp(long) {
+            return [
+                (long >>> 24) & 255,
+                (long >>> 16) & 255,
+                (long >>> 8) & 255,
+                long & 255
+            ].join('.');
+        }
+        
+        function toCIDR(ip) {
+            const str = String(ip).trim();
+            
+            // Already has CIDR notation - return as is
+            if (str.includes('/')) return str;
+            
+            // Not a valid IP format - return as is
+            if (!/^\d+\.\d+\.\d+\.\d+$/.test(str)) return str;
+            
+            const parts = str.split('.').map(Number);
+            
+            // Smart detection based on IP structure:
+            // x.x.0.0 → /16 (IP3)
+            if (parts[2] === 0 && parts[3] === 0) {
+                return parts[0] + '.' + parts[1] + '.0.0/16';
+            }
+            
+            // x.x.x.0 → /24 (IP2)
+            if (parts[3] === 0) {
+                return parts[0] + '.' + parts[1] + '.' + parts[2] + '.0/24';
+            }
+            
+            // Full IP x.x.x.x → /32 (IP1)
+            return str + '/32';
+        }
+        
+        function rangeToOptimalCIDRs(startStr, endStr) {
+            let start = ipToLong(startStr);
+            let end = ipToLong(endStr);
+            let result = [];
+            
+            while (start <= end) {
+                let maxBlockSizeAllowedByIP = 1;
+                while ((start & maxBlockSizeAllowedByIP) === 0 && maxBlockSizeAllowedByIP <= (1 << 30)) {
+                    maxBlockSizeAllowedByIP <<= 1;
+                }
+                
+                let remainingSize = end - start + 1;
+                let maxPow = Math.floor(Math.log2(remainingSize));
+                let maxSize = Math.pow(2, maxPow);
+                
+                if (maxBlockSizeAllowedByIP < maxSize) {
+                    maxSize = maxBlockSizeAllowedByIP;
+                    maxPow = Math.floor(Math.log2(maxSize));
+                }
+                
+                result.push(longToIp(start) + '/' + (32 - maxPow));
+                start += maxSize;
+            }
+            
+            return result;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
         // CLICK THRESHOLD CALCULATION
-        // סף = מכפיל × (100 / CR%) - מוגבל בין min ל-max
         // ═══════════════════════════════════════════════════════════════
         function calculateClickThreshold() {
             const level = parseInt($('ip-level').value);
             const config = IP_LEVELS[level];
             
-            // If CR is 0 or very low, use default
             if (state.campaignCR <= 0 || state.campaignCR < 0.001) {
                 state.clickThreshold = config.default;
             } else {
-                // סף = מכפיל × (100 / CR%)
-                // CR is stored as decimal (0.01 = 1%), so CR% = CR * 100
                 const crPercent = state.campaignCR * 100;
                 let threshold = config.multiplier * (100 / crPercent);
-                
-                // Clamp between min and max
                 threshold = Math.max(config.min, Math.min(config.max, threshold));
                 state.clickThreshold = Math.round(threshold);
             }
@@ -471,18 +597,15 @@
         function loadFile(file) {
             if (!file) return;
             
-            // Check file size and warn
             const sizeMB = file.size / (1024 * 1024);
             if (sizeMB > 50) {
                 alert('קובץ גדול מדי (מעל 50MB). נסה לפצל את הקובץ.');
                 return;
             }
             
-            // Show loading indicator
             $('filename').innerHTML = '<span class="animate-pulse">⏳ טוען ' + file.name + ' (' + sizeMB.toFixed(1) + 'MB)...</span>';
             $('global-stats').innerHTML = '<span class="text-amber-500 animate-pulse">🔄 מעבד נתונים...</span>';
             
-            // Use setTimeout to allow UI to update before heavy processing
             setTimeout(() => {
                 const reader = new FileReader();
                 reader.onerror = () => {
@@ -491,7 +614,6 @@
                 };
                 reader.onload = e => {
                     try {
-                        // Parse with optimizations for large files
                         const wb = XLSX.read(e.target.result, { 
                             type: 'array',
                             cellDates: false,
@@ -523,7 +645,6 @@
                         setupMapping();
                         setupFilters();
                         
-                        // Process data async for large files
                         setTimeout(() => processData(), 10);
                         
                     } catch (err) {
@@ -640,7 +761,6 @@
                 console.log('Parsed', state.allRows.length, 'rows');
 
                 if (state.hasHierarchy) {
-                    // Avoid spread operator on large arrays - causes stack overflow
                     let maxLvl = 1;
                     const levelSet = new Set();
                     for (let i = 0; i < state.allRows.length; i++) {
@@ -666,9 +786,18 @@
                     state.summaryRows = [];
                 }
 
+                // Filter out invalid IPs (0.0.0.0, לא מזוהה, empty)
+                state.detailRows = state.detailRows.filter(r => {
+                    const id = r.identifier.toLowerCase().trim();
+                    if (!id) return false;
+                    if (id === '0.0.0.0') return false;
+                    if (id.startsWith('0.0.0.')) return false;
+                    if (id === 'לא מזוהה' || id === 'not identified' || id === 'unknown') return false;
+                    return true;
+                });
+
                 console.log('Aggregating', state.detailRows.length, 'detail rows...');
                 
-                // Aggregate by identifier
                 const grouped = {};
                 state.detailRows.forEach(r => {
                     const key = r.identifier || 'Unknown';
@@ -677,7 +806,6 @@
                     g.clicks += r.clicks; g.conv += r.conv; g.rev += r.rev; g.cost += r.cost; g.profit += r.profit;
                 });
 
-                // Calculate metrics
                 state.aggregatedData = Object.values(grouped).map(g => ({
                     ...g,
                     roi: g.cost > 0 ? (g.profit / g.cost) * 100 : (g.profit > 0 ? 999 : 0),
@@ -687,12 +815,10 @@
                 
                 console.log('Aggregated to', state.aggregatedData.length, 'unique IPs');
 
-                // Calculate campaign-wide CR for threshold
                 const totalClicks = state.aggregatedData.reduce((s, r) => s + r.clicks, 0);
                 const totalConv = state.aggregatedData.reduce((s, r) => s + r.conv, 0);
                 state.campaignCR = totalClicks > 0 ? totalConv / totalClicks : 0;
 
-                // Calculate medians from CONVERTING ranges with positive EPC
                 const profitable = state.aggregatedData.filter(r => r.conv > 0 && r.epc > 0);
                 if (profitable.length > 0) {
                     const epcs = profitable.map(r => r.epc).sort((a, b) => a - b);
@@ -704,18 +830,15 @@
                     state.medianCR = 0.001;
                 }
 
-                // Calculate click threshold based on campaign CR and IP level
                 calculateClickThreshold();
 
                 $('med-ppc').textContent = '$' + state.medianPPC.toFixed(4);
                 $('med-cr').textContent = (state.medianCR * 100).toFixed(3) + '%';
 
-                // Check if custom list is enabled
                 state.customEnabled = $('custom-enabled').checked;
                 $('custom-badge').classList.toggle('hidden', !state.customEnabled);
 
                 console.log('Classifying ranges...');
-                // Score and classify
                 state.processed = classifyRanges(state.aggregatedData);
                 console.log('Classified', state.processed.length, 'ranges');
                 
@@ -735,20 +858,14 @@
 
         // ═══════════════════════════════════════════════════════════════
         // SCORING ENGINE
-        // Score = (EPC ÷ Median_EPC) × √(Conv/3) × √(CR/Median_CR)
         // ═══════════════════════════════════════════════════════════════
         function calculateScore(r) {
             if (r.conv === 0) return 0;
             if (r.epc <= 0) return 0;
             if (state.medianPPC <= 0 || state.medianCR <= 0) return 0;
             
-            // שלב 1: יעילות (EPC / Median EPC)
             const efficiency = r.epc / state.medianPPC;
-            
-            // שלב 2: ביטחון √(Conv/3)
             const certainty = Math.sqrt(r.conv / 3);
-            
-            // שלב 3: בונוס CR √(CR/Median_CR)
             const crBonus = Math.sqrt(r.cr / state.medianCR);
             
             return efficiency * certainty * crBonus;
@@ -762,22 +879,22 @@
             const goldPct = +$('gold-pct-num').value || 25;
             const clickThreshold = state.clickThreshold;
 
-            // Custom list settings
-            const custConv = +$('cust-conv-num').value || 0;
-            const custScore = +$('cust-score-num').value || 0;
-            const custRoi = +$('cust-roi-num').value || -100;
-            const custCr = +$('cust-cr-num').value || 0;
-            const custEpc = +$('cust-epc-num').value || -1;
-            const custClicks = +$('cust-clicks-num').value || 0;
+            // Custom list settings - Min/Max
+            const custConvMin = parseFloat($('cust-conv-min').value) || 0;
+            const custConvMax = $('cust-conv-max').value !== '' ? parseFloat($('cust-conv-max').value) : Infinity;
+            const custScoreMin = parseFloat($('cust-score-min').value) || 0;
+            const custScoreMax = $('cust-score-max').value !== '' ? parseFloat($('cust-score-max').value) : Infinity;
+            const custClicksMin = parseFloat($('cust-clicks-min').value) || 0;
+            const custClicksMax = $('cust-clicks-max').value !== '' ? parseFloat($('cust-clicks-max').value) : Infinity;
+            const custRoiMin = parseFloat($('cust-roi-min').value) || -9999;
+            const custRoiMax = $('cust-roi-max').value !== '' ? parseFloat($('cust-roi-max').value) : Infinity;
+            const custCrMin = parseFloat($('cust-cr-min').value) || 0;
+            const custCrMax = $('cust-cr-max').value !== '' ? parseFloat($('cust-cr-max').value) : Infinity;
+            const custEpcMin = parseFloat($('cust-epc-min').value) || -9999;
+            const custEpcMax = $('cust-epc-max').value !== '' ? parseFloat($('cust-epc-max').value) : Infinity;
 
-            // Calculate scores first
             data = data.map(r => ({ ...r, score: calculateScore(r) }));
 
-            // ═══════════════════════════════════════════════════════════════
-            // BLACKLIST THRESHOLDS - Based on campaign averages
-            // ═══════════════════════════════════════════════════════════════
-            
-            // Campaign-wide averages (for the 50% comparison)
             const totalClicks = data.reduce((s, r) => s + r.clicks, 0);
             const totalConv = data.reduce((s, r) => s + r.conv, 0);
             const totalProfit = data.reduce((s, r) => s + r.profit, 0);
@@ -785,7 +902,6 @@
             const campaignAvgCR = totalClicks > 0 ? totalConv / totalClicks : 0;
             const campaignAvgEPC = totalClicks > 0 ? totalProfit / totalClicks : 0;
 
-            // Score thresholds for Pure and Gold (using >= now)
             const purePool = data.filter(r => r.conv >= 3 && r.profit > 0).sort((a, b) => b.score - a.score);
             const goldPool = data.filter(r => r.conv >= 2 && r.profit > 0).sort((a, b) => b.score - a.score);
             const pureThreshold = purePool.length > 0 ? purePool[Math.floor(purePool.length * purePct / 100)]?.score || 0 : Infinity;
@@ -795,57 +911,29 @@
                 let category, action;
                 const hasEnoughClicks = r.clicks >= clickThreshold;
 
-                // ═══════════════════════════════════════════════════════════════
-                // BLACKLIST CONDITIONS - STRICT
-                // חייב: קליקים >= סף
-                // + אחד מהבאים:
-                //   1. 0 המרות
-                //   2. Profit < 0
-                //   3. 50% מתחת לממוצע CR או EPC או ROI של הקמפיין
-                // ═══════════════════════════════════════════════════════════════
-                
-                // Condition 1: 0 conversions
                 const blCond1_ZeroConv = r.conv === 0;
-                
-                // Condition 2: Negative profit
                 const blCond2_NegProfit = r.profit < 0;
                 
-                // Condition 3: 50% below campaign average (OR logic)
-                // CR < 50% of campaign average CR
                 const crBelow50OfAvg = r.cr < (campaignAvgCR * 0.5);
-                
-                // EPC < 50% of campaign average EPC
                 const epcBelow50OfAvg = r.epc < (campaignAvgEPC * 0.5);
-                
-                // ROI < 50% of campaign average ROI
                 const campaignAvgROI = totalCost > 0 ? (totalProfit / totalCost * 100) : 0;
                 const roiBelow50OfAvg = r.roi < (campaignAvgROI * 0.5);
                 
-                // Poor performance: must have conversions AND be 50% below in CR OR EPC OR ROI
                 const blCond3_PoorPerformance = r.conv > 0 && (crBelow50OfAvg || epcBelow50OfAvg || roiBelow50OfAvg);
                 
-                // Final blacklist check: must have enough clicks + one of the conditions
                 const isBlacklist = hasEnoughClicks && (blCond1_ZeroConv || blCond2_NegProfit || blCond3_PoorPerformance);
-
-                // ═══════════════════════════════════════════════════════════════
-                // TESTING: לא מספיק טראפיק + 0 המרות
-                // ═══════════════════════════════════════════════════════════════
                 const isTesting = r.conv === 0 && r.clicks < clickThreshold;
 
-                // ═══════════════════════════════════════════════════════════════
-                // CUSTOM LIST (if enabled)
-                // ═══════════════════════════════════════════════════════════════
+                // Custom List with Min/Max
+                const crPercent = r.cr * 100;
                 const matchesCustom = state.customEnabled &&
-                    r.conv >= custConv &&
-                    r.score >= custScore &&
-                    r.roi >= custRoi &&
-                    (r.cr * 100) >= custCr &&
-                    r.epc >= custEpc &&
-                    r.clicks >= custClicks;
+                    r.conv >= custConvMin && r.conv <= custConvMax &&
+                    r.score >= custScoreMin && r.score <= custScoreMax &&
+                    r.clicks >= custClicksMin && r.clicks <= custClicksMax &&
+                    r.roi >= custRoiMin && r.roi <= custRoiMax &&
+                    crPercent >= custCrMin && crPercent <= custCrMax &&
+                    r.epc >= custEpcMin && r.epc <= custEpcMax;
 
-                // ═══════════════════════════════════════════════════════════════
-                // CLASSIFICATION PRIORITY
-                // ═══════════════════════════════════════════════════════════════
                 if (isBlacklist) {
                     category = 'blacklist';
                     action = 'Block';
@@ -856,19 +944,15 @@
                     category = 'custom';
                     action = 'Custom';
                 } else if (r.conv >= 3 && r.profit > 0 && r.score >= pureThreshold) {
-                    // PURE: Conv >= 3 + Profit > 0 + Top 10% Score
                     category = 'pure';
                     action = 'Bid +30%';
                 } else if (r.conv >= 2 && r.profit > 0 && r.score >= goldThreshold) {
-                    // GOLD: Conv >= 2 + Profit > 0 + Top 25% Score
                     category = 'gold';
                     action = 'Bid +15%';
                 } else if (r.conv >= 1 && r.profit > 0) {
-                    // POTENTIAL: Conv >= 1 + Profit > 0 (כולל Cost = 0!)
                     category = 'potential';
                     action = 'Bid +5-10%';
                 } else {
-                    // IGNORE: כל השאר - רווחי אבל Score נמוך, או לא עומד בתנאים אחרים
                     category = 'ignore';
                     action = 'RON';
                 }
@@ -878,7 +962,7 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // FILTERING
+        // FILTERING - WITH RELEVANT OPTION
         // ═══════════════════════════════════════════════════════════════
         function applyFilter() {
             const view = $('filter-view').value;
@@ -896,7 +980,9 @@
                 data = [...summaries, ...data];
             }
 
+            // Filter by view - RELEVANT = pure, gold, potential, testing
             if (view === 'winners') data = data.filter(r => ['pure', 'gold', 'potential'].includes(r.category));
+            else if (view === 'relevant') data = data.filter(r => ['pure', 'gold', 'potential', 'testing'].includes(r.category));
             else if (view === 'custom') data = data.filter(r => r.matchesCustom);
             else if (view !== 'all') data = data.filter(r => r.category === view);
 
@@ -955,7 +1041,6 @@
 
             let html = '';
             categories.forEach(cat => {
-                // For testing KPI, show custom list if enabled
                 let rows;
                 if (cat.key === 'testing' && state.customEnabled) {
                     rows = state.processed.filter(r => r.matchesCustom);
@@ -1063,15 +1148,8 @@
                     }
                 }
             });
-            if (count) XLSX.writeFile(wb, 'ListLab_V34_Export.xlsx');
+            if (count) XLSX.writeFile(wb, 'ListLab_V35_Export.xlsx');
             else alert('בחר לפחות רשימה אחת');
-        }
-
-        function toCIDR(ip) {
-            const str = String(ip).trim();
-            if (str.includes('/')) return str;
-            if (/^\d+\.\d+\.\d+\.\d+$/.test(str)) { const parts = str.split('.'); return parts[0] + '.' + parts[1] + '.' + parts[2] + '.0/24'; }
-            return str;
         }
 
         function copyIPs() {
@@ -1098,12 +1176,6 @@
 
         syncControls('pure-pct', 'pure-pct-num');
         syncControls('gold-pct', 'gold-pct-num');
-        syncControls('cust-conv', 'cust-conv-num');
-        syncControls('cust-score', 'cust-score-num');
-        syncControls('cust-roi', 'cust-roi-num');
-        syncControls('cust-cr', 'cust-cr-num');
-        syncControls('cust-epc', 'cust-epc-num');
-        syncControls('cust-clicks', 'cust-clicks-num');
     </script>
 </body>
 </html>
