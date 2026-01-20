@@ -175,14 +175,32 @@
                 <!-- IP Level Selection -->
                 <div class="control-box border-blue-200 bg-blue-50 mb-3">
                     <div class="text-xs font-bold text-blue-700 mb-2 flex items-center gap-1">
-                        <i data-lucide="layers" class="w-3 h-3"></i> רמת IP
+                        <i data-lucide="layers" class="w-3 h-3"></i> סוג מזהה וסף קליקים
                     </div>
-                    <select id="ip-level" class="w-full text-sm border border-blue-300 rounded p-1.5 font-medium">
-                        <option value="1">IP1 / SubID (1.5×, 1K-3K)</option>
-                        <option value="2" selected>IP2 / Zone (3×, 3K-10K)</option>
-                        <option value="3">IP3 (5×, 5K-15K)</option>
-                    </select>
-                    <div class="threshold-info mt-2">
+                    
+                    <!-- Identifier Type -->
+                    <div class="mb-2">
+                        <label class="text-[10px] text-slate-500 mb-1 block">סוג מזהה:</label>
+                        <select id="identifier-type" class="w-full text-sm border border-blue-300 rounded p-1.5 font-medium">
+                            <option value="auto">🔍 זיהוי אוטומטי</option>
+                            <option value="ip">🌐 IP Address</option>
+                            <option value="zone">📍 Zone ID</option>
+                            <option value="subid">🎯 SubID</option>
+                        </select>
+                        <div id="detected-type" class="text-[10px] text-green-600 font-bold mt-1 hidden"></div>
+                    </div>
+                    
+                    <!-- Traffic Level -->
+                    <div class="mb-2">
+                        <label class="text-[10px] text-slate-500 mb-1 block">רמת טראפיק:</label>
+                        <select id="ip-level" class="w-full text-sm border border-blue-300 rounded p-1.5 font-medium">
+                            <option value="1">רמה 1 - SubID/IP32 (1.5×, 1K-3K)</option>
+                            <option value="2" selected>רמה 2 - Zone/IP24 (3×, 3K-10K)</option>
+                            <option value="3">רמה 3 - IP16 (5×, 5K-15K)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="threshold-info">
                         סף קליקים נוכחי: <span class="threshold-val" id="current-threshold">7,000</span>
                         <br>נוסחה: מכפיל × (100 / CR%)
                     </div>
@@ -197,7 +215,7 @@
                         <i data-lucide="chevron-down" class="w-4 h-4 text-slate-600 collapse-icon" id="mapping-icon"></i>
                     </div>
                     <div class="collapsible-content" id="mapping-content">
-                        <div class="mapping-row"><label>מזהה IP</label><select id="col-ip"></select></div>
+                        <div class="mapping-row"><label>מזהה</label><select id="col-ip"></select></div>
                         <div class="mapping-row"><label>קליקים</label><select id="col-clicks"></select></div>
                         <div class="mapping-row"><label>המרות</label><select id="col-conv"></select></div>
                         <div class="mapping-row"><label>הכנסה</label><select id="col-rev"></select></div>
@@ -435,7 +453,7 @@
                                     <tr>
                                         <th class="text-center w-8">#</th>
                                         <th class="text-center w-10" id="th-level" style="display:none;">Lvl</th>
-                                        <th class="text-right">IP / Identifier</th>
+                                        <th class="text-right">מזהה</th>
                                         <th class="text-center">קטגוריה</th>
                                         <th class="text-center">Score</th>
                                         <th class="text-center">Clicks</th>
@@ -475,15 +493,28 @@
             medianPPC: 0, medianCR: 0, campaignCR: 0, clickThreshold: 7000,
             visibleKpis: ['pure', 'gold', 'potential', 'ignore', 'blacklist', 'testing'],
             hasHierarchy: false, levelColumn: null, maxLevel: 1, ipColumn: '',
-            customEnabled: false
+            customEnabled: false,
+            identifierType: 'auto', // auto, ip, zone, subid
+            detectedType: null
         };
 
-        // IP Level configurations
+        // Traffic Level configurations (same thresholds for IP/Zone/SubID)
         const IP_LEVELS = {
-            1: { name: 'IP1/SubID', multiplier: 1.5, min: 1000, max: 3000, default: 1500 },
-            2: { name: 'IP2/Zone', multiplier: 3, min: 3000, max: 10000, default: 7000 },
-            3: { name: 'IP3', multiplier: 5, min: 5000, max: 15000, default: 10000 }
+            1: { name: 'SubID/IP32', multiplier: 1.5, min: 1000, max: 3000, default: 1500 },
+            2: { name: 'Zone/IP24', multiplier: 3, min: 3000, max: 10000, default: 7000 },
+            3: { name: 'IP16', multiplier: 5, min: 5000, max: 15000, default: 10000 }
         };
+        
+        // Invalid identifier patterns to filter out
+        const INVALID_PATTERNS = [
+            '0.0.0.0', 
+            /^0\.0\.0\./,
+            '{zone_id}', '{zoneid}', '{zone}',
+            '{sub}', '{subid}', '{sub_id}',
+            '{click_id}', '{clickid}',
+            'לא מזוהה', 'not identified', 'unknown', 'undefined', 'null',
+            '(not set)', '(none)', 'n/a', 'na'
+        ];
 
         const $ = id => document.getElementById(id);
         const parseNum = v => { if (typeof v === 'number') return v; if (!v) return 0; return parseFloat(String(v).replace(/[,$%\s]/g, '')) || 0; };
@@ -493,6 +524,83 @@
             const icon = $(section + '-icon');
             content.classList.toggle('open');
             icon.classList.toggle('open');
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // IDENTIFIER DETECTION & VALIDATION
+        // ═══════════════════════════════════════════════════════════════
+        function isInvalidIdentifier(id) {
+            if (!id || id.trim() === '') return true;
+            
+            const lower = id.toLowerCase().trim();
+            
+            for (const pattern of INVALID_PATTERNS) {
+                if (pattern instanceof RegExp) {
+                    if (pattern.test(lower)) return true;
+                } else {
+                    if (lower === pattern.toLowerCase()) return true;
+                }
+            }
+            
+            // Check for placeholder patterns with curly braces
+            if (/^\{.*\}$/.test(lower)) return true;
+            
+            return false;
+        }
+        
+        function detectIdentifierType(values) {
+            // Sample up to 100 values for detection
+            const sample = values.slice(0, 100);
+            
+            let ipCount = 0;
+            let numericCount = 0;
+            let mixedCount = 0;
+            
+            for (const val of sample) {
+                if (!val || isInvalidIdentifier(val)) continue;
+                
+                // IP pattern: x.x.x.x or x.x.x.x/xx
+                if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/\d{1,2})?$/.test(val)) {
+                    ipCount++;
+                }
+                // Pure numeric (Zone or SubID)
+                else if (/^\d+$/.test(val)) {
+                    numericCount++;
+                }
+                // Mixed alphanumeric
+                else {
+                    mixedCount++;
+                }
+            }
+            
+            const total = ipCount + numericCount + mixedCount;
+            if (total === 0) return 'unknown';
+            
+            // Determine type based on majority
+            if (ipCount / total > 0.5) return 'ip';
+            if (numericCount / total > 0.5) {
+                // Distinguish Zone from SubID based on value ranges
+                const numericValues = sample.filter(v => /^\d+$/.test(v)).map(Number);
+                const avgValue = numericValues.reduce((a, b) => a + b, 0) / numericValues.length;
+                const maxValue = Math.max(...numericValues);
+                
+                // SubIDs tend to be large numbers, Zones are smaller
+                if (maxValue > 10000 || avgValue > 1000) return 'subid';
+                return 'zone';
+            }
+            
+            return 'mixed';
+        }
+        
+        function getIdentifierTypeLabel(type) {
+            const labels = {
+                'ip': '🌐 IP Address',
+                'zone': '📍 Zone ID',
+                'subid': '🎯 SubID',
+                'mixed': '🔀 Mixed',
+                'unknown': '❓ Unknown'
+            };
+            return labels[type] || type;
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -511,30 +619,32 @@
             ].join('.');
         }
         
-        function toCIDR(ip) {
-            const str = String(ip).trim();
+        function toCIDR(identifier) {
+            const str = String(identifier).trim();
             
             // Already has CIDR notation - return as is
             if (str.includes('/')) return str;
             
-            // Not a valid IP format - return as is
-            if (!/^\d+\.\d+\.\d+\.\d+$/.test(str)) return str;
-            
-            const parts = str.split('.').map(Number);
-            
-            // Smart detection based on IP structure:
-            // x.x.0.0 → /16 (IP3)
-            if (parts[2] === 0 && parts[3] === 0) {
-                return parts[0] + '.' + parts[1] + '.0.0/16';
+            // Check if it's an IP address format
+            if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(str)) {
+                const parts = str.split('.').map(Number);
+                
+                // x.x.0.0 → /16
+                if (parts[2] === 0 && parts[3] === 0) {
+                    return parts[0] + '.' + parts[1] + '.0.0/16';
+                }
+                
+                // x.x.x.0 → /24
+                if (parts[3] === 0) {
+                    return parts[0] + '.' + parts[1] + '.' + parts[2] + '.0/24';
+                }
+                
+                // Full IP x.x.x.x → /32
+                return str + '/32';
             }
             
-            // x.x.x.0 → /24 (IP2)
-            if (parts[3] === 0) {
-                return parts[0] + '.' + parts[1] + '.' + parts[2] + '.0/24';
-            }
-            
-            // Full IP x.x.x.x → /32 (IP1)
-            return str + '/32';
+            // Not an IP - return as is (Zone, SubID, etc.)
+            return str;
         }
         
         function rangeToOptimalCIDRs(startStr, endStr) {
@@ -660,7 +770,13 @@
 
         function setupMapping() {
             const selects = ['col-ip', 'col-clicks', 'col-conv', 'col-rev', 'col-cost'];
-            const defaults = { 'col-ip': ['ip', 'identifier', 'subid', 'zone', 'range'], 'col-clicks': ['clicks', 'click', 'impressions'], 'col-conv': ['conv', 'conversions', 'conversion', 'leads'], 'col-rev': ['revenue', 'rev', 'income', 'payout'], 'col-cost': ['cost', 'spend', 'expense'] };
+            const defaults = { 
+                'col-ip': ['ip', 'identifier', 'subid', 'sub_id', 'zone', 'zone_id', 'zoneid', 'range', 'token 3', 'token 4', 'token3', 'token4'], 
+                'col-clicks': ['clicks', 'click', 'impressions'], 
+                'col-conv': ['conv', 'conversions', 'conversion', 'leads'], 
+                'col-rev': ['revenue', 'rev', 'income', 'payout'], 
+                'col-cost': ['cost', 'spend', 'expense'] 
+            };
             const hLower = state.headers.map(h => h.toLowerCase());
             selects.forEach(id => {
                 const sel = $(id);
@@ -671,6 +787,33 @@
             state.ipColumn = state.headers[+$('col-ip').value];
             $('mapping-box').classList.remove('hidden');
             $('medians-box').classList.remove('hidden');
+
+            // Auto-detect identifier type
+            const ipColIdx = +$('col-ip').value;
+            const identifierValues = state.rawData.map(row => String(row[ipColIdx] || '').trim());
+            state.detectedType = detectIdentifierType(identifierValues);
+            
+            // Update UI with detected type
+            const detectedEl = $('detected-type');
+            if (state.detectedType && state.detectedType !== 'unknown') {
+                detectedEl.textContent = '✓ זוהה: ' + getIdentifierTypeLabel(state.detectedType);
+                detectedEl.classList.remove('hidden');
+                
+                // Auto-set traffic level based on detected type
+                if ($('identifier-type').value === 'auto') {
+                    if (state.detectedType === 'subid') {
+                        $('ip-level').value = '1'; // SubID = Level 1
+                    } else if (state.detectedType === 'zone') {
+                        $('ip-level').value = '2'; // Zone = Level 2
+                    } else if (state.detectedType === 'ip') {
+                        // Check if IPs are /24 or /32
+                        const hasSlash24 = identifierValues.some(v => v.endsWith('.0') || v.includes('/24'));
+                        $('ip-level').value = hasSlash24 ? '2' : '1';
+                    }
+                }
+            } else {
+                detectedEl.classList.add('hidden');
+            }
 
             if (state.hasHierarchy) {
                 $('hierarchy-box').classList.remove('hidden');
@@ -786,15 +929,13 @@
                     state.summaryRows = [];
                 }
 
-                // Filter out invalid IPs (0.0.0.0, לא מזוהה, empty)
-                state.detailRows = state.detailRows.filter(r => {
-                    const id = r.identifier.toLowerCase().trim();
-                    if (!id) return false;
-                    if (id === '0.0.0.0') return false;
-                    if (id.startsWith('0.0.0.')) return false;
-                    if (id === 'לא מזוהה' || id === 'not identified' || id === 'unknown') return false;
-                    return true;
-                });
+                // Filter out invalid identifiers using comprehensive validation
+                const beforeFilter = state.detailRows.length;
+                state.detailRows = state.detailRows.filter(r => !isInvalidIdentifier(r.identifier));
+                const filteredOut = beforeFilter - state.detailRows.length;
+                if (filteredOut > 0) {
+                    console.log('Filtered out', filteredOut, 'invalid identifiers');
+                }
 
                 console.log('Aggregating', state.detailRows.length, 'detail rows...');
                 
@@ -1013,6 +1154,10 @@
         $('level-view').addEventListener('change', () => { applyFilter(); renderTable(); });
         $('min-score-filter').addEventListener('input', () => { applyFilter(); renderTable(); });
         $('ip-level').addEventListener('change', () => { processData(); });
+        $('identifier-type').addEventListener('change', () => { 
+            state.identifierType = $('identifier-type').value;
+            processData(); 
+        });
         $('custom-enabled').addEventListener('change', () => { processData(); });
 
         // ═══════════════════════════════════════════════════════════════
@@ -1080,7 +1225,7 @@
             const cr = clicks > 0 ? (conv / clicks * 100) : 0;
             const epc = clicks > 0 ? (profit / clicks) : 0;
             const pill = (l, v, c) => '<div class="g-item"><span class="g-lbl">' + l + '</span><span class="g-val ' + c + '">' + v + '</span></div>';
-            $('global-stats').innerHTML = pill('IPs', data.length.toLocaleString(), '') + pill('Clicks', formatNum(clicks), 'text-blue-600') + pill('Conv', conv.toLocaleString(), '') + pill('Revenue', '$' + formatNum(rev), 'text-green-600') + pill('Cost', '$' + formatNum(cost), 'text-slate-500') + pill('Profit', '$' + formatNum(profit), profit >= 0 ? 'text-green-600' : 'text-red-500') + pill('ROI', roi.toFixed(0) + '%', roi >= 0 ? 'text-green-600' : 'text-red-500') + pill('CR', cr.toFixed(3) + '%', 'text-blue-600') + pill('EPC', '$' + epc.toFixed(4), 'text-amber-600');
+            $('global-stats').innerHTML = pill('מזהים', data.length.toLocaleString(), '') + pill('Clicks', formatNum(clicks), 'text-blue-600') + pill('Conv', conv.toLocaleString(), '') + pill('Revenue', '$' + formatNum(rev), 'text-green-600') + pill('Cost', '$' + formatNum(cost), 'text-slate-500') + pill('Profit', '$' + formatNum(profit), profit >= 0 ? 'text-green-600' : 'text-red-500') + pill('ROI', roi.toFixed(0) + '%', roi >= 0 ? 'text-green-600' : 'text-red-500') + pill('CR', cr.toFixed(3) + '%', 'text-blue-600') + pill('EPC', '$' + epc.toFixed(4), 'text-amber-600');
         }
 
         // ═══════════════════════════════════════════════════════════════
