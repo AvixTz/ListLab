@@ -172,36 +172,43 @@
                     </div>
                 </div>
 
-                <!-- IP Level Selection -->
+                <!-- Identifier Type & Column Selection -->
                 <div class="control-box border-blue-200 bg-blue-50 mb-3">
                     <div class="text-xs font-bold text-blue-700 mb-2 flex items-center gap-1">
                         <i data-lucide="layers" class="w-3 h-3"></i> סוג מזהה וסף קליקים
                     </div>
                     
-                    <!-- Identifier Type -->
-                    <div class="mb-2">
-                        <label class="text-[10px] text-slate-500 mb-1 block">סוג מזהה:</label>
-                        <select id="identifier-type" class="w-full text-sm border border-blue-300 rounded p-1.5 font-medium">
-                            <option value="auto">🔍 זיהוי אוטומטי</option>
-                            <option value="ip">🌐 IP Address</option>
-                            <option value="zone">📍 Zone ID</option>
-                            <option value="subid">🎯 SubID</option>
-                        </select>
-                        <div id="detected-type" class="text-[10px] text-green-600 font-bold mt-1 hidden"></div>
+                    <!-- Identifier Column + Type in same row -->
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <div>
+                            <label class="text-[10px] text-slate-500 mb-1 block">עמודת מזהה:</label>
+                            <select id="col-ip" class="w-full text-[11px] border border-blue-300 rounded p-1.5 font-medium"></select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-500 mb-1 block">סוג:</label>
+                            <select id="identifier-type" class="w-full text-[11px] border border-blue-300 rounded p-1.5 font-medium">
+                                <option value="auto">🔍 אוטומטי</option>
+                                <option value="subid">🎯 SubID</option>
+                                <option value="zone">📍 Zone</option>
+                                <option value="ip">🌐 IP</option>
+                            </select>
+                        </div>
                     </div>
+                    
+                    <div id="detected-type" class="text-[10px] text-green-600 font-bold mb-2 hidden"></div>
                     
                     <!-- Traffic Level -->
                     <div class="mb-2">
                         <label class="text-[10px] text-slate-500 mb-1 block">רמת טראפיק:</label>
                         <select id="ip-level" class="w-full text-sm border border-blue-300 rounded p-1.5 font-medium">
-                            <option value="1">רמה 1 - SubID/IP32 (1.5×, 1K-3K)</option>
-                            <option value="2" selected>רמה 2 - Zone/IP24 (3×, 3K-10K)</option>
+                            <option value="1" selected>רמה 1 - SubID/IP32 (1.5×, 1K-3K)</option>
+                            <option value="2">רמה 2 - Zone/IP24 (3×, 3K-10K)</option>
                             <option value="3">רמה 3 - IP16 (5×, 5K-15K)</option>
                         </select>
                     </div>
                     
                     <div class="threshold-info">
-                        סף קליקים נוכחי: <span class="threshold-val" id="current-threshold">7,000</span>
+                        סף קליקים נוכחי: <span class="threshold-val" id="current-threshold">1,500</span>
                         <br>נוסחה: מכפיל × (100 / CR%)
                     </div>
                 </div>
@@ -215,7 +222,6 @@
                         <i data-lucide="chevron-down" class="w-4 h-4 text-slate-600 collapse-icon" id="mapping-icon"></i>
                     </div>
                     <div class="collapsible-content" id="mapping-content">
-                        <div class="mapping-row"><label>מזהה</label><select id="col-ip"></select></div>
                         <div class="mapping-row"><label>קליקים</label><select id="col-clicks"></select></div>
                         <div class="mapping-row"><label>המרות</label><select id="col-conv"></select></div>
                         <div class="mapping-row"><label>הכנסה</label><select id="col-rev"></select></div>
@@ -769,51 +775,43 @@
         }
 
         function setupMapping() {
-            const selects = ['col-ip', 'col-clicks', 'col-conv', 'col-rev', 'col-cost'];
+            // Populate identifier column selector (in the top section)
+            const ipSel = $('col-ip');
+            ipSel.innerHTML = state.headers.map((h, i) => '<option value="' + i + '">' + h + '</option>').join('');
+            
+            // Find best identifier column - prioritize SubID columns
+            const hLower = state.headers.map(h => h.toLowerCase());
+            const subidPatterns = ['subid', 'sub_id', 'sub id', 'token 3', 'token3'];
+            const zonePatterns = ['zone', 'zone_id', 'zoneid', 'token 4', 'token4'];
+            const ipPatterns = ['ip', 'ip address', 'ip_address', 'range', 'identifier'];
+            
+            let matchIdx = hLower.findIndex(h => subidPatterns.some(p => h.includes(p)));
+            if (matchIdx < 0) matchIdx = hLower.findIndex(h => zonePatterns.some(p => h.includes(p)));
+            if (matchIdx < 0) matchIdx = hLower.findIndex(h => ipPatterns.some(p => h.includes(p)));
+            if (matchIdx >= 0) ipSel.value = matchIdx;
+            
+            // Other column mappings
+            const selects = ['col-clicks', 'col-conv', 'col-rev', 'col-cost'];
             const defaults = { 
-                'col-ip': ['ip', 'identifier', 'subid', 'sub_id', 'zone', 'zone_id', 'zoneid', 'range', 'token 3', 'token 4', 'token3', 'token4'], 
                 'col-clicks': ['clicks', 'click', 'impressions'], 
                 'col-conv': ['conv', 'conversions', 'conversion', 'leads'], 
                 'col-rev': ['revenue', 'rev', 'income', 'payout'], 
                 'col-cost': ['cost', 'spend', 'expense'] 
             };
-            const hLower = state.headers.map(h => h.toLowerCase());
+            
             selects.forEach(id => {
                 const sel = $(id);
                 sel.innerHTML = state.headers.map((h, i) => '<option value="' + i + '">' + h + '</option>').join('');
                 const matchIdx = hLower.findIndex(h => defaults[id].some(k => h.includes(k)));
                 if (matchIdx >= 0) sel.value = matchIdx;
             });
+            
             state.ipColumn = state.headers[+$('col-ip').value];
             $('mapping-box').classList.remove('hidden');
             $('medians-box').classList.remove('hidden');
 
-            // Auto-detect identifier type
-            const ipColIdx = +$('col-ip').value;
-            const identifierValues = state.rawData.map(row => String(row[ipColIdx] || '').trim());
-            state.detectedType = detectIdentifierType(identifierValues);
-            
-            // Update UI with detected type
-            const detectedEl = $('detected-type');
-            if (state.detectedType && state.detectedType !== 'unknown') {
-                detectedEl.textContent = '✓ זוהה: ' + getIdentifierTypeLabel(state.detectedType);
-                detectedEl.classList.remove('hidden');
-                
-                // Auto-set traffic level based on detected type
-                if ($('identifier-type').value === 'auto') {
-                    if (state.detectedType === 'subid') {
-                        $('ip-level').value = '1'; // SubID = Level 1
-                    } else if (state.detectedType === 'zone') {
-                        $('ip-level').value = '2'; // Zone = Level 2
-                    } else if (state.detectedType === 'ip') {
-                        // Check if IPs are /24 or /32
-                        const hasSlash24 = identifierValues.some(v => v.endsWith('.0') || v.includes('/24'));
-                        $('ip-level').value = hasSlash24 ? '2' : '1';
-                    }
-                }
-            } else {
-                detectedEl.classList.add('hidden');
-            }
+            // Auto-detect identifier type based on column values
+            detectAndUpdateIdentifierType();
 
             if (state.hasHierarchy) {
                 $('hierarchy-box').classList.remove('hidden');
@@ -824,6 +822,53 @@
                 $('level-filter-box').style.display = 'none';
                 $('th-level').style.display = 'none';
             }
+        }
+        
+        function detectAndUpdateIdentifierType() {
+            const ipColIdx = +$('col-ip').value;
+            const colName = state.headers[ipColIdx] || '';
+            const identifierValues = state.rawData.map(row => String(row[ipColIdx] || '').trim());
+            
+            // Detect type from values
+            state.detectedType = detectIdentifierType(identifierValues);
+            
+            // Also check column name for hints
+            const colLower = colName.toLowerCase();
+            let nameHint = null;
+            if (colLower.includes('subid') || colLower.includes('sub_id') || colLower.includes('token 3') || colLower.includes('token3')) {
+                nameHint = 'subid';
+            } else if (colLower.includes('zone') || colLower.includes('token 4') || colLower.includes('token4')) {
+                nameHint = 'zone';
+            } else if (colLower.includes('ip')) {
+                nameHint = 'ip';
+            }
+            
+            // Prefer column name hint if available
+            const finalType = nameHint || state.detectedType;
+            
+            // Update UI with detected type
+            const detectedEl = $('detected-type');
+            if (finalType && finalType !== 'unknown') {
+                detectedEl.innerHTML = '✓ זוהה: ' + getIdentifierTypeLabel(finalType) + ' <span class="text-slate-400">(' + colName + ')</span>';
+                detectedEl.classList.remove('hidden');
+                
+                // Auto-set traffic level based on detected type
+                if ($('identifier-type').value === 'auto') {
+                    if (finalType === 'subid') {
+                        $('ip-level').value = '1'; // SubID = Level 1
+                    } else if (finalType === 'zone') {
+                        $('ip-level').value = '2'; // Zone = Level 2
+                    } else if (finalType === 'ip') {
+                        // Check if IPs are /24 or /32
+                        const hasSlash24 = identifierValues.some(v => v.endsWith('.0') || v.includes('/24'));
+                        $('ip-level').value = hasSlash24 ? '2' : '1';
+                    }
+                }
+            } else {
+                detectedEl.classList.add('hidden');
+            }
+            
+            state.ipColumn = colName;
         }
 
         function setupFilters() {
@@ -1156,7 +1201,17 @@
         $('ip-level').addEventListener('change', () => { processData(); });
         $('identifier-type').addEventListener('change', () => { 
             state.identifierType = $('identifier-type').value;
+            if (state.identifierType !== 'auto') {
+                // Manual selection - set traffic level accordingly
+                if (state.identifierType === 'subid') $('ip-level').value = '1';
+                else if (state.identifierType === 'zone') $('ip-level').value = '2';
+                else if (state.identifierType === 'ip') $('ip-level').value = '1';
+            }
             processData(); 
+        });
+        $('col-ip').addEventListener('change', () => {
+            detectAndUpdateIdentifierType();
+            processData();
         });
         $('custom-enabled').addEventListener('change', () => { processData(); });
 
