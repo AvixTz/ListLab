@@ -155,10 +155,10 @@
         .delta-negative { background: #fee2e2; color: #dc2626; }
         
         /* Top Performer Item */
-        .performer-item { display: flex; justify-content: space-between; align-items: center; gap: 4px; padding: 2px 0; border-bottom: 1px solid #f1f5f9; }
+        .performer-item { display: flex; justify-content: space-between; align-items: center; gap: 2px; padding: 2px 0; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; }
         .performer-item:last-child { border: none; }
-        .performer-id { font-weight: 600; color: #334155; max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .performer-val { font-weight: 700; font-family: 'Inter', sans-serif; white-space: nowrap; }
+        .performer-id { font-weight: 600; color: #334155; font-size: 11px; word-break: break-all; }
+        .performer-val { font-weight: 700; font-family: 'Inter', sans-serif; white-space: nowrap; font-size: 11px; }
     </style>
 </head>
 <body>
@@ -488,54 +488,49 @@
                         </div>
                         <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform" id="dash-toggle-icon"></i>
                     </div>
-                    <div id="dashboard-content" class="hidden p-3 bg-gradient-to-br from-slate-50 to-white">
-                        <div class="grid grid-cols-5 gap-3">
+                    <div id="dashboard-content" class="hidden px-3 py-2 bg-gradient-to-br from-slate-50 to-white">
+                        <div class="grid grid-cols-4 gap-2">
                             
-                            <!-- Top 3 Performers -->
-                            <div class="bg-white rounded-lg p-3 border border-green-100 shadow-sm">
-                                <div class="text-[10px] font-bold text-green-600 mb-2 flex items-center gap-1">
-                                    <i data-lucide="trophy" class="w-3 h-3"></i> TOP 3 רווחיים
+                            <!-- Top 5 Performers -->
+                            <div class="bg-white rounded-lg p-2 border border-green-200 shadow-sm">
+                                <div class="text-[11px] font-bold text-green-600 mb-1 flex items-center gap-1">
+                                    <i data-lucide="trophy" class="w-3 h-3"></i> TOP 5 רווחיים
                                 </div>
-                                <div id="top-performers" class="space-y-1 text-[11px]"></div>
+                                <div id="top-performers" class="space-y-0.5"></div>
                             </div>
                             
-                            <!-- Bottom 3 Losers -->
-                            <div class="bg-white rounded-lg p-3 border border-red-100 shadow-sm">
-                                <div class="text-[10px] font-bold text-red-600 mb-2 flex items-center gap-1">
-                                    <i data-lucide="trending-down" class="w-3 h-3"></i> TOP 3 מפסידים
+                            <!-- Top 5 Losers -->
+                            <div class="bg-white rounded-lg p-2 border border-red-200 shadow-sm">
+                                <div class="text-[11px] font-bold text-red-600 mb-1 flex items-center gap-1">
+                                    <i data-lucide="trending-down" class="w-3 h-3"></i> TOP 5 מפסידים
                                 </div>
-                                <div id="top-losers" class="space-y-1 text-[11px]"></div>
+                                <div id="top-losers" class="space-y-0.5"></div>
                             </div>
                             
-                            <!-- Untested Potential -->
-                            <div class="bg-white rounded-lg p-3 border border-amber-100 shadow-sm">
-                                <div class="text-[10px] font-bold text-amber-600 mb-2 flex items-center gap-1">
-                                    <i data-lucide="clock" class="w-3 h-3"></i> ממתינים לבדיקה
+                            <!-- Star Performers -->
+                            <div class="bg-white rounded-lg p-2 border border-purple-200 shadow-sm">
+                                <div class="text-[11px] font-bold text-purple-600 mb-1 flex items-center gap-1">
+                                    <i data-lucide="star" class="w-3 h-3"></i> ראויים לקמפיין נפרד
                                 </div>
-                                <div id="untested-stats" class="text-[11px]">
-                                    <div class="flex justify-between"><span class="text-slate-500">מתחת לסף:</span><span class="font-bold num-font" id="below-threshold">0</span></div>
-                                    <div class="flex justify-between"><span class="text-slate-500">קרובים לסף:</span><span class="font-bold num-font text-amber-600" id="near-threshold">0</span></div>
-                                    <div class="flex justify-between"><span class="text-slate-500">עלות צפויה:</span><span class="font-bold num-font" id="potential-cost">$0</span></div>
-                                </div>
+                                <div id="outstanding-list" class="space-y-0.5"></div>
                             </div>
                             
-                            <!-- Category Distribution -->
-                            <div class="bg-white rounded-lg p-3 border border-purple-100 shadow-sm">
-                                <div class="text-[10px] font-bold text-purple-600 mb-2 flex items-center gap-1">
-                                    <i data-lucide="pie-chart" class="w-3 h-3"></i> התפלגות קטגוריות
+                            <!-- Smart Break-Even -->
+                            <div class="bg-white rounded-lg p-2 border border-blue-200 shadow-sm">
+                                <div class="text-[11px] font-bold text-blue-600 mb-1 flex items-center gap-1">
+                                    <i data-lucide="calculator" class="w-3 h-3"></i> Break-Even Calculator
                                 </div>
-                                <div id="cat-distribution" class="text-[11px] space-y-1"></div>
-                            </div>
-                            
-                            <!-- Quick Insights -->
-                            <div class="bg-white rounded-lg p-3 border border-blue-100 shadow-sm">
-                                <div class="text-[10px] font-bold text-blue-600 mb-2 flex items-center gap-1">
-                                    <i data-lucide="lightbulb" class="w-3 h-3"></i> תובנות מהירות
-                                </div>
-                                <div class="text-[11px] space-y-1">
-                                    <div class="flex justify-between"><span class="text-slate-500">יחס מנצחים:</span><span class="font-bold num-font" id="winner-ratio">0%</span></div>
-                                    <div class="flex justify-between"><span class="text-slate-500">EPC ממוצע:</span><span class="font-bold num-font" id="avg-epc">$0</span></div>
-                                    <div class="flex justify-between"><span class="text-slate-500">Blacklist %:</span><span class="font-bold num-font text-red-500" id="blacklist-pct">0%</span></div>
+                                <div class="text-[10px] space-y-1.5">
+                                    <div class="bg-blue-50 rounded p-1.5">
+                                        <div class="text-slate-600 mb-0.5 font-medium">קליקים מקס׳ עד הפסד:</div>
+                                        <div class="font-bold text-blue-700 num-font text-[13px]" id="be-max-clicks">-</div>
+                                        <div class="text-[9px] text-slate-400 num-font" id="be-clicks-formula"></div>
+                                    </div>
+                                    <div class="bg-purple-50 rounded p-1.5">
+                                        <div class="text-slate-600 mb-0.5 font-medium">CR מינימלי לרווח:</div>
+                                        <div class="font-bold text-purple-700 num-font text-[13px]" id="be-min-cr">-</div>
+                                        <div class="text-[9px] text-slate-400 num-font" id="be-cr-formula"></div>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -1689,54 +1684,83 @@
             const byProfit = [...state.processed].sort((a, b) => b.profit - a.profit);
             const testedOnly = byProfit.filter(r => r.clicks >= state.clickThreshold);
             
-            // Top 3 Performers - with category
-            const top3 = testedOnly.filter(r => r.profit > 0).slice(0, 3);
-            $('top-performers').innerHTML = top3.length ? top3.map(r => 
-                '<div class="performer-item"><span class="performer-id" title="' + r.identifier + '">' + r.identifier.substring(0, 10) + '</span>' + getCategoryMini(r.category) + '<span class="performer-val text-green-600">+$' + r.profit.toFixed(2) + '</span></div>'
+            // TOP 5 Performers - FULL identifier
+            const top5 = testedOnly.filter(r => r.profit > 0).slice(0, 5);
+            $('top-performers').innerHTML = top5.length ? top5.map(r => 
+                '<div class="performer-item"><span class="performer-id" title="' + r.identifier + '">' + r.identifier + '</span>' + getCategoryMini(r.category) + '<span class="performer-val text-green-600">+$' + r.profit.toFixed(2) + '</span></div>'
             ).join('') : '<div class="text-slate-400 text-[10px]">אין נתונים</div>';
             
-            // Top 3 Losers - with category
-            const bottom3 = testedOnly.filter(r => r.profit < 0).sort((a, b) => a.profit - b.profit).slice(0, 3);
-            $('top-losers').innerHTML = bottom3.length ? bottom3.map(r => 
-                '<div class="performer-item"><span class="performer-id" title="' + r.identifier + '">' + r.identifier.substring(0, 10) + '</span>' + getCategoryMini(r.category) + '<span class="performer-val text-red-500">$' + r.profit.toFixed(2) + '</span></div>'
+            // TOP 5 Losers - FULL identifier
+            const bottom5 = testedOnly.filter(r => r.profit < 0).sort((a, b) => a.profit - b.profit).slice(0, 5);
+            $('top-losers').innerHTML = bottom5.length ? bottom5.map(r => 
+                '<div class="performer-item"><span class="performer-id" title="' + r.identifier + '">' + r.identifier + '</span>' + getCategoryMini(r.category) + '<span class="performer-val text-red-500">$' + r.profit.toFixed(2) + '</span></div>'
             ).join('') : '<div class="text-slate-400 text-[10px]">אין נתונים</div>';
             
-            // Untested Stats
-            const belowThreshold = state.processed.filter(r => r.clicks < state.clickThreshold);
-            const nearThreshold = belowThreshold.filter(r => r.clicks >= state.clickThreshold * 0.7);
-            const potentialCost = belowThreshold.reduce((s, r) => s + Math.max(0, (state.clickThreshold - r.clicks) * 0.001), 0);
+            // ═══════════════════════════════════════════════════════════
+            // SMART BREAK-EVEN CALCULATOR
+            // Using MEDIAN payout (not average) for realistic calculation
+            // ═══════════════════════════════════════════════════════════
+            const totalClicks = state.processed.reduce((s, r) => s + r.clicks, 0);
+            const totalCost = state.processed.reduce((s, r) => s + r.cost, 0);
             
-            $('below-threshold').textContent = belowThreshold.length.toLocaleString();
-            $('near-threshold').textContent = nearThreshold.length.toLocaleString();
-            $('potential-cost').textContent = '$' + potentialCost.toFixed(2);
+            // Average CPC = Cost / Clicks
+            const avgCPC = totalClicks > 0 ? totalCost / totalClicks : 0.001;
             
-            // Category Distribution
-            const cats = { pure: 0, gold: 0, potential: 0, ignore: 0, blacklist: 0, testing: 0 };
-            const catColors = { pure: 'text-amber-600', gold: 'text-amber-700', potential: 'text-green-600', ignore: 'text-slate-500', blacklist: 'text-red-500', testing: 'text-blue-600' };
-            const catLabels = { pure: '💎 Pure', gold: '🥇 Gold', potential: '🌱 Potential', ignore: '😐 Ignore', blacklist: '🚫 Blacklist', testing: '🔬 Testing' };
-            
+            // Calculate MEDIAN payout per conversion (not average!)
+            // This gives realistic expectation, not skewed by high payouts
+            const payoutsPerConv = [];
             state.processed.forEach(r => {
-                if (cats[r.category] !== undefined) cats[r.category]++;
+                if (r.conv > 0 && r.rev > 0) {
+                    payoutsPerConv.push(r.rev / r.conv);
+                }
             });
+            payoutsPerConv.sort((a, b) => a - b);
+            const medianPayout = payoutsPerConv.length > 0 
+                ? payoutsPerConv[Math.floor(payoutsPerConv.length / 2)] 
+                : 0;
             
-            $('cat-distribution').innerHTML = Object.entries(cats)
-                .filter(([_, c]) => c > 0)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 4)
-                .map(([cat, count]) => '<div class="flex justify-between"><span class="' + catColors[cat] + '">' + catLabels[cat] + '</span><span class="font-bold num-font">' + count + '</span></div>')
-                .join('');
+            // MAX CLICKS until loss (using median payout):
+            // If Zone reaches this many clicks with 1 conversion, profit = 0
+            // Formula: Max Clicks = Median Payout / CPC
+            const maxClicksUntilLoss = avgCPC > 0 ? medianPayout / avgCPC : 0;
             
-            // Quick Insights
-            const winners = state.processed.filter(r => ['pure', 'gold', 'potential'].includes(r.category)).length;
-            const winnerRatio = state.processed.length > 0 ? (winners / state.processed.length * 100) : 0;
-            const avgEpc = state.processed.length > 0 ? state.processed.reduce((s, r) => s + r.epc, 0) / state.processed.length : 0;
-            const blacklistCount = state.processed.filter(r => r.category === 'blacklist').length;
-            const blacklistPct = state.processed.length > 0 ? (blacklistCount / state.processed.length * 100) : 0;
+            // MIN CR to stay profitable:
+            // Formula: Min CR = CPC / Median Payout
+            // Below this CR, even with conversions, we lose money
+            const minCRtoProfit = medianPayout > 0 ? avgCPC / medianPayout : 0;
             
-            $('winner-ratio').textContent = winnerRatio.toFixed(1) + '%';
-            $('winner-ratio').className = 'font-bold num-font ' + (winnerRatio > 20 ? 'text-green-600' : winnerRatio > 10 ? 'text-amber-600' : 'text-red-500');
-            $('avg-epc').textContent = '$' + avgEpc.toFixed(4);
-            $('blacklist-pct').textContent = blacklistPct.toFixed(1) + '%';
+            $('be-max-clicks').textContent = maxClicksUntilLoss.toLocaleString(undefined, {maximumFractionDigits: 0});
+            $('be-clicks-formula').textContent = 'Median AP $' + medianPayout.toFixed(2) + ' ÷ CPC $' + avgCPC.toFixed(4);
+            
+            $('be-min-cr').textContent = (minCRtoProfit * 100).toFixed(3) + '%';
+            $('be-cr-formula').textContent = 'CPC $' + avgCPC.toFixed(4) + ' ÷ Median AP $' + medianPayout.toFixed(2);
+            
+            // ═══════════════════════════════════════════════════════════
+            // OUTSTANDING PERFORMERS - Worthy of separate campaign
+            // Criteria: CR > median, ROI x2 AND > 750%, profitable, 2+ conv
+            // ═══════════════════════════════════════════════════════════
+            const avgROI = testedOnly.length > 0 ? testedOnly.reduce((s, r) => s + r.roi, 0) / testedOnly.length : 0;
+            
+            // Calculate median CR
+            const crValues = testedOnly.filter(r => r.conv > 0).map(r => r.cr).sort((a, b) => a - b);
+            const medianCR = crValues.length > 0 ? crValues[Math.floor(crValues.length / 2)] : 0;
+            
+            const outstanding = testedOnly.filter(r => {
+                // Must be profitable
+                if (r.profit <= 0) return false;
+                // Must have at least 2 conversions
+                if (r.conv < 2) return false;
+                // CR must be ABOVE median (good performers)
+                if (r.cr < medianCR) return false;
+                // ROI at least 2x average AND ROI > 750%
+                const roiRatio = avgROI > 0 ? r.roi / avgROI : 0;
+                return roiRatio >= 2 && r.roi > 750;
+            }).sort((a, b) => b.roi - a.roi).slice(0, 5);
+            
+            $('outstanding-list').innerHTML = outstanding.length ? outstanding.map(r => {
+                const multiplier = avgROI > 0 ? (r.roi / avgROI).toFixed(1) : '∞';
+                return '<div class="performer-item"><span class="performer-id" title="' + r.identifier + '">' + r.identifier + '</span>' + getCategoryMini(r.category) + '<span class="performer-val text-purple-600">x' + multiplier + '</span></div>';
+            }).join('') : '<div class="text-slate-400 text-[10px]">אין מצטיינים בולטים</div>';
         }
         
         // ═══════════════════════════════════════════════════════════════
