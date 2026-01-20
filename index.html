@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ListLab V35 Production - Decision Support System</title>
+    <title>ListLab V36 Production - Decision Support System</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -123,6 +123,42 @@
 
         .threshold-info { font-size: 10px; color: #64748b; background: #f8fafc; padding: 4px 8px; border-radius: 4px; margin-top: 4px; }
         .threshold-val { font-weight: 800; color: #3b82f6; }
+        
+        /* Mini Dashboard */
+        .mini-dashboard { display: flex; gap: 12px; padding: 12px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-bottom: 1px solid #e2e8f0; }
+        .dash-chart { background: white; border-radius: 10px; padding: 12px; border: 1px solid #e2e8f0; flex: 1; min-width: 200px; }
+        .dash-chart-title { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px; }
+        
+        /* Search Box */
+        .search-box { position: relative; }
+        .search-box input { width: 160px; padding: 6px 10px 6px 28px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; background: white; }
+        .search-box input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
+        .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
+        .search-highlight { background: #fef08a !important; padding: 0 2px; border-radius: 2px; }
+        
+        /* Compare Mode */
+        .compare-badge { font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: 700; }
+        .badge-new { background: #d1fae5; color: #065f46; }
+        .badge-improved { background: #dbeafe; color: #1e40af; }
+        .badge-declined { background: #fee2e2; color: #991b1b; }
+        .badge-gone { background: #f3f4f6; color: #6b7280; }
+        
+        .compare-panel { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #93c5fd; border-radius: 8px; padding: 10px; margin-bottom: 12px; }
+        .compare-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+        .compare-stat { text-align: center; padding: 6px 12px; background: white; border-radius: 6px; }
+        .compare-stat-val { font-size: 18px; font-weight: 800; font-family: 'Inter', sans-serif; }
+        .compare-stat-lbl { font-size: 10px; color: #64748b; }
+        
+        /* Change Delta Display */
+        .change-delta { font-size: 9px; font-weight: 700; padding: 1px 3px; border-radius: 3px; font-family: 'Inter', sans-serif; display: inline-block; margin-bottom: 1px; }
+        .delta-positive { background: #d1fae5; color: #059669; }
+        .delta-negative { background: #fee2e2; color: #dc2626; }
+        
+        /* Top Performer Item */
+        .performer-item { display: flex; justify-content: space-between; align-items: center; gap: 4px; padding: 2px 0; border-bottom: 1px solid #f1f5f9; }
+        .performer-item:last-child { border: none; }
+        .performer-id { font-weight: 600; color: #334155; max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .performer-val { font-weight: 700; font-family: 'Inter', sans-serif; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -134,7 +170,7 @@
                 </div>
                 <div>
                     <h1 class="text-base font-bold text-slate-800">ListLab</h1>
-                    <div class="text-[11px] text-amber-600 font-bold">V35 Production</div>
+                    <div class="text-[11px] text-amber-600 font-bold">V36 Production</div>
                 </div>
             </div>
             
@@ -153,13 +189,50 @@
 
         <div class="dash-container">
             <aside class="dash-sidebar custom-scrollbar">
-                <div class="btn-upload mb-3" id="drop-zone">
+                <div class="btn-upload mb-2" id="drop-zone">
                     <input type="file" id="file-input" class="hidden" accept=".xlsx,.csv">
                     <div class="flex items-center justify-center gap-2 mb-1 text-indigo-700">
                         <i data-lucide="upload-cloud" class="w-4 h-4"></i>
                         <span class="text-sm font-bold">טען קובץ CSV / Excel</span>
                     </div>
                     <div id="filename" class="text-[10px] text-indigo-400 truncate"></div>
+                </div>
+                
+                <!-- Compare Files -->
+                <div class="flex gap-2 mb-3">
+                    <button id="btn-compare" class="flex-1 flex items-center justify-center gap-1 bg-blue-50 border border-blue-200 text-blue-700 py-1.5 rounded text-[11px] font-bold hover:bg-blue-100 disabled:opacity-50" disabled>
+                        <i data-lucide="git-compare" class="w-3 h-3"></i> השווה קבצים
+                    </button>
+                    <input type="file" id="compare-input" class="hidden" accept=".xlsx,.csv">
+                    <button id="btn-clear-compare" class="hidden px-2 py-1.5 bg-slate-100 border border-slate-200 text-slate-600 rounded text-[11px] font-bold hover:bg-slate-200">
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>
+                </div>
+                
+                <!-- Compare Results Panel -->
+                <div id="compare-panel" class="compare-panel hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-blue-700">📊 תוצאות השוואה</span>
+                        <span id="compare-file-name" class="text-[10px] text-blue-500 truncate max-w-[150px]"></span>
+                    </div>
+                    <div class="compare-stats">
+                        <div class="compare-stat">
+                            <div class="compare-stat-val text-green-600" id="cmp-new">0</div>
+                            <div class="compare-stat-lbl">חדשים ✨</div>
+                        </div>
+                        <div class="compare-stat">
+                            <div class="compare-stat-val text-blue-600" id="cmp-improved">0</div>
+                            <div class="compare-stat-lbl">השתפרו 📈</div>
+                        </div>
+                        <div class="compare-stat">
+                            <div class="compare-stat-val text-red-600" id="cmp-declined">0</div>
+                            <div class="compare-stat-lbl">ירדו 📉</div>
+                        </div>
+                        <div class="compare-stat">
+                            <div class="compare-stat-val text-slate-500" id="cmp-gone">0</div>
+                            <div class="compare-stat-lbl">נעלמו ❌</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="hierarchy-box" class="hidden bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-2 mb-3">
@@ -405,11 +478,88 @@
                 <div class="p-3 bg-white border-b border-slate-100 shrink-0">
                     <div id="kpi-container" class="kpi-container"></div>
                 </div>
+                
+                <!-- Mini Dashboard - Collapsible -->
+                <div id="mini-dashboard" class="hidden border-b border-slate-200">
+                    <div class="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-slate-50 to-slate-100 cursor-pointer" onclick="toggleDashboard()">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-600">
+                            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                            <span>Dashboard מהיר</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform" id="dash-toggle-icon"></i>
+                    </div>
+                    <div id="dashboard-content" class="hidden p-3 bg-gradient-to-br from-slate-50 to-white">
+                        <div class="grid grid-cols-5 gap-3">
+                            
+                            <!-- Top 3 Performers -->
+                            <div class="bg-white rounded-lg p-3 border border-green-100 shadow-sm">
+                                <div class="text-[10px] font-bold text-green-600 mb-2 flex items-center gap-1">
+                                    <i data-lucide="trophy" class="w-3 h-3"></i> TOP 3 רווחיים
+                                </div>
+                                <div id="top-performers" class="space-y-1 text-[11px]"></div>
+                            </div>
+                            
+                            <!-- Bottom 3 Losers -->
+                            <div class="bg-white rounded-lg p-3 border border-red-100 shadow-sm">
+                                <div class="text-[10px] font-bold text-red-600 mb-2 flex items-center gap-1">
+                                    <i data-lucide="trending-down" class="w-3 h-3"></i> TOP 3 מפסידים
+                                </div>
+                                <div id="top-losers" class="space-y-1 text-[11px]"></div>
+                            </div>
+                            
+                            <!-- Untested Potential -->
+                            <div class="bg-white rounded-lg p-3 border border-amber-100 shadow-sm">
+                                <div class="text-[10px] font-bold text-amber-600 mb-2 flex items-center gap-1">
+                                    <i data-lucide="clock" class="w-3 h-3"></i> ממתינים לבדיקה
+                                </div>
+                                <div id="untested-stats" class="text-[11px]">
+                                    <div class="flex justify-between"><span class="text-slate-500">מתחת לסף:</span><span class="font-bold num-font" id="below-threshold">0</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-500">קרובים לסף:</span><span class="font-bold num-font text-amber-600" id="near-threshold">0</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-500">עלות צפויה:</span><span class="font-bold num-font" id="potential-cost">$0</span></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Category Distribution -->
+                            <div class="bg-white rounded-lg p-3 border border-purple-100 shadow-sm">
+                                <div class="text-[10px] font-bold text-purple-600 mb-2 flex items-center gap-1">
+                                    <i data-lucide="pie-chart" class="w-3 h-3"></i> התפלגות קטגוריות
+                                </div>
+                                <div id="cat-distribution" class="text-[11px] space-y-1"></div>
+                            </div>
+                            
+                            <!-- Quick Insights -->
+                            <div class="bg-white rounded-lg p-3 border border-blue-100 shadow-sm">
+                                <div class="text-[10px] font-bold text-blue-600 mb-2 flex items-center gap-1">
+                                    <i data-lucide="lightbulb" class="w-3 h-3"></i> תובנות מהירות
+                                </div>
+                                <div class="text-[11px] space-y-1">
+                                    <div class="flex justify-between"><span class="text-slate-500">יחס מנצחים:</span><span class="font-bold num-font" id="winner-ratio">0%</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-500">EPC ממוצע:</span><span class="font-bold num-font" id="avg-epc">$0</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-500">Blacklist %:</span><span class="font-bold num-font text-red-500" id="blacklist-pct">0%</span></div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
 
                 <div class="flex-1 p-3 min-h-0 flex flex-col">
                     <div class="bg-white rounded-xl border border-slate-200 flex-1 flex flex-col overflow-hidden shadow-sm">
                         <div class="px-4 py-2 border-b border-slate-200 bg-white flex justify-between items-center shrink-0 flex-wrap gap-2">
                             <div class="flex items-center gap-3 flex-wrap">
+                                <!-- Search Box -->
+                                <div class="search-box">
+                                    <i data-lucide="search" class="w-3 h-3"></i>
+                                    <input type="text" id="search-input" placeholder="חפש מזהה..." class="text-right">
+                                </div>
+                                
+                                <!-- Show Changes Toggle (Compare Mode) -->
+                                <div id="show-changes-box" class="hidden flex items-center gap-1 border-l border-slate-200 pl-3">
+                                    <label class="flex items-center gap-1 text-[11px] text-blue-600 font-bold cursor-pointer">
+                                        <input type="checkbox" id="chk-show-changes" class="chk-input" checked> הצג שינויים
+                                    </label>
+                                </div>
+                                
                                 <div class="flex items-center gap-2">
                                     <span class="text-[11px] font-bold text-slate-400 uppercase">תצוגה:</span>
                                     <select id="filter-view" class="text-sm bg-slate-50 border border-slate-200 rounded px-2 py-1 font-medium w-36">
@@ -423,6 +573,9 @@
                                         <option value="blacklist">🚫 Blacklist</option>
                                         <option value="testing">🔬 Testing</option>
                                         <option value="custom">🎯 Custom</option>
+                                        <option value="compare-new">✨ חדשים</option>
+                                        <option value="compare-improved">📈 השתפרו</option>
+                                        <option value="compare-declined">📉 ירדו</option>
                                     </select>
                                 </div>
 
@@ -501,7 +654,17 @@
             hasHierarchy: false, levelColumn: null, maxLevel: 1, ipColumn: '',
             customEnabled: false,
             identifierType: 'auto', // auto, ip, zone, subid
-            detectedType: null
+            detectedType: null,
+            // Compare mode
+            compareMode: false,
+            compareData: null,
+            compareResults: { new: [], improved: [], declined: [], gone: [] },
+            // Search
+            searchQuery: '',
+            // Extra columns (OS, ISP, etc)
+            osColumn: null,
+            ispColumn: null,
+            extraColumns: []
         };
 
         // Traffic Level configurations (same thresholds for IP/Zone/SubID)
@@ -809,6 +972,23 @@
             state.ipColumn = state.headers[+$('col-ip').value];
             $('mapping-box').classList.remove('hidden');
             $('medians-box').classList.remove('hidden');
+            
+            // Detect OS/ISP columns
+            state.extraColumns = [];
+            const osPatterns = ['os', 'operating system', 'device os', 'platform'];
+            const ispPatterns = ['isp', 'carrier', 'network', 'provider'];
+            const browserPatterns = ['browser', 'user agent'];
+            const countryPatterns = ['country', 'geo', 'region'];
+            
+            const osIdx = hLower.findIndex(h => osPatterns.some(p => h.includes(p)));
+            const ispIdx = hLower.findIndex(h => ispPatterns.some(p => h.includes(p)));
+            const browserIdx = hLower.findIndex(h => browserPatterns.some(p => h.includes(p)));
+            const countryIdx = hLower.findIndex(h => countryPatterns.some(p => h === p || h.includes(p)));
+            
+            if (osIdx >= 0) { state.osColumn = osIdx; state.extraColumns.push(state.headers[osIdx]); }
+            if (ispIdx >= 0) { state.ispColumn = ispIdx; state.extraColumns.push(state.headers[ispIdx]); }
+            if (browserIdx >= 0 && state.extraColumns.length < 2) state.extraColumns.push(state.headers[browserIdx]);
+            if (countryIdx >= 0 && state.extraColumns.length < 2) state.extraColumns.push(state.headers[countryIdx]);
 
             // Auto-detect identifier type based on column values
             detectAndUpdateIdentifierType();
@@ -940,11 +1120,23 @@
                 const cols = { ip: +$('col-ip').value, clicks: +$('col-clicks').value, conv: +$('col-conv').value, rev: +$('col-rev').value, cost: +$('col-cost').value };
                 state.ipColumn = state.headers[cols.ip];
                 const levelIdx = state.levelColumn ? state.headers.indexOf(state.levelColumn) : -1;
+                
+                // Get extra column indices
+                const extraColIndices = {};
+                state.extraColumns.forEach(col => {
+                    extraColIndices[col] = state.headers.indexOf(col);
+                });
 
                 console.log('Parsing rows...');
                 state.allRows = state.rawData.map((row, idx) => {
                     const level = levelIdx >= 0 ? parseNum(row[levelIdx]) : 1;
-                    return { idx, raw: row, identifier: String(row[cols.ip] || '').trim(), level, clicks: parseNum(row[cols.clicks]), conv: parseNum(row[cols.conv]), rev: parseNum(row[cols.rev]), cost: parseNum(row[cols.cost]), profit: parseNum(row[cols.rev]) - parseNum(row[cols.cost]) };
+                    // Collect extra data
+                    const extraData = {};
+                    state.extraColumns.forEach(col => {
+                        const colIdx = extraColIndices[col];
+                        if (colIdx >= 0) extraData[col] = String(row[colIdx] || '').trim();
+                    });
+                    return { idx, raw: row, identifier: String(row[cols.ip] || '').trim(), level, clicks: parseNum(row[cols.clicks]), conv: parseNum(row[cols.conv]), rev: parseNum(row[cols.rev]), cost: parseNum(row[cols.cost]), profit: parseNum(row[cols.rev]) - parseNum(row[cols.cost]), extraData };
                 });
                 console.log('Parsed', state.allRows.length, 'rows');
 
@@ -987,7 +1179,7 @@
                 const grouped = {};
                 state.detailRows.forEach(r => {
                     const key = r.identifier || 'Unknown';
-                    if (!grouped[key]) grouped[key] = { identifier: key, level: r.level, clicks: 0, conv: 0, rev: 0, cost: 0, profit: 0, isSummary: false };
+                    if (!grouped[key]) grouped[key] = { identifier: key, level: r.level, clicks: 0, conv: 0, rev: 0, cost: 0, profit: 0, isSummary: false, extraData: r.extraData };
                     const g = grouped[key];
                     g.clicks += r.clicks; g.conv += r.conv; g.rev += r.rev; g.cost += r.cost; g.profit += r.profit;
                 });
@@ -1032,6 +1224,8 @@
                 renderKPIs();
                 renderTable();
                 renderGlobalStats();
+                updateMiniDashboard();
+                enableCompareButton();
                 
                 console.log('processData completed successfully');
                 
@@ -1170,9 +1364,17 @@
             if (view === 'winners') data = data.filter(r => ['pure', 'gold', 'potential'].includes(r.category));
             else if (view === 'relevant') data = data.filter(r => ['pure', 'gold', 'potential', 'testing'].includes(r.category));
             else if (view === 'custom') data = data.filter(r => r.matchesCustom);
+            else if (view === 'compare-new') data = data.filter(r => r.compareStatus === 'new');
+            else if (view === 'compare-improved') data = data.filter(r => r.compareStatus === 'improved');
+            else if (view === 'compare-declined') data = data.filter(r => r.compareStatus === 'declined');
             else if (view !== 'all') data = data.filter(r => r.category === view);
 
             if (minScore > 0) data = data.filter(r => r.score >= minScore || r.isSummary);
+            
+            // Apply search filter
+            if (state.searchQuery) {
+                data = data.filter(r => r.identifier.toLowerCase().includes(state.searchQuery));
+            }
 
             state.filtered = data.sort((a, b) => {
                 if (a.isSummary && !b.isSummary) return -1;
@@ -1290,6 +1492,9 @@
             const start = (state.page - 1) * state.pageSize;
             const pageData = state.filtered.slice(start, start + state.pageSize);
             const showLevel = state.hasHierarchy;
+            const showChanges = state.compareMode && $('chk-show-changes').checked;
+            const showExtraCols = state.extraColumns && state.extraColumns.length > 0;
+            
             const catConfig = {
                 pure: { badge: 'badge-pure', row: 'row-pure', label: '💎 PURE' },
                 gold: { badge: 'badge-gold', row: 'row-gold', label: '🥇 GOLD' },
@@ -1300,18 +1505,92 @@
                 custom: { badge: 'badge-custom', row: 'row-custom', label: '🎯 CUSTOM' },
                 summary: { badge: 'badge-summary', row: 'row-summary', label: '📊 SUMMARY' }
             };
+            
+            const compareBadges = {
+                'new': '<span class="compare-badge badge-new ml-1">✨</span>',
+                'improved': '<span class="compare-badge badge-improved ml-1">📈</span>',
+                'declined': '<span class="compare-badge badge-declined ml-1">📉</span>'
+            };
+            
+            // Helper function to create delta display
+            function makeDelta(current, old, prefix, suffix, decimals) {
+                if (!showChanges || old === undefined) return '';
+                const delta = current - old;
+                if (Math.abs(delta) < 0.01) return '';
+                const cls = delta >= 0 ? 'delta-positive' : 'delta-negative';
+                const sign = delta >= 0 ? '+' : '';
+                return '<div class="change-delta ' + cls + '">' + sign + prefix + delta.toFixed(decimals) + suffix + '</div>';
+            }
 
             let html = '';
             pageData.forEach((r, i) => {
                 const cfg = catConfig[r.category] || catConfig.ignore;
                 const scoreCls = r.score > 5 ? 'score-high' : r.score > 1 ? 'score-mid' : 'score-low';
                 const levelCls = r.level === 1 ? 'level-1' : r.level === 2 ? 'level-2' : 'level-3';
-                html += '<tr class="' + cfg.row + '"><td class="text-center num-font text-slate-400">' + (start + i + 1) + '</td>' + (showLevel ? '<td class="text-center"><span class="level-badge ' + levelCls + '">' + r.level + '</span></td>' : '') + '<td class="text-right font-bold text-slate-700 ' + (r.isSummary ? 'text-indigo-700' : '') + '">' + r.identifier + '</td><td class="text-center"><span class="cat-badge ' + cfg.badge + '">' + cfg.label + '</span></td><td class="text-center"><span class="score-pill ' + scoreCls + '">' + r.score.toFixed(2) + '</span></td><td class="text-center num-font">' + r.clicks.toLocaleString() + '</td><td class="text-center num-font font-bold">' + r.conv + '</td><td class="text-center num-font text-green-600">$' + r.rev.toFixed(2) + '</td><td class="text-center num-font text-slate-500">$' + r.cost.toFixed(2) + '</td><td class="text-center num-font font-bold ' + (r.profit >= 0 ? 'text-green-600' : 'text-red-500') + '">$' + r.profit.toFixed(2) + '</td><td class="text-center num-font ' + (r.roi >= 0 ? 'text-green-600' : 'text-red-500') + '">' + r.roi.toFixed(0) + '%</td><td class="text-center num-font text-blue-600">' + (r.cr * 100).toFixed(3) + '%</td><td class="text-center num-font">$' + r.epc.toFixed(4) + '</td></tr>';
+                
+                // Highlight search matches
+                let displayId = r.identifier;
+                if (state.searchQuery && r.identifier.toLowerCase().includes(state.searchQuery)) {
+                    const regex = new RegExp('(' + state.searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+                    displayId = r.identifier.replace(regex, '<mark class="search-highlight">$1</mark>');
+                }
+                
+                // Add compare badge
+                const cmpBadge = state.compareMode && r.compareStatus ? (compareBadges[r.compareStatus] || '') : '';
+                
+                // Create delta displays for Profit, ROI, CR
+                const profitDelta = r.compareStatus !== 'new' ? makeDelta(r.profit, r.oldProfit, '$', '', 2) : '';
+                const roiDelta = r.compareStatus !== 'new' ? makeDelta(r.roi, r.oldRoi, '', '%', 0) : '';
+                const crDelta = r.compareStatus !== 'new' ? makeDelta(r.cr * 100, r.oldCr * 100, '', '%', 2) : '';
+                
+                // Extra columns (OS, ISP, etc.)
+                let extraCells = '';
+                if (showExtraCols) {
+                    state.extraColumns.forEach(col => {
+                        extraCells += '<td class="text-center text-[11px] text-slate-600">' + (r.extraData && r.extraData[col] || '-') + '</td>';
+                    });
+                }
+                
+                html += '<tr class="' + cfg.row + '">' +
+                    '<td class="text-center num-font text-slate-400">' + (start + i + 1) + '</td>' +
+                    (showLevel ? '<td class="text-center"><span class="level-badge ' + levelCls + '">' + r.level + '</span></td>' : '') +
+                    '<td class="text-right font-bold text-slate-700 ' + (r.isSummary ? 'text-indigo-700' : '') + '">' + displayId + cmpBadge + '</td>' +
+                    extraCells +
+                    '<td class="text-center"><span class="cat-badge ' + cfg.badge + '">' + cfg.label + '</span></td>' +
+                    '<td class="text-center"><span class="score-pill ' + scoreCls + '">' + r.score.toFixed(2) + '</span></td>' +
+                    '<td class="text-center num-font">' + r.clicks.toLocaleString() + '</td>' +
+                    '<td class="text-center num-font font-bold">' + r.conv + '</td>' +
+                    '<td class="text-center num-font text-green-600">$' + r.rev.toFixed(2) + '</td>' +
+                    '<td class="text-center num-font text-slate-500">$' + r.cost.toFixed(2) + '</td>' +
+                    '<td class="text-center num-font font-bold ' + (r.profit >= 0 ? 'text-green-600' : 'text-red-500') + '">' + profitDelta + '$' + r.profit.toFixed(2) + '</td>' +
+                    '<td class="text-center num-font ' + (r.roi >= 0 ? 'text-green-600' : 'text-red-500') + '">' + roiDelta + r.roi.toFixed(0) + '%</td>' +
+                    '<td class="text-center num-font text-blue-600">' + crDelta + (r.cr * 100).toFixed(3) + '%</td>' +
+                    '<td class="text-center num-font">$' + r.epc.toFixed(4) + '</td>' +
+                    '</tr>';
             });
-            $('table-body').innerHTML = html || '<tr><td colspan="13" class="text-center text-slate-400 py-8">אין נתונים</td></tr>';
+            $('table-body').innerHTML = html || '<tr><td colspan="' + (13 + (showExtraCols ? state.extraColumns.length : 0)) + '" class="text-center text-slate-400 py-8">אין נתונים</td></tr>';
             const maxPage = Math.ceil(state.filtered.length / state.pageSize) || 1;
             $('disp-count').textContent = state.filtered.length.toLocaleString();
             $('page-num').textContent = state.page + ' / ' + maxPage;
+            
+            // Update extra column headers
+            updateExtraColumnHeaders();
+        }
+        
+        function updateExtraColumnHeaders() {
+            const headerRow = document.querySelector('thead tr');
+            const existingExtraTh = document.querySelectorAll('.extra-col-th');
+            existingExtraTh.forEach(th => th.remove());
+            
+            if (state.extraColumns && state.extraColumns.length > 0) {
+                const categoryTh = document.querySelector('th:nth-child(' + (state.hasHierarchy ? 4 : 3) + ')');
+                state.extraColumns.forEach(col => {
+                    const th = document.createElement('th');
+                    th.className = 'text-center extra-col-th';
+                    th.textContent = col;
+                    categoryTh.parentNode.insertBefore(th, categoryTh);
+                });
+            }
         }
 
         function changePage(d) {
@@ -1348,7 +1627,7 @@
                     }
                 }
             });
-            if (count) XLSX.writeFile(wb, 'ListLab_V35_Export.xlsx');
+            if (count) XLSX.writeFile(wb, 'ListLab_V36_Export.xlsx');
             else alert('בחר לפחות רשימה אחת');
         }
 
@@ -1376,6 +1655,239 @@
 
         syncControls('pure-pct', 'pure-pct-num');
         syncControls('gold-pct', 'gold-pct-num');
+        
+        // ═══════════════════════════════════════════════════════════════
+        // MINI DASHBOARD
+        // ═══════════════════════════════════════════════════════════════
+        function toggleDashboard() {
+            const content = $('dashboard-content');
+            const icon = $('dash-toggle-icon');
+            content.classList.toggle('hidden');
+            icon.style.transform = content.classList.contains('hidden') ? '' : 'rotate(180deg)';
+        }
+        
+        function getCategoryMini(cat) {
+            const cats = {
+                pure: '<span class="text-[9px] px-1 rounded bg-amber-100 text-amber-700">PURE</span>',
+                gold: '<span class="text-[9px] px-1 rounded bg-amber-200 text-amber-800">GOLD</span>',
+                potential: '<span class="text-[9px] px-1 rounded bg-green-100 text-green-700">POT</span>',
+                ignore: '<span class="text-[9px] px-1 rounded bg-slate-100 text-slate-600">IGN</span>',
+                blacklist: '<span class="text-[9px] px-1 rounded bg-red-100 text-red-700">BL</span>',
+                testing: '<span class="text-[9px] px-1 rounded bg-blue-100 text-blue-700">TEST</span>'
+            };
+            return cats[cat] || '';
+        }
+        
+        function updateMiniDashboard() {
+            if (!state.processed.length) {
+                $('mini-dashboard').classList.add('hidden');
+                return;
+            }
+            $('mini-dashboard').classList.remove('hidden');
+            
+            // Sort by profit for top/bottom performers
+            const byProfit = [...state.processed].sort((a, b) => b.profit - a.profit);
+            const testedOnly = byProfit.filter(r => r.clicks >= state.clickThreshold);
+            
+            // Top 3 Performers - with category
+            const top3 = testedOnly.filter(r => r.profit > 0).slice(0, 3);
+            $('top-performers').innerHTML = top3.length ? top3.map(r => 
+                '<div class="performer-item"><span class="performer-id" title="' + r.identifier + '">' + r.identifier.substring(0, 10) + '</span>' + getCategoryMini(r.category) + '<span class="performer-val text-green-600">+$' + r.profit.toFixed(2) + '</span></div>'
+            ).join('') : '<div class="text-slate-400 text-[10px]">אין נתונים</div>';
+            
+            // Top 3 Losers - with category
+            const bottom3 = testedOnly.filter(r => r.profit < 0).sort((a, b) => a.profit - b.profit).slice(0, 3);
+            $('top-losers').innerHTML = bottom3.length ? bottom3.map(r => 
+                '<div class="performer-item"><span class="performer-id" title="' + r.identifier + '">' + r.identifier.substring(0, 10) + '</span>' + getCategoryMini(r.category) + '<span class="performer-val text-red-500">$' + r.profit.toFixed(2) + '</span></div>'
+            ).join('') : '<div class="text-slate-400 text-[10px]">אין נתונים</div>';
+            
+            // Untested Stats
+            const belowThreshold = state.processed.filter(r => r.clicks < state.clickThreshold);
+            const nearThreshold = belowThreshold.filter(r => r.clicks >= state.clickThreshold * 0.7);
+            const potentialCost = belowThreshold.reduce((s, r) => s + Math.max(0, (state.clickThreshold - r.clicks) * 0.001), 0);
+            
+            $('below-threshold').textContent = belowThreshold.length.toLocaleString();
+            $('near-threshold').textContent = nearThreshold.length.toLocaleString();
+            $('potential-cost').textContent = '$' + potentialCost.toFixed(2);
+            
+            // Category Distribution
+            const cats = { pure: 0, gold: 0, potential: 0, ignore: 0, blacklist: 0, testing: 0 };
+            const catColors = { pure: 'text-amber-600', gold: 'text-amber-700', potential: 'text-green-600', ignore: 'text-slate-500', blacklist: 'text-red-500', testing: 'text-blue-600' };
+            const catLabels = { pure: '💎 Pure', gold: '🥇 Gold', potential: '🌱 Potential', ignore: '😐 Ignore', blacklist: '🚫 Blacklist', testing: '🔬 Testing' };
+            
+            state.processed.forEach(r => {
+                if (cats[r.category] !== undefined) cats[r.category]++;
+            });
+            
+            $('cat-distribution').innerHTML = Object.entries(cats)
+                .filter(([_, c]) => c > 0)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 4)
+                .map(([cat, count]) => '<div class="flex justify-between"><span class="' + catColors[cat] + '">' + catLabels[cat] + '</span><span class="font-bold num-font">' + count + '</span></div>')
+                .join('');
+            
+            // Quick Insights
+            const winners = state.processed.filter(r => ['pure', 'gold', 'potential'].includes(r.category)).length;
+            const winnerRatio = state.processed.length > 0 ? (winners / state.processed.length * 100) : 0;
+            const avgEpc = state.processed.length > 0 ? state.processed.reduce((s, r) => s + r.epc, 0) / state.processed.length : 0;
+            const blacklistCount = state.processed.filter(r => r.category === 'blacklist').length;
+            const blacklistPct = state.processed.length > 0 ? (blacklistCount / state.processed.length * 100) : 0;
+            
+            $('winner-ratio').textContent = winnerRatio.toFixed(1) + '%';
+            $('winner-ratio').className = 'font-bold num-font ' + (winnerRatio > 20 ? 'text-green-600' : winnerRatio > 10 ? 'text-amber-600' : 'text-red-500');
+            $('avg-epc').textContent = '$' + avgEpc.toFixed(4);
+            $('blacklist-pct').textContent = blacklistPct.toFixed(1) + '%';
+        }
+        
+        // ═══════════════════════════════════════════════════════════════
+        // SEARCH FUNCTIONALITY
+        // ═══════════════════════════════════════════════════════════════
+        function searchIdentifier(query) {
+            state.searchQuery = query.trim().toLowerCase();
+            applyFilter();
+            renderTable();
+        }
+        
+        $('search-input').addEventListener('input', (e) => {
+            searchIdentifier(e.target.value);
+        });
+        
+        // ═══════════════════════════════════════════════════════════════
+        // COMPARE FILES FUNCTIONALITY
+        // ═══════════════════════════════════════════════════════════════
+        function enableCompareButton() {
+            $('btn-compare').disabled = !state.processed.length;
+        }
+        
+        $('btn-compare').addEventListener('click', () => {
+            $('compare-input').click();
+        });
+        
+        $('btn-clear-compare').addEventListener('click', () => {
+            state.compareMode = false;
+            state.compareData = null;
+            state.compareResults = { new: [], improved: [], declined: [], gone: [] };
+            // Clear compare status from processed data
+            state.processed.forEach(r => {
+                r.compareStatus = null;
+                r.profitChange = undefined;
+                r.oldProfit = undefined;
+            });
+            $('compare-panel').classList.add('hidden');
+            $('btn-clear-compare').classList.add('hidden');
+            $('show-changes-box').classList.add('hidden');
+            applyFilter();
+            renderTable();
+        });
+        
+        $('chk-show-changes').addEventListener('change', () => {
+            renderTable();
+        });
+        
+        $('compare-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+                    
+                    if (json.length < 2) {
+                        alert('קובץ ההשוואה ריק');
+                        return;
+                    }
+                    
+                    // Parse compare file with same column mapping
+                    const ipIdx = +$('col-ip').value;
+                    const clicksIdx = +$('col-clicks').value;
+                    const convIdx = +$('col-conv').value;
+                    const revIdx = +$('col-rev').value;
+                    const costIdx = +$('col-cost').value;
+                    
+                    const compareMap = new Map();
+                    for (let i = 1; i < json.length; i++) {
+                        const row = json[i];
+                        const id = String(row[ipIdx] || '').trim();
+                        if (!id || isInvalidIdentifier(id)) continue;
+                        
+                        const clicks = parseFloat(row[clicksIdx]) || 0;
+                        const conv = parseFloat(row[convIdx]) || 0;
+                        const rev = parseFloat(row[revIdx]) || 0;
+                        const cost = parseFloat(row[costIdx]) || 0;
+                        const profit = rev - cost;
+                        const roi = cost > 0 ? ((rev - cost) / cost) * 100 : 0;
+                        const cr = clicks > 0 ? conv / clicks : 0;
+                        
+                        compareMap.set(id, { clicks, conv, rev, cost, profit, roi, cr });
+                    }
+                    
+                    state.compareData = compareMap;
+                    state.compareMode = true;
+                    
+                    // Calculate comparison results
+                    const results = { new: [], improved: [], declined: [], gone: [] };
+                    const currentIds = new Set(state.processed.map(r => r.identifier));
+                    
+                    // Check current data against compare data
+                    state.processed.forEach(r => {
+                        const old = compareMap.get(r.identifier);
+                        if (!old) {
+                            results.new.push(r.identifier);
+                            r.compareStatus = 'new';
+                            r.profitChange = 0;
+                        } else {
+                            const profitChange = r.profit - old.profit;
+                            r.profitChange = profitChange;
+                            r.oldProfit = old.profit;
+                            r.oldRoi = old.roi;
+                            r.oldCr = old.cr;
+                            
+                            if (profitChange > 0.5) {
+                                results.improved.push(r.identifier);
+                                r.compareStatus = 'improved';
+                            } else if (profitChange < -0.5) {
+                                results.declined.push(r.identifier);
+                                r.compareStatus = 'declined';
+                            } else {
+                                r.compareStatus = 'same';
+                            }
+                        }
+                    });
+                    
+                    // Check for gone items
+                    compareMap.forEach((_, id) => {
+                        if (!currentIds.has(id)) {
+                            results.gone.push(id);
+                        }
+                    });
+                    
+                    state.compareResults = results;
+                    
+                    // Update UI
+                    $('compare-panel').classList.remove('hidden');
+                    $('btn-clear-compare').classList.remove('hidden');
+                    $('show-changes-box').classList.remove('hidden');
+                    $('compare-file-name').textContent = file.name;
+                    $('cmp-new').textContent = results.new.length;
+                    $('cmp-improved').textContent = results.improved.length;
+                    $('cmp-declined').textContent = results.declined.length;
+                    $('cmp-gone').textContent = results.gone.length;
+                    
+                    applyFilter();
+                    renderTable();
+                    
+                } catch (err) {
+                    console.error('Compare file error:', err);
+                    alert('שגיאה בקריאת קובץ ההשוואה');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            e.target.value = ''; // Reset input
+        });
     </script>
 </body>
 </html>
