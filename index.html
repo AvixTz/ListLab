@@ -135,6 +135,36 @@
         .search-box input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
         .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
         .search-highlight { background: #fef08a !important; padding: 0 2px; border-radius: 2px; }
+        .icloud-badge { font-size: 10px; margin-left: 4px; opacity: 0.7; cursor: help; color: #3b82f6; }
+        
+        /* iCloud Switcher */
+        .icloud-switcher { display: flex; align-items: center; gap: 4px; padding: 2px 6px; background: #eff6ff; border-radius: 6px; border: 1px solid #bfdbfe; }
+        .switcher-options { display: flex; gap: 2px; }
+        .switcher-btn { 
+            padding: 2px 6px; 
+            font-size: 10px; 
+            border: none; 
+            background: transparent; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            opacity: 0.5;
+            transition: all 0.15s;
+        }
+        .switcher-btn:hover { opacity: 0.8; background: #dbeafe; }
+        .switcher-btn.active { opacity: 1; background: #3b82f6; color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        
+        /* Sortable Headers */
+        .sortable-th { cursor: pointer; user-select: none; transition: background 0.15s; }
+        .sortable-th:hover { background: #e2e8f0; }
+        .sortable-th .sort-icon { font-size: 10px; opacity: 0.4; margin-right: 2px; }
+        .sortable-th.sort-asc .sort-icon { opacity: 1; }
+        .sortable-th.sort-asc .sort-icon::after { content: '↑'; }
+        .sortable-th.sort-asc .sort-icon { font-size: 0; }
+        .sortable-th.sort-asc .sort-icon::after { font-size: 10px; }
+        .sortable-th.sort-desc .sort-icon { opacity: 1; }
+        .sortable-th.sort-desc .sort-icon::after { content: '↓'; }
+        .sortable-th.sort-desc .sort-icon { font-size: 0; }
+        .sortable-th.sort-desc .sort-icon::after { font-size: 10px; }
         
         /* Compare Mode */
         .compare-badge { font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: 700; }
@@ -548,6 +578,15 @@
                                     <input type="text" id="search-input" placeholder="חפש מזהה..." class="text-right">
                                 </div>
                                 
+                                <!-- iCloud Filter Switcher -->
+                                <div class="icloud-switcher">
+                                    <div class="switcher-options">
+                                        <button type="button" class="switcher-btn" data-value="hide" title="הסתר iCloud">🚫</button>
+                                        <button type="button" class="switcher-btn active" data-value="all" title="הצג הכל">✓</button>
+                                        <button type="button" class="switcher-btn" data-value="only" title="רק iCloud">☁️</button>
+                                    </div>
+                                </div>
+                                
                                 <!-- Show Changes Toggle (Compare Mode) -->
                                 <div id="show-changes-box" class="hidden flex items-center gap-1 border-l border-slate-200 pl-3">
                                     <label class="flex items-center gap-1 text-[11px] text-blue-600 font-bold cursor-pointer">
@@ -607,17 +646,17 @@
                                     <tr>
                                         <th class="text-center w-8">#</th>
                                         <th class="text-center w-10" id="th-level" style="display:none;">Lvl</th>
-                                        <th class="text-right">מזהה</th>
-                                        <th class="text-center">קטגוריה</th>
-                                        <th class="text-center">Score</th>
-                                        <th class="text-center">Clicks</th>
-                                        <th class="text-center">Conv</th>
-                                        <th class="text-center">Revenue</th>
-                                        <th class="text-center">Cost</th>
-                                        <th class="text-center">Profit</th>
-                                        <th class="text-center">ROI%</th>
-                                        <th class="text-center">CR%</th>
-                                        <th class="text-center">EPC</th>
+                                        <th class="text-right sortable-th" data-sort="identifier" onclick="sortByColumn('identifier')">מזהה <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="category" onclick="sortByColumn('category')">קטגוריה <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="score" onclick="sortByColumn('score')">Score <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="clicks" onclick="sortByColumn('clicks')">Clicks <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="conv" onclick="sortByColumn('conv')">Conv <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="revenue" onclick="sortByColumn('revenue')">Revenue <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="cost" onclick="sortByColumn('cost')">Cost <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="profit" onclick="sortByColumn('profit')">Profit <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="roi" onclick="sortByColumn('roi')">ROI% <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="cr" onclick="sortByColumn('cr')">CR% <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="epc" onclick="sortByColumn('epc')">EPC <span class="sort-icon">⇅</span></th>
                                     </tr>
                                 </thead>
                                 <tbody id="table-body"></tbody>
@@ -659,8 +698,25 @@
             // Extra columns (OS, ISP, etc)
             osColumn: null,
             ispColumn: null,
-            extraColumns: []
+            extraColumns: [],
+            // Sorting
+            sortColumn: null,
+            sortDirection: 'desc',
+            // iCloud filter: 'all', 'hide', 'only'
+            icloudFilter: 'all'
         };
+        
+        // iCloud Private Relay IP ranges (/16)
+        const ICLOUD_RANGES = ['104.28', '172.226', '172.225', '172.224', '146.75', '140.248'];
+        
+        function isIcloudIP(identifier) {
+            if (!identifier) return false;
+            const str = String(identifier);
+            for (const range of ICLOUD_RANGES) {
+                if (str.startsWith(range + '.')) return true;
+            }
+            return false;
+        }
 
         // Traffic Level configurations (same thresholds for IP/Zone/SubID)
         const IP_LEVELS = {
@@ -1370,14 +1426,74 @@
             if (state.searchQuery) {
                 data = data.filter(r => r.identifier.toLowerCase().includes(state.searchQuery));
             }
+            
+            // Apply iCloud filter
+            if (state.icloudFilter === 'hide') {
+                data = data.filter(r => !isIcloudIP(r.identifier));
+            } else if (state.icloudFilter === 'only') {
+                data = data.filter(r => isIcloudIP(r.identifier));
+            }
 
+            // Apply sorting
             state.filtered = data.sort((a, b) => {
                 if (a.isSummary && !b.isSummary) return -1;
                 if (!a.isSummary && b.isSummary) return 1;
                 if (a.isSummary && b.isSummary) return a.level - b.level;
+                
+                // Custom column sorting
+                if (state.sortColumn) {
+                    let valA, valB;
+                    switch (state.sortColumn) {
+                        case 'identifier': valA = a.identifier; valB = b.identifier; break;
+                        case 'category': valA = a.category; valB = b.category; break;
+                        case 'score': valA = a.score; valB = b.score; break;
+                        case 'clicks': valA = a.clicks; valB = b.clicks; break;
+                        case 'conv': valA = a.conv; valB = b.conv; break;
+                        case 'revenue': valA = a.rev; valB = b.rev; break;
+                        case 'cost': valA = a.cost; valB = b.cost; break;
+                        case 'profit': valA = a.profit; valB = b.profit; break;
+                        case 'roi': valA = a.roi; valB = b.roi; break;
+                        case 'cr': valA = a.cr; valB = b.cr; break;
+                        case 'epc': valA = a.epc; valB = b.epc; break;
+                        default: valA = a.score; valB = b.score;
+                    }
+                    
+                    // String comparison for identifier/category
+                    if (typeof valA === 'string') {
+                        const cmp = valA.localeCompare(valB);
+                        return state.sortDirection === 'asc' ? cmp : -cmp;
+                    }
+                    
+                    // Numeric comparison
+                    return state.sortDirection === 'asc' ? valA - valB : valB - valA;
+                }
+                
                 return b.score - a.score;
             });
             state.page = 1;
+        }
+        
+        // Sorting click handler
+        function sortByColumn(column) {
+            if (state.sortColumn === column) {
+                // Toggle direction
+                state.sortDirection = state.sortDirection === 'desc' ? 'asc' : 'desc';
+            } else {
+                state.sortColumn = column;
+                state.sortDirection = 'desc';
+            }
+            applyFilter();
+            renderTable();
+            updateSortIndicators();
+        }
+        
+        function updateSortIndicators() {
+            document.querySelectorAll('th[data-sort]').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                if (th.dataset.sort === state.sortColumn) {
+                    th.classList.add(state.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+                }
+            });
         }
 
         function buildIdentifier(row) {
@@ -1395,6 +1511,18 @@
         $('filter-view').addEventListener('change', () => { applyFilter(); renderTable(); });
         $('level-view').addEventListener('change', () => { applyFilter(); renderTable(); });
         $('min-score-filter').addEventListener('input', () => { applyFilter(); renderTable(); });
+        
+        // iCloud Switcher Event Listeners
+        document.querySelectorAll('.switcher-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.switcher-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.icloudFilter = btn.dataset.value;
+                applyFilter();
+                renderTable();
+            });
+        });
+        
         $('ip-level').addEventListener('change', () => { processData(); });
         $('identifier-type').addEventListener('change', () => { 
             state.identifierType = $('identifier-type').value;
@@ -1508,9 +1636,12 @@
             };
             
             // Helper function to create delta display
+            // Delta shows change from base (first file) to compare (second file)
+            // old = values from second file (compareMap), current = values from first file
+            // We want: second - first = old - current
             function makeDelta(current, old, prefix, suffix, decimals) {
                 if (!showChanges || old === undefined) return '';
-                const delta = current - old;
+                const delta = old - current; // Changed: show what changed from first to second file
                 if (Math.abs(delta) < 0.01) return '';
                 const cls = delta >= 0 ? 'delta-positive' : 'delta-negative';
                 const sign = delta >= 0 ? '+' : '';
@@ -1533,6 +1664,9 @@
                 // Add compare badge
                 const cmpBadge = state.compareMode && r.compareStatus ? (compareBadges[r.compareStatus] || '') : '';
                 
+                // Add iCloud badge if applicable
+                const icloudBadge = isIcloudIP(r.identifier) ? '<span class="icloud-badge" title="iCloud Private Relay">☁️</span>' : '';
+                
                 // Create delta displays for Profit, ROI, CR
                 const profitDelta = r.compareStatus !== 'new' ? makeDelta(r.profit, r.oldProfit, '$', '', 2) : '';
                 const roiDelta = r.compareStatus !== 'new' ? makeDelta(r.roi, r.oldRoi, '', '%', 0) : '';
@@ -1549,7 +1683,7 @@
                 html += '<tr class="' + cfg.row + '">' +
                     '<td class="text-center num-font text-slate-400">' + (start + i + 1) + '</td>' +
                     (showLevel ? '<td class="text-center"><span class="level-badge ' + levelCls + '">' + r.level + '</span></td>' : '') +
-                    '<td class="text-right font-bold text-slate-700 ' + (r.isSummary ? 'text-indigo-700' : '') + '">' + displayId + cmpBadge + '</td>' +
+                    '<td class="text-right font-bold text-slate-700 ' + (r.isSummary ? 'text-indigo-700' : '') + '">' + icloudBadge + displayId + cmpBadge + '</td>' +
                     extraCells +
                     '<td class="text-center"><span class="cat-badge ' + cfg.badge + '">' + cfg.label + '</span></td>' +
                     '<td class="text-center"><span class="score-pill ' + scoreCls + '">' + r.score.toFixed(2) + '</span></td>' +
@@ -1864,7 +1998,8 @@
                             r.compareStatus = 'new';
                             r.profitChange = 0;
                         } else {
-                            const profitChange = r.profit - old.profit;
+                            // profitChange = second_file - first_file (old = second file, r = first file)
+                            const profitChange = old.profit - r.profit;
                             r.profitChange = profitChange;
                             r.oldProfit = old.profit;
                             r.oldRoi = old.roi;
