@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ListLab V36 Production - Decision Support System</title>
+    <title>ListLab V40 - Quality Score Edition</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -189,6 +189,44 @@
         .performer-item:last-child { border: none; }
         .performer-id { font-weight: 600; color: #334155; font-size: 11px; word-break: break-all; }
         .performer-val { font-weight: 700; font-family: 'Inter', sans-serif; white-space: nowrap; font-size: 11px; }
+        
+        /* Copy Options Dropdown */
+        .copy-dropdown { position: relative; display: inline-block; }
+        .copy-dropdown-content { 
+            display: none; 
+            position: absolute; 
+            background-color: white; 
+            min-width: 160px; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15); 
+            z-index: 100; 
+            border-radius: 6px; 
+            border: 1px solid #e2e8f0;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+        }
+        .copy-dropdown-content.show { display: block; }
+        .copy-dropdown-item { 
+            padding: 8px 12px; 
+            cursor: pointer; 
+            font-size: 11px; 
+            font-weight: 600;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.15s;
+        }
+        .copy-dropdown-item:hover { background: #f8fafc; }
+        .copy-dropdown-item:last-child { border: none; }
+        
+        /* Filter recalculation indicator */
+        .recalc-indicator { 
+            font-size: 9px; 
+            padding: 2px 6px; 
+            background: #fef3c7; 
+            color: #92400e; 
+            border-radius: 4px; 
+            margin-left: 6px;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -200,7 +238,7 @@
                 </div>
                 <div>
                     <h1 class="text-base font-bold text-slate-800">ListLab</h1>
-                    <div class="text-[11px] text-amber-600 font-bold">V36 Production</div>
+                    <div class="text-[11px] text-amber-600 font-bold">V40 Quality Score</div>
                 </div>
             </div>
             
@@ -209,11 +247,14 @@
             </div>
             
             <div id="medians-box" class="hidden shrink-0 text-[11px] bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
-                <span class="text-slate-500">Median EPC:</span> <strong id="med-ppc" class="text-amber-600 num-font">$0</strong>
+                <span class="text-slate-500">Med PPC:</span> <strong id="med-ppc" class="text-amber-600 num-font">$0</strong>
                 <span class="mx-2 text-slate-300">|</span>
-                <span class="text-slate-500">Median CR:</span> <strong id="med-cr" class="text-blue-600 num-font">0%</strong>
+                <span class="text-slate-500">Med ROI:</span> <strong id="med-roi" class="text-green-600 num-font">0%</strong>
+                <span class="mx-2 text-slate-300">|</span>
+                <span class="text-slate-500">Med CR:</span> <strong id="med-cr" class="text-blue-600 num-font">0%</strong>
                 <span class="mx-2 text-slate-300">|</span>
                 <span class="text-slate-500">סף קליקים:</span> <strong id="click-threshold" class="text-red-500 num-font">0</strong>
+                <span id="filter-recalc-badge" class="recalc-indicator hidden">🔄 מחושב מסינון</span>
             </div>
         </div>
 
@@ -338,6 +379,7 @@
                     <div class="collapsible-header" onclick="toggleSection('filters')">
                         <div class="text-xs font-bold text-slate-700 flex items-center gap-1">
                             <i data-lucide="filter" class="w-3 h-3"></i> סינון מתקדם
+                            <span id="active-filters-badge" class="hidden text-[9px] bg-blue-500 text-white px-1.5 py-0.5 rounded-full">0</span>
                         </div>
                         <i data-lucide="chevron-down" class="w-4 h-4 text-slate-600 collapse-icon open" id="filters-icon"></i>
                     </div>
@@ -441,7 +483,7 @@
                             </div>
                         </div>
                         
-                        <!-- Row 3: CR & EPC -->
+                        <!-- Row 3: CR & PPC -->
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             <div class="bg-white rounded-lg p-2 border border-purple-100">
                                 <div class="text-[10px] font-bold text-purple-600 mb-1.5">CR%</div>
@@ -456,14 +498,14 @@
                                 </div>
                             </div>
                             <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">EPC</div>
+                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">PPC</div>
                                 <div class="flex gap-1">
                                     <div class="flex-1">
-                                        <input type="number" id="cust-epc-min" value="-1" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
+                                        <input type="number" id="cust-ppc-min" value="-1" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
                                     </div>
                                     <span class="text-slate-300 self-center">-</span>
                                     <div class="flex-1">
-                                        <input type="number" id="cust-epc-max" value="" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞">
+                                        <input type="number" id="cust-ppc-max" value="" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞">
                                     </div>
                                 </div>
                             </div>
@@ -599,6 +641,7 @@
                                     <select id="filter-view" class="text-sm bg-slate-50 border border-slate-200 rounded px-2 py-1 font-medium w-36">
                                         <option value="all">הכל</option>
                                         <option value="relevant">🎯 Relevant</option>
+                                        <option value="relevant-plus">🎯+ Relevant+</option>
                                         <option value="winners">✨ Winners</option>
                                         <option value="pure">💎 Pure</option>
                                         <option value="gold">🥇 Gold</option>
@@ -630,13 +673,42 @@
                                     <label class="flex items-center gap-1 text-[11px] text-slate-500 font-bold cursor-pointer">
                                         <input type="checkbox" id="chk-copy-cidr" class="chk-input"> CIDR
                                     </label>
-                                    <button onclick="copyIPs()" id="btn-copy" class="flex items-center gap-1 bg-white border border-slate-200 text-slate-600 px-2 py-1 rounded hover:bg-slate-50 text-[11px] font-bold">
-                                        <i data-lucide="copy" class="w-3 h-3"></i> העתק
-                                    </button>
+                                    
+                                    <!-- Copy Dropdown -->
+                                    <div class="copy-dropdown">
+                                        <button onclick="toggleCopyDropdown()" id="btn-copy" class="flex items-center gap-1 bg-white border border-slate-200 text-slate-600 px-2 py-1 rounded hover:bg-slate-50 text-[11px] font-bold">
+                                            <i data-lucide="copy" class="w-3 h-3"></i> העתק ▼
+                                        </button>
+                                        <div id="copy-dropdown-content" class="copy-dropdown-content">
+                                            <div class="copy-dropdown-item" onclick="copyByCategory('current')">📋 תצוגה נוכחית</div>
+                                            <div class="copy-dropdown-item" onclick="copyByCategory('winners')">✨ Winners (Pure+Gold)</div>
+                                            <div class="copy-dropdown-item" onclick="copyByCategory('relevant')">🎯 Relevant (Pure+Gold+Potential)</div>
+                                            <div class="copy-dropdown-item" onclick="copyByCategory('relevant-plus')">🎯+ Relevant+ (כולל Testing)</div>
+                                            <div class="copy-dropdown-item" onclick="copyByCategory('blacklist')">🚫 Blacklist</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="text-[11px] text-slate-400 font-medium">
                                 סה"כ: <span id="disp-count" class="font-bold text-slate-800 num-font text-base">0</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Dynamic KPI Summary Bar - Compact & Clean -->
+                        <div id="view-kpi-bar" class="hidden bg-indigo-50 border-b-2 border-indigo-200 px-3 py-1.5">
+                            <div class="flex items-center justify-between text-[11px]">
+                                <span id="view-kpi-name" class="font-bold text-indigo-700 bg-white px-2 py-0.5 rounded border border-indigo-200">-</span>
+                                <div class="flex items-center gap-3 num-font font-bold">
+                                    <span class="text-blue-600" title="Clicks"><span class="text-slate-400 font-normal">Clicks:</span> <span id="view-kpi-clicks">0</span></span>
+                                    <span title="Conversions"><span class="text-slate-400 font-normal">Conv:</span> <span id="view-kpi-conv">0</span></span>
+                                    <span class="text-green-600" title="Revenue"><span class="text-slate-400 font-normal">Rev:</span> <span id="view-kpi-revenue">$0</span></span>
+                                    <span class="text-slate-500" title="Cost"><span class="text-slate-400 font-normal">Cost:</span> <span id="view-kpi-cost">$0</span></span>
+                                    <span class="text-green-600" title="Profit"><span class="text-slate-400 font-normal">Profit:</span> <span id="view-kpi-profit">$0</span></span>
+                                    <span class="w-px h-3 bg-slate-300"></span>
+                                    <span class="text-green-600" title="ROI"><span class="text-slate-400 font-normal">ROI:</span> <span id="view-kpi-roi">0%</span></span>
+                                    <span class="text-blue-600" title="Conversion Rate"><span class="text-slate-400 font-normal">CR:</span> <span id="view-kpi-cr">0%</span></span>
+                                    <span class="text-amber-600" title="Profit Per Click"><span class="text-slate-400 font-normal">PPC:</span> <span id="view-kpi-ppc">$0</span></span>
+                                </div>
                             </div>
                         </div>
 
@@ -648,7 +720,7 @@
                                         <th class="text-center w-10" id="th-level" style="display:none;">Lvl</th>
                                         <th class="text-right sortable-th" data-sort="identifier" onclick="sortByColumn('identifier')">מזהה <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="category" onclick="sortByColumn('category')">קטגוריה <span class="sort-icon">⇅</span></th>
-                                        <th class="text-center sortable-th" data-sort="score" onclick="sortByColumn('score')">Score <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="score" onclick="sortByColumn('score')" title="V40 Score = Quality × Reliability&#10;Quality = 0.5×(PPC/med) + 0.3×(ROI/med) + 0.2×(CR/med)&#10;Reliability = min(conv/10, 1.0)">Score <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="clicks" onclick="sortByColumn('clicks')">Clicks <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="conv" onclick="sortByColumn('conv')">Conv <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="revenue" onclick="sortByColumn('revenue')">Revenue <span class="sort-icon">⇅</span></th>
@@ -656,7 +728,7 @@
                                         <th class="text-center sortable-th" data-sort="profit" onclick="sortByColumn('profit')">Profit <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="roi" onclick="sortByColumn('roi')">ROI% <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="cr" onclick="sortByColumn('cr')">CR% <span class="sort-icon">⇅</span></th>
-                                        <th class="text-center sortable-th" data-sort="epc" onclick="sortByColumn('epc')">EPC <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="ppc" onclick="sortByColumn('ppc')">PPC <span class="sort-icon">⇅</span></th>
                                     </tr>
                                 </thead>
                                 <tbody id="table-body"></tbody>
@@ -683,7 +755,9 @@
         const state = {
             rawData: [], allRows: [], detailRows: [], summaryRows: [], aggregatedData: [], processed: [], filtered: [],
             headers: [], dimensions: {}, activeFilters: [], page: 1, pageSize: 100,
-            medianPPC: 0, medianCR: 0, campaignCR: 0, clickThreshold: 7000,
+            medianPPC: 0, medianCR: 0, medianROI: 0, campaignCR: 0, clickThreshold: 7000,
+            // Filtered context medians (for dynamic score recalculation)
+            filteredMedianPPC: 0, filteredMedianCR: 0, filteredMedianROI: 0, filteredCampaignCR: 0,
             visibleKpis: ['pure', 'gold', 'potential', 'ignore', 'blacklist', 'testing'],
             hasHierarchy: false, levelColumn: null, maxLevel: 1, ipColumn: '',
             customEnabled: false,
@@ -703,7 +777,9 @@
             sortColumn: null,
             sortDirection: 'desc',
             // iCloud filter: 'all', 'hide', 'only'
-            icloudFilter: 'all'
+            icloudFilter: 'all',
+            // Track if filters are active for score recalculation
+            hasActiveAdvancedFilters: false
         };
         
         // iCloud Private Relay IP ranges (/16)
@@ -824,7 +900,7 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // CIDR CONVERSION - Smart Level Detection
+        // CIDR CONVERSION - Fixed for Level 1 (IP32)
         // ═══════════════════════════════════════════════════════════════
         function ipToLong(ip) {
             return ip.split('.').reduce((long, octet) => (long << 8) + parseInt(octet, 10), 0) >>> 0;
@@ -839,8 +915,15 @@
             ].join('.');
         }
         
+        /**
+         * Convert identifier to CIDR format based on current IP Level
+         * Level 1 (IP32): Always /32, even for IPs ending in 0
+         * Level 2 (IP24): x.x.x.0/24
+         * Level 3 (IP16): x.x.0.0/16
+         */
         function toCIDR(identifier) {
             const str = String(identifier).trim();
+            const ipLevel = parseInt($('ip-level').value);
             
             // Already has CIDR notation - return as is
             if (str.includes('/')) return str;
@@ -849,17 +932,32 @@
             if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(str)) {
                 const parts = str.split('.').map(Number);
                 
-                // x.x.0.0 → /16
-                if (parts[2] === 0 && parts[3] === 0) {
-                    return parts[0] + '.' + parts[1] + '.0.0/16';
+                // Level 1 (IP32): ALWAYS /32, regardless of trailing zeros
+                if (ipLevel === 1) {
+                    return str + '/32';
                 }
                 
-                // x.x.x.0 → /24
-                if (parts[3] === 0) {
+                // Level 2 (IP24): x.x.x.0/24
+                if (ipLevel === 2) {
+                    // If already ends with .0 or full IP, make it /24
+                    if (parts[3] === 0) {
+                        return str + '/24';
+                    }
+                    // Convert full IP to /24 range
                     return parts[0] + '.' + parts[1] + '.' + parts[2] + '.0/24';
                 }
                 
-                // Full IP x.x.x.x → /32
+                // Level 3 (IP16): x.x.0.0/16
+                if (ipLevel === 3) {
+                    // If already ends with .0.0 or any format, make it /16
+                    if (parts[2] === 0 && parts[3] === 0) {
+                        return str + '/16';
+                    }
+                    // Convert to /16 range
+                    return parts[0] + '.' + parts[1] + '.0.0/16';
+                }
+                
+                // Default: /32
                 return str + '/32';
             }
             
@@ -1104,7 +1202,7 @@
 
         function setupFilters() {
             state.dimensions = {};
-            const skip = ['clicks', 'conversions', 'revenue', 'cost', 'profit', 'roi', 'cr', 'epc', 'cpc', 'level'];
+            const skip = ['clicks', 'conversions', 'revenue', 'cost', 'profit', 'roi', 'cr', 'ppc', 'epc', 'cpc', 'level'];
             state.headers.forEach((h, idx) => {
                 if (skip.some(s => h.toLowerCase().includes(s))) return;
                 const vals = new Set();
@@ -1143,11 +1241,20 @@
             state.activeFilters.push({ id: fid, col, colIdx: state.headers.indexOf(col), values: [] });
             $('col-selector').classList.add('hidden');
             if (state.activeFilters.length < 4) $('btn-add-filter').classList.remove('hidden');
+            updateActiveFiltersBadge();
         }
 
-        function removeFilter(fid) { $('f-' + fid).remove(); state.activeFilters = state.activeFilters.filter(f => f.id !== fid); $('btn-add-filter').classList.remove('hidden'); processData(); }
+        function removeFilter(fid) { 
+            $('f-' + fid).remove(); 
+            state.activeFilters = state.activeFilters.filter(f => f.id !== fid); 
+            $('btn-add-filter').classList.remove('hidden'); 
+            updateActiveFiltersBadge();
+            processData(); 
+        }
+        
         function togglePopup(fid) { const el = $('p-' + fid); const isOpen = el.classList.contains('show'); document.querySelectorAll('.filter-popup').forEach(p => p.classList.remove('show')); if (!isOpen) el.classList.add('show'); }
         function filterOpts(fid, txt) { const term = txt.toLowerCase(); const opts = $('lst-' + fid).children; for (let o of opts) o.style.display = o.innerText.toLowerCase().includes(term) ? 'flex' : 'none'; }
+        
         function applyFilterSelection(fid) {
             const lst = $('lst-' + fid);
             const vals = Array.from(lst.querySelectorAll('input:checked')).map(c => c.value);
@@ -1157,11 +1264,24 @@
             lbl.innerText = vals.length ? vals.length + ' נבחרו' : '(הכל)';
             lbl.className = vals.length ? 'text-blue-600 font-bold' : '';
             togglePopup(fid);
+            updateActiveFiltersBadge();
             processData();
+        }
+        
+        function updateActiveFiltersBadge() {
+            const activeCount = state.activeFilters.filter(f => f.values.length > 0).length;
+            const badge = $('active-filters-badge');
+            if (activeCount > 0) {
+                badge.textContent = activeCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+            state.hasActiveAdvancedFilters = activeCount > 0;
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // DATA PROCESSING
+        // DATA PROCESSING - with dynamic score recalculation
         // ═══════════════════════════════════════════════════════════════
         function processData() {
             try {
@@ -1204,6 +1324,7 @@
                     $('level-badges').innerHTML = levels.map(l => '<span class="level-badge level-' + Math.min(l, 3) + '">' + l + '</span>').join('');
                 }
 
+                // Apply dimension filters
                 let filtered = state.allRows.filter(r => {
                     for (const f of state.activeFilters) { if (f.values.length > 0) { const val = String(r.raw[f.colIdx] || ''); if (!f.values.includes(val)) return false; } }
                     return true;
@@ -1239,30 +1360,52 @@
                     ...g,
                     roi: g.cost > 0 ? (g.profit / g.cost) * 100 : (g.profit > 0 ? 999 : 0),
                     cr: g.clicks > 0 ? g.conv / g.clicks : 0,
-                    epc: g.clicks > 0 ? g.profit / g.clicks : 0
+                    ppc: g.clicks > 0 ? g.profit / g.clicks : 0  // PPC = Profit Per Click
                 }));
                 
-                console.log('Aggregated to', state.aggregatedData.length, 'unique IPs');
+                console.log('Aggregated to', state.aggregatedData.length, 'unique identifiers');
 
                 const totalClicks = state.aggregatedData.reduce((s, r) => s + r.clicks, 0);
                 const totalConv = state.aggregatedData.reduce((s, r) => s + r.conv, 0);
                 state.campaignCR = totalClicks > 0 ? totalConv / totalClicks : 0;
 
-                const profitable = state.aggregatedData.filter(r => r.conv > 0 && r.epc > 0);
+                // Calculate medians based on FILTERED data (for dynamic score recalculation)
+                const profitable = state.aggregatedData.filter(r => r.conv > 0 && r.ppc > 0);
                 if (profitable.length > 0) {
-                    const epcs = profitable.map(r => r.epc).sort((a, b) => a - b);
+                    const ppcs = profitable.map(r => r.ppc).sort((a, b) => a - b);
                     const crs = profitable.map(r => r.cr).sort((a, b) => a - b);
-                    state.medianPPC = epcs[Math.floor(epcs.length / 2)];
+                    const rois = profitable.filter(r => r.roi > 0).map(r => r.roi).sort((a, b) => a - b);
+                    state.medianPPC = ppcs[Math.floor(ppcs.length / 2)];
                     state.medianCR = crs[Math.floor(crs.length / 2)];
+                    state.medianROI = rois.length > 0 ? rois[Math.floor(rois.length / 2)] : 100;
+                    // Store filtered medians
+                    state.filteredMedianPPC = state.medianPPC;
+                    state.filteredMedianCR = state.medianCR;
+                    state.filteredMedianROI = state.medianROI;
+                    state.filteredCampaignCR = state.campaignCR;
                 } else {
                     state.medianPPC = 0.001;
                     state.medianCR = 0.001;
+                    state.medianROI = 100;
+                    state.filteredMedianPPC = 0.001;
+                    state.filteredMedianCR = 0.001;
+                    state.filteredMedianROI = 100;
+                    state.filteredCampaignCR = 0.001;
                 }
 
                 calculateClickThreshold();
 
                 $('med-ppc').textContent = '$' + state.medianPPC.toFixed(4);
+                $('med-roi').textContent = state.medianROI.toFixed(0) + '%';
                 $('med-cr').textContent = (state.medianCR * 100).toFixed(3) + '%';
+                
+                // Show/hide filter recalculation indicator
+                const filterBadge = $('filter-recalc-badge');
+                if (state.hasActiveAdvancedFilters) {
+                    filterBadge.classList.remove('hidden');
+                } else {
+                    filterBadge.classList.add('hidden');
+                }
 
                 state.customEnabled = $('custom-enabled').checked;
                 $('custom-badge').classList.toggle('hidden', !state.customEnabled);
@@ -1288,29 +1431,43 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // SCORING ENGINE
+        // SCORING ENGINE V40 - Quality × Reliability
+        // Quality = 0.5×(PPC/med) + 0.3×(ROI/med) + 0.2×(CR/med)
+        // Reliability = min(conv/10, 1.0)
         // ═══════════════════════════════════════════════════════════════
         function calculateScore(r) {
             if (r.conv === 0) return 0;
-            if (r.epc <= 0) return 0;
-            if (state.medianPPC <= 0 || state.medianCR <= 0) return 0;
+            if (r.ppc <= 0) return 0;
+            if (r.profit <= 0) return 0;
             
-            const efficiency = r.epc / state.medianPPC;
-            const certainty = Math.sqrt(r.conv / 3);
-            const crBonus = Math.sqrt(r.cr / state.medianCR);
+            // Use filtered medians when filters are active
+            const medianPPC = state.filteredMedianPPC > 0 ? state.filteredMedianPPC : state.medianPPC;
+            const medianCR = state.filteredMedianCR > 0 ? state.filteredMedianCR : state.medianCR;
+            const medianROI = state.filteredMedianROI > 0 ? state.filteredMedianROI : state.medianROI;
             
-            return efficiency * certainty * crBonus;
+            if (medianPPC <= 0 || medianCR <= 0 || medianROI <= 0) return 0;
+            
+            // V40: Quality Score = weighted combination of normalized metrics
+            const ppcComponent = 0.5 * (r.ppc / medianPPC);
+            const roiComponent = 0.3 * (r.roi / medianROI);
+            const crComponent = 0.2 * (r.cr / medianCR);
+            const quality = ppcComponent + roiComponent + crComponent;
+            
+            // Reliability factor: caps at 10 conversions
+            const reliability = Math.min(r.conv / 10, 1.0);
+            
+            return quality * reliability;
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // CLASSIFICATION ENGINE
+        // CLASSIFICATION ENGINE - Uses PPC instead of EPC
         // ═══════════════════════════════════════════════════════════════
         function classifyRanges(data) {
             const purePct = +$('pure-pct-num').value || 10;
             const goldPct = +$('gold-pct-num').value || 25;
             const clickThreshold = state.clickThreshold;
 
-            // Custom list settings - Min/Max
+            // Custom list settings - Min/Max (PPC instead of EPC)
             const custConvMin = parseFloat($('cust-conv-min').value) || 0;
             const custConvMax = $('cust-conv-max').value !== '' ? parseFloat($('cust-conv-max').value) : Infinity;
             const custScoreMin = parseFloat($('cust-score-min').value) || 0;
@@ -1321,8 +1478,8 @@
             const custRoiMax = $('cust-roi-max').value !== '' ? parseFloat($('cust-roi-max').value) : Infinity;
             const custCrMin = parseFloat($('cust-cr-min').value) || 0;
             const custCrMax = $('cust-cr-max').value !== '' ? parseFloat($('cust-cr-max').value) : Infinity;
-            const custEpcMin = parseFloat($('cust-epc-min').value) || -9999;
-            const custEpcMax = $('cust-epc-max').value !== '' ? parseFloat($('cust-epc-max').value) : Infinity;
+            const custPpcMin = parseFloat($('cust-ppc-min').value) || -9999;
+            const custPpcMax = $('cust-ppc-max').value !== '' ? parseFloat($('cust-ppc-max').value) : Infinity;
 
             data = data.map(r => ({ ...r, score: calculateScore(r) }));
 
@@ -1331,7 +1488,7 @@
             const totalProfit = data.reduce((s, r) => s + r.profit, 0);
             const totalCost = data.reduce((s, r) => s + r.cost, 0);
             const campaignAvgCR = totalClicks > 0 ? totalConv / totalClicks : 0;
-            const campaignAvgEPC = totalClicks > 0 ? totalProfit / totalClicks : 0;
+            const campaignAvgPPC = totalClicks > 0 ? totalProfit / totalClicks : 0;
 
             const purePool = data.filter(r => r.conv >= 3 && r.profit > 0).sort((a, b) => b.score - a.score);
             const goldPool = data.filter(r => r.conv >= 2 && r.profit > 0).sort((a, b) => b.score - a.score);
@@ -1346,16 +1503,16 @@
                 const blCond2_NegProfit = r.profit < 0;
                 
                 const crBelow50OfAvg = r.cr < (campaignAvgCR * 0.5);
-                const epcBelow50OfAvg = r.epc < (campaignAvgEPC * 0.5);
+                const ppcBelow50OfAvg = r.ppc < (campaignAvgPPC * 0.5);
                 const campaignAvgROI = totalCost > 0 ? (totalProfit / totalCost * 100) : 0;
                 const roiBelow50OfAvg = r.roi < (campaignAvgROI * 0.5);
                 
-                const blCond3_PoorPerformance = r.conv > 0 && (crBelow50OfAvg || epcBelow50OfAvg || roiBelow50OfAvg);
+                const blCond3_PoorPerformance = r.conv > 0 && (crBelow50OfAvg || ppcBelow50OfAvg || roiBelow50OfAvg);
                 
                 const isBlacklist = hasEnoughClicks && (blCond1_ZeroConv || blCond2_NegProfit || blCond3_PoorPerformance);
                 const isTesting = r.conv === 0 && r.clicks < clickThreshold;
 
-                // Custom List with Min/Max
+                // Custom List with Min/Max (using PPC)
                 const crPercent = r.cr * 100;
                 const matchesCustom = state.customEnabled &&
                     r.conv >= custConvMin && r.conv <= custConvMax &&
@@ -1363,7 +1520,7 @@
                     r.clicks >= custClicksMin && r.clicks <= custClicksMax &&
                     r.roi >= custRoiMin && r.roi <= custRoiMax &&
                     crPercent >= custCrMin && crPercent <= custCrMax &&
-                    r.epc >= custEpcMin && r.epc <= custEpcMax;
+                    r.ppc >= custPpcMin && r.ppc <= custPpcMax;
 
                 if (isBlacklist) {
                     category = 'blacklist';
@@ -1393,7 +1550,10 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // FILTERING - WITH RELEVANT OPTION
+        // FILTERING - Updated categories
+        // Winners = PURE + GOLD only
+        // Relevant = PURE + GOLD + POTENTIAL
+        // Relevant+ = PURE + GOLD + POTENTIAL + TESTING
         // ═══════════════════════════════════════════════════════════════
         function applyFilter() {
             const view = $('filter-view').value;
@@ -1405,15 +1565,19 @@
                 const summaries = state.summaryRows.map(r => ({
                     ...r, identifier: r.identifier || buildIdentifier(r),
                     roi: r.cost > 0 ? (r.profit / r.cost) * 100 : 0, cr: r.clicks > 0 ? r.conv / r.clicks : 0,
-                    epc: r.clicks > 0 ? r.profit / r.clicks : 0,
+                    ppc: r.clicks > 0 ? r.profit / r.clicks : 0,
                     score: 0, category: 'summary', action: '-', isSummary: true
                 }));
                 data = [...summaries, ...data];
             }
 
-            // Filter by view - RELEVANT = pure, gold, potential, testing
-            if (view === 'winners') data = data.filter(r => ['pure', 'gold', 'potential'].includes(r.category));
-            else if (view === 'relevant') data = data.filter(r => ['pure', 'gold', 'potential', 'testing'].includes(r.category));
+            // Filter by view - UPDATED DEFINITIONS
+            // Winners = PURE + GOLD only
+            if (view === 'winners') data = data.filter(r => ['pure', 'gold'].includes(r.category));
+            // Relevant = PURE + GOLD + POTENTIAL
+            else if (view === 'relevant') data = data.filter(r => ['pure', 'gold', 'potential'].includes(r.category));
+            // Relevant+ = PURE + GOLD + POTENTIAL + TESTING
+            else if (view === 'relevant-plus') data = data.filter(r => ['pure', 'gold', 'potential', 'testing'].includes(r.category));
             else if (view === 'custom') data = data.filter(r => r.matchesCustom);
             else if (view === 'compare-new') data = data.filter(r => r.compareStatus === 'new');
             else if (view === 'compare-improved') data = data.filter(r => r.compareStatus === 'improved');
@@ -1454,7 +1618,7 @@
                         case 'profit': valA = a.profit; valB = b.profit; break;
                         case 'roi': valA = a.roi; valB = b.roi; break;
                         case 'cr': valA = a.cr; valB = b.cr; break;
-                        case 'epc': valA = a.epc; valB = b.epc; break;
+                        case 'ppc': valA = a.ppc; valB = b.ppc; break;
                         default: valA = a.score; valB = b.score;
                     }
                     
@@ -1552,7 +1716,7 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // KPI RENDERING
+        // KPI RENDERING - Uses PPC instead of EPC
         // ═══════════════════════════════════════════════════════════════
         function renderKPIs() {
             const categories = [
@@ -1576,11 +1740,11 @@
                 const s = { count: rows.length, clicks: rows.reduce((sum, r) => sum + r.clicks, 0), conv: rows.reduce((sum, r) => sum + r.conv, 0), rev: rows.reduce((sum, r) => sum + r.rev, 0), cost: rows.reduce((sum, r) => sum + r.cost, 0), profit: rows.reduce((sum, r) => sum + r.profit, 0) };
                 s.roi = s.cost > 0 ? (s.profit / s.cost * 100) : (s.profit > 0 ? 999 : 0);
                 s.cr = s.clicks > 0 ? (s.conv / s.clicks * 100) : 0;
-                s.epc = s.clicks > 0 ? (s.profit / s.clicks) : 0;
+                s.ppc = s.clicks > 0 ? (s.profit / s.clicks) : 0;  // PPC = Profit Per Click
                 const isHidden = !state.visibleKpis.includes(cat.key);
                 const isCustomActive = cat.key === 'testing' && state.customEnabled;
 
-                html += '<div class="kpi-card ' + cat.cls + (isHidden ? ' hidden' : '') + (isCustomActive ? ' custom-active' : '') + '"><div class="flex justify-between items-center mb-1"><div class="flex items-center gap-1"><span class="text-lg">' + cat.icon + '</span><span class="text-[11px] font-black uppercase">' + cat.name + '</span></div><div class="text-xl font-black num-font text-slate-800">' + s.count.toLocaleString() + '</div></div><div class="bg-slate-100 border border-slate-200 rounded px-2 py-1 flex justify-between items-center mb-1"><div class="text-center flex-1"><div class="stat-lbl">Clicks</div><div class="stat-val text-[12px]">' + formatNum(s.clicks) + '</div></div><div class="text-center flex-1 border-r border-slate-200"><div class="stat-lbl">EPC</div><div class="stat-val text-[12px]">$' + s.epc.toFixed(4) + '</div></div></div><div class="grid grid-cols-3 gap-0.5 text-center mb-1 border-b border-slate-100 pb-1"><div><div class="stat-lbl">Conv</div><div class="stat-val text-[12px]">' + s.conv.toLocaleString() + '</div></div><div><div class="stat-lbl">Revenue</div><div class="stat-val text-[12px] text-green-600">$' + formatNum(s.rev) + '</div></div><div><div class="stat-lbl">Cost</div><div class="stat-val text-[12px] text-slate-500">$' + formatNum(s.cost) + '</div></div></div><div class="grid grid-cols-3 gap-0.5 text-center"><div><div class="stat-lbl">Profit</div><div class="stat-val text-[12px] ' + (s.profit >= 0 ? 'text-green-600' : 'text-red-500') + '">$' + formatNum(s.profit) + '</div></div><div><div class="stat-lbl">ROI</div><div class="stat-val text-[12px] ' + (s.roi >= 0 ? 'text-green-600' : 'text-red-500') + '">' + s.roi.toFixed(0) + '%</div></div><div><div class="stat-lbl">CR</div><div class="stat-val text-[12px] text-blue-600">' + s.cr.toFixed(3) + '%</div></div></div></div>';
+                html += '<div class="kpi-card ' + cat.cls + (isHidden ? ' hidden' : '') + (isCustomActive ? ' custom-active' : '') + '"><div class="flex justify-between items-center mb-1"><div class="flex items-center gap-1"><span class="text-lg">' + cat.icon + '</span><span class="text-[11px] font-black uppercase">' + cat.name + '</span></div><div class="text-xl font-black num-font text-slate-800">' + s.count.toLocaleString() + '</div></div><div class="bg-slate-100 border border-slate-200 rounded px-2 py-1 flex justify-between items-center mb-1"><div class="text-center flex-1"><div class="stat-lbl">Clicks</div><div class="stat-val text-[12px]">' + formatNum(s.clicks) + '</div></div><div class="text-center flex-1 border-r border-slate-200"><div class="stat-lbl">PPC</div><div class="stat-val text-[12px]">$' + s.ppc.toFixed(4) + '</div></div></div><div class="grid grid-cols-3 gap-0.5 text-center mb-1 border-b border-slate-100 pb-1"><div><div class="stat-lbl">Conv</div><div class="stat-val text-[12px]">' + s.conv.toLocaleString() + '</div></div><div><div class="stat-lbl">Revenue</div><div class="stat-val text-[12px] text-green-600">$' + formatNum(s.rev) + '</div></div><div><div class="stat-lbl">Cost</div><div class="stat-val text-[12px] text-slate-500">$' + formatNum(s.cost) + '</div></div></div><div class="grid grid-cols-3 gap-0.5 text-center"><div><div class="stat-lbl">Profit</div><div class="stat-val text-[12px] ' + (s.profit >= 0 ? 'text-green-600' : 'text-red-500') + '">$' + formatNum(s.profit) + '</div></div><div><div class="stat-lbl">ROI</div><div class="stat-val text-[12px] ' + (s.roi >= 0 ? 'text-green-600' : 'text-red-500') + '">' + s.roi.toFixed(0) + '%</div></div><div><div class="stat-lbl">CR</div><div class="stat-val text-[12px] text-blue-600">' + s.cr.toFixed(3) + '%</div></div></div></div>';
             });
             $('kpi-container').innerHTML = html;
         }
@@ -1592,7 +1756,7 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // GLOBAL STATS
+        // GLOBAL STATS - Uses PPC instead of EPC
         // ═══════════════════════════════════════════════════════════════
         function renderGlobalStats() {
             const data = state.processed;
@@ -1603,13 +1767,13 @@
             const profit = data.reduce((s, r) => s + r.profit, 0);
             const roi = cost > 0 ? (profit / cost * 100) : 0;
             const cr = clicks > 0 ? (conv / clicks * 100) : 0;
-            const epc = clicks > 0 ? (profit / clicks) : 0;
+            const ppc = clicks > 0 ? (profit / clicks) : 0;  // PPC = Profit Per Click
             const pill = (l, v, c) => '<div class="g-item"><span class="g-lbl">' + l + '</span><span class="g-val ' + c + '">' + v + '</span></div>';
-            $('global-stats').innerHTML = pill('מזהים', data.length.toLocaleString(), '') + pill('Clicks', formatNum(clicks), 'text-blue-600') + pill('Conv', conv.toLocaleString(), '') + pill('Revenue', '$' + formatNum(rev), 'text-green-600') + pill('Cost', '$' + formatNum(cost), 'text-slate-500') + pill('Profit', '$' + formatNum(profit), profit >= 0 ? 'text-green-600' : 'text-red-500') + pill('ROI', roi.toFixed(0) + '%', roi >= 0 ? 'text-green-600' : 'text-red-500') + pill('CR', cr.toFixed(3) + '%', 'text-blue-600') + pill('EPC', '$' + epc.toFixed(4), 'text-amber-600');
+            $('global-stats').innerHTML = pill('מזהים', data.length.toLocaleString(), '') + pill('Clicks', formatNum(clicks), 'text-blue-600') + pill('Conv', conv.toLocaleString(), '') + pill('Revenue', '$' + formatNum(rev), 'text-green-600') + pill('Cost', '$' + formatNum(cost), 'text-slate-500') + pill('Profit', '$' + formatNum(profit), profit >= 0 ? 'text-green-600' : 'text-red-500') + pill('ROI', roi.toFixed(0) + '%', roi >= 0 ? 'text-green-600' : 'text-red-500') + pill('CR', cr.toFixed(3) + '%', 'text-blue-600') + pill('PPC', '$' + ppc.toFixed(4), 'text-amber-600');
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // TABLE RENDERING
+        // TABLE RENDERING - Uses PPC instead of EPC
         // ═══════════════════════════════════════════════════════════════
         function renderTable() {
             const start = (state.page - 1) * state.pageSize;
@@ -1636,12 +1800,9 @@
             };
             
             // Helper function to create delta display
-            // Delta shows change from base (first file) to compare (second file)
-            // old = values from second file (compareMap), current = values from first file
-            // We want: second - first = old - current
             function makeDelta(current, old, prefix, suffix, decimals) {
                 if (!showChanges || old === undefined) return '';
-                const delta = old - current; // Changed: show what changed from first to second file
+                const delta = old - current;
                 if (Math.abs(delta) < 0.01) return '';
                 const cls = delta >= 0 ? 'delta-positive' : 'delta-negative';
                 const sign = delta >= 0 ? '+' : '';
@@ -1694,7 +1855,7 @@
                     '<td class="text-center num-font font-bold ' + (r.profit >= 0 ? 'text-green-600' : 'text-red-500') + '">' + profitDelta + '$' + r.profit.toFixed(2) + '</td>' +
                     '<td class="text-center num-font ' + (r.roi >= 0 ? 'text-green-600' : 'text-red-500') + '">' + roiDelta + r.roi.toFixed(0) + '%</td>' +
                     '<td class="text-center num-font text-blue-600">' + crDelta + (r.cr * 100).toFixed(3) + '%</td>' +
-                    '<td class="text-center num-font">$' + r.epc.toFixed(4) + '</td>' +
+                    '<td class="text-center num-font">$' + r.ppc.toFixed(4) + '</td>' +
                     '</tr>';
             });
             $('table-body').innerHTML = html || '<tr><td colspan="' + (13 + (showExtraCols ? state.extraColumns.length : 0)) + '" class="text-center text-slate-400 py-8">אין נתונים</td></tr>';
@@ -1704,6 +1865,9 @@
             
             // Update extra column headers
             updateExtraColumnHeaders();
+            
+            // Update view KPI bar
+            updateViewKpiBar();
         }
         
         function updateExtraColumnHeaders() {
@@ -1721,6 +1885,52 @@
                 });
             }
         }
+        
+        // ═══════════════════════════════════════════════════════════════
+        // VIEW KPI BAR - Shows aggregated KPIs for current filtered view
+        // ═══════════════════════════════════════════════════════════════
+        function updateViewKpiBar() {
+            const bar = $('view-kpi-bar');
+            if (!state.filtered || state.filtered.length === 0) {
+                bar.classList.add('hidden');
+                return;
+            }
+            
+            // Get current view name
+            const viewSelect = $('filter-view');
+            const viewName = viewSelect.options[viewSelect.selectedIndex].text;
+            
+            // Calculate KPIs from filtered data (excluding summaries)
+            const data = state.filtered.filter(r => !r.isSummary);
+            if (data.length === 0) {
+                bar.classList.add('hidden');
+                return;
+            }
+            
+            const clicks = data.reduce((s, r) => s + r.clicks, 0);
+            const conv = data.reduce((s, r) => s + r.conv, 0);
+            const revenue = data.reduce((s, r) => s + r.rev, 0);
+            const cost = data.reduce((s, r) => s + r.cost, 0);
+            const profit = data.reduce((s, r) => s + r.profit, 0);
+            const roi = cost > 0 ? (profit / cost * 100) : 0;
+            const cr = clicks > 0 ? (conv / clicks * 100) : 0;
+            const ppc = clicks > 0 ? (profit / clicks) : 0;
+            
+            // Update display
+            $('view-kpi-name').textContent = viewName + ' (' + data.length + ')';
+            $('view-kpi-clicks').textContent = clicks.toLocaleString();
+            $('view-kpi-conv').textContent = conv.toLocaleString();
+            $('view-kpi-revenue').textContent = '$' + formatNum(revenue);
+            $('view-kpi-cost').textContent = '$' + formatNum(cost);
+            $('view-kpi-profit').textContent = '$' + formatNum(profit);
+            $('view-kpi-profit').parentElement.className = profit >= 0 ? 'text-green-600' : 'text-red-500';
+            $('view-kpi-roi').textContent = roi.toFixed(0) + '%';
+            $('view-kpi-roi').parentElement.className = roi >= 0 ? 'text-green-600' : 'text-red-500';
+            $('view-kpi-cr').textContent = cr.toFixed(3) + '%';
+            $('view-kpi-ppc').textContent = '$' + ppc.toFixed(4);
+            
+            bar.classList.remove('hidden');
+        }
 
         function changePage(d) {
             const max = Math.ceil(state.filtered.length / state.pageSize) || 1;
@@ -1728,7 +1938,80 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // EXPORT & COPY
+        // COPY DROPDOWN & FUNCTIONS - Updated categories
+        // Winners = PURE + GOLD only
+        // Relevant = PURE + GOLD + POTENTIAL
+        // Relevant+ = PURE + GOLD + POTENTIAL + TESTING
+        // ═══════════════════════════════════════════════════════════════
+        function toggleCopyDropdown() {
+            const dropdown = $('copy-dropdown-content');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.copy-dropdown')) {
+                const dropdown = $('copy-dropdown-content');
+                if (dropdown) dropdown.classList.remove('show');
+            }
+        });
+        
+        function copyByCategory(category) {
+            const useCidr = $('chk-copy-cidr').checked;
+            let dataToCopy = [];
+            
+            switch(category) {
+                case 'current':
+                    // Copy current filtered view
+                    dataToCopy = state.filtered.filter(r => !r.isSummary);
+                    break;
+                case 'winners':
+                    // Winners = PURE + GOLD only
+                    dataToCopy = state.processed.filter(r => ['pure', 'gold'].includes(r.category));
+                    break;
+                case 'relevant':
+                    // Relevant = PURE + GOLD + POTENTIAL
+                    dataToCopy = state.processed.filter(r => ['pure', 'gold', 'potential'].includes(r.category));
+                    break;
+                case 'relevant-plus':
+                    // Relevant+ = PURE + GOLD + POTENTIAL + TESTING
+                    dataToCopy = state.processed.filter(r => ['pure', 'gold', 'potential', 'testing'].includes(r.category));
+                    break;
+                case 'blacklist':
+                    dataToCopy = state.processed.filter(r => r.category === 'blacklist');
+                    break;
+                default:
+                    dataToCopy = state.filtered.filter(r => !r.isSummary);
+            }
+            
+            if (!dataToCopy.length) {
+                alert('אין נתונים להעתקה');
+                return;
+            }
+            
+            const text = dataToCopy.map(r => useCidr ? toCIDR(r.identifier) : r.identifier).join('\n');
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = $('btn-copy');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> ' + dataToCopy.length + ' הועתקו!';
+                lucide.createIcons();
+                setTimeout(() => { 
+                    btn.innerHTML = originalText; 
+                    lucide.createIcons(); 
+                }, 2000);
+            });
+            
+            // Close dropdown
+            $('copy-dropdown-content').classList.remove('show');
+        }
+        
+        // Legacy copy function (for backwards compatibility)
+        function copyIPs() {
+            copyByCategory('current');
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // EXPORT - Uses PPC instead of EPC
         // ═══════════════════════════════════════════════════════════════
         function exportData() {
             const wb = XLSX.utils.book_new();
@@ -1750,26 +2033,26 @@
                         rows = state.processed.filter(r => r.category === exp.cat);
                     }
                     if (rows.length) {
-                        const data = rows.map(r => ({ Identifier: useCidr ? toCIDR(r.identifier) : r.identifier, Score: r.score.toFixed(2), Clicks: r.clicks, Conv: r.conv, Revenue: r.rev.toFixed(2), Cost: r.cost.toFixed(2), Profit: r.profit.toFixed(2), 'ROI%': r.roi.toFixed(0), 'CR%': (r.cr * 100).toFixed(3), EPC: r.epc.toFixed(4), Action: r.action }));
+                        const data = rows.map(r => ({ 
+                            Identifier: useCidr ? toCIDR(r.identifier) : r.identifier, 
+                            Score: r.score.toFixed(2), 
+                            Clicks: r.clicks, 
+                            Conv: r.conv, 
+                            Revenue: r.rev.toFixed(2), 
+                            Cost: r.cost.toFixed(2), 
+                            Profit: r.profit.toFixed(2), 
+                            'ROI%': r.roi.toFixed(0), 
+                            'CR%': (r.cr * 100).toFixed(3), 
+                            PPC: r.ppc.toFixed(4),  // PPC instead of EPC
+                            Action: r.action 
+                        }));
                         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), exp.name);
                         count++;
                     }
                 }
             });
-            if (count) XLSX.writeFile(wb, 'ListLab_V36_Export.xlsx');
+            if (count) XLSX.writeFile(wb, 'ListLab_V40_Export.xlsx');
             else alert('בחר לפחות רשימה אחת');
-        }
-
-        function copyIPs() {
-            if (!state.filtered.length) return alert('אין נתונים');
-            const useCidr = $('chk-copy-cidr').checked;
-            const text = state.filtered.filter(r => !r.isSummary).map(r => useCidr ? toCIDR(r.identifier) : r.identifier).join('\n');
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = $('btn-copy');
-                btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> הועתק!';
-                lucide.createIcons();
-                setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="w-3 h-3"></i> העתק'; lucide.createIcons(); }, 1500);
-            });
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -1786,7 +2069,7 @@
         syncControls('gold-pct', 'gold-pct-num');
         
         // ═══════════════════════════════════════════════════════════════
-        // MINI DASHBOARD
+        // MINI DASHBOARD - Uses PPC instead of EPC
         // ═══════════════════════════════════════════════════════════════
         function toggleDashboard() {
             const content = $('dashboard-content');
