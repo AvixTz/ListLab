@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ListLab V40 - Quality Score Edition</title>
+    <title>ListLab V41 - Quality Score Edition</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -11,24 +11,70 @@
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Assistant', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); height: 100vh; overflow: hidden; color: #1e293b; font-size: 15.4px; }
+        /* ═══════════════════════════════════════════════════════════════
+           V40 DESIGN SYSTEM
+           Typography Scale: 10px / 11px / 12px / 14px
+           Font Weights: 400 (normal) / 600 (semibold) / 700 (bold)
+           RTL: Using logical properties (inline-start/end)
+        ═══════════════════════════════════════════════════════════════ */
+        
+        :root {
+            --text-xs: 10px;
+            --text-sm: 11px;
+            --text-base: 12px;
+            --text-lg: 14px;
+            --font-normal: 400;
+            --font-semibold: 600;
+            --font-bold: 700;
+        }
+        
+        body { font-family: 'Assistant', sans-serif; background: #f1f5f9; height: 100vh; overflow: hidden; color: #1e293b; font-size: var(--text-base); }
         .num-font { font-family: 'Inter', sans-serif; }
         
+        /* Focus states for accessibility */
+        input:focus, select:focus, button:focus, [tabindex]:focus { 
+            outline: 2px solid #6366f1; 
+            outline-offset: 2px; 
+        }
+        input:focus-visible, select:focus-visible, button:focus-visible { 
+            outline: 2px solid #6366f1; 
+            outline-offset: 2px; 
+        }
+        
         .main-wrapper { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 0.5rem; }
-        .glass-header { background: white; border-radius: 10px; padding: 0 1.5rem; margin-bottom: 0.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; height: 68px; }
-        .dash-container { flex: 1; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05); display: flex; overflow: hidden; border: 1px solid #e2e8f0; }
-        .dash-sidebar { width: 380px; background: #ffffff; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow-y: auto; padding: 1rem; }
-        .dash-content { flex: 1; background: #f8fafc; display: flex; flex-direction: column; overflow: hidden; }
+        .glass-header { background: white; border-radius: 12px; padding-inline: 1.5rem; margin-bottom: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; height: 68px; }
+        .dash-container { flex: 1; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; overflow: hidden; border: 1px solid #e2e8f0; }
+        .dash-sidebar { width: 380px; background: #fafbfc; border-inline-start: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow-y: auto; padding: 1rem; }
+        .dash-content { flex: 1; background: #ffffff; display: flex; flex-direction: column; overflow: hidden; }
 
-        .control-box { border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid; }
+        .control-box { border-radius: 10px; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid; background: white; transition: all 0.2s; }
+        .control-box.filters-active { border-color: #3b82f6 !important; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15); background: #f0f7ff !important; }
+        
+        /* Section dividers for sidebar navigation */
+        .section-divider { 
+            font-size: 9px; 
+            font-weight: 700; 
+            color: #94a3b8; 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em; 
+            padding: 8px 4px 4px 4px; 
+            margin-top: 4px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .section-divider:first-child { border-top: none; margin-top: 0; }
+        .section-divider i { width: 12px; height: 12px; opacity: 0.6; }
+        
         .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
         .control-item { display: flex; flex-direction: column; }
         .lbl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
-        .lbl-sm { font-size: 12px; font-weight: 700; color: #64748b; }
+        .lbl-sm { font-size: var(--text-base); font-weight: var(--font-bold); color: #64748b; }
         
         input[type=range] { height: 5px; border-radius: 2px; background: rgba(0,0,0,0.1); outline: none; appearance: none; cursor: pointer; width: 100%; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: currentColor; border: 2px solid white; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-        .dash-input { width: 55px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 12px; text-align: center; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px; background: white; height: 26px; }
+        .dash-input { width: 55px; font-family: 'Inter', sans-serif; font-weight: var(--font-bold); font-size: var(--text-base); text-align: center; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px; background: #fafbfc; height: 26px; }
 
         .collapsible-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 6px 0; }
         .collapsible-content { display: none; }
@@ -37,45 +83,62 @@
         .collapse-icon.open { transform: rotate(180deg); }
 
         .kpi-container { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-        .kpi-card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; transition: transform 0.2s; display: flex; flex-direction: column; padding: 0.6rem; flex: 1 1 auto; min-width: 180px; max-width: 280px; }
-        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -4px rgba(0,0,0,0.1); }
+        .kpi-card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; transition: all 0.2s; display: flex; flex-direction: column; padding: 0.6rem; flex: 1 1 auto; min-width: 180px; max-width: 280px; position: relative; overflow: hidden; }
+        .kpi-card::before { content: ''; position: absolute; top: 0; inset-inline-start: 0; inset-inline-end: 0; height: 3px; }
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .kpi-card.hidden { display: none !important; }
-        .kpi-card.custom-active { border: 2px solid #8b5cf6; box-shadow: 0 0 15px rgba(139, 92, 246, 0.3); }
+        .kpi-card.custom-active { border: 2px solid #8b5cf6; box-shadow: 0 0 15px rgba(139, 92, 246, 0.2); }
         
-        .kpi-pure { border-top: 4px solid #fbbf24; }
-        .kpi-gold { border-top: 4px solid #f59e0b; }
-        .kpi-potential { border-top: 4px solid #10b981; }
-        .kpi-ignore { border-top: 4px solid #6b7280; }
-        .kpi-blacklist { border-top: 4px solid #ef4444; }
-        .kpi-testing { border-top: 4px solid #3b82f6; }
+        .kpi-pure::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .kpi-gold::before { background: linear-gradient(90deg, #d97706, #f59e0b); }
+        .kpi-potential::before { background: linear-gradient(90deg, #059669, #10b981); }
+        .kpi-ignore::before { background: linear-gradient(90deg, #6b7280, #9ca3af); }
+        .kpi-blacklist::before { background: linear-gradient(90deg, #dc2626, #ef4444); }
+        .kpi-testing::before { background: linear-gradient(90deg, #2563eb, #3b82f6); }
 
-        .stat-lbl { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
-        .stat-val { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13px; color: #334155; }
+        .stat-lbl { font-size: var(--text-xs); font-weight: var(--font-bold); color: #94a3b8; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.4; }
+        .stat-val { font-family: 'Inter', sans-serif; font-weight: var(--font-bold); font-size: var(--text-lg); color: #334155; line-height: 1.5; }
         
-        .g-item { text-align: center; border-left: 1px solid #f1f5f9; flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 6px; }
+        .g-item { text-align: center; border-inline-start: 1px solid #f1f5f9; flex: 1; display: flex; flex-direction: column; justify-content: center; padding-inline: 6px; }
         .g-item:last-child { border: none; }
-        .g-lbl { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
-        .g-val { font-size: 14px; font-weight: 700; color: #334155; font-family: 'Inter', sans-serif; }
+        .g-lbl { font-size: var(--text-sm); font-weight: var(--font-bold); color: #94a3b8; text-transform: uppercase; line-height: 1.4; }
+        .g-val { font-size: var(--text-lg); font-weight: var(--font-bold); color: #334155; font-family: 'Inter', sans-serif; line-height: 1.5; }
 
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         .chk-input { width: 15px; height: 15px; accent-color: #1e293b; cursor: pointer; }
         
-        th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; color: #64748b; font-weight: 700; background: #f8fafc; position: sticky; top: 0; z-index: 10; padding: 9px 10px; cursor: pointer; }
+        th { font-size: var(--text-sm); text-transform: uppercase; letter-spacing: 0.03em; color: #64748b; font-weight: var(--font-bold); background: #f8fafc; position: sticky; top: 0; z-index: 10; padding: 10px; cursor: pointer; border-bottom: 2px solid #e2e8f0; }
         th:hover { background: #f1f5f9; }
-        td { font-size: 12px; border-bottom: 1px solid #f1f5f9; padding: 7px 10px; }
-        tr:hover td { background-color: #f8fafc; }
+        td { font-size: var(--text-base); border-bottom: 1px solid #f1f5f9; padding: 8px 10px; }
         
-        .row-pure { background: linear-gradient(90deg, #fef3c7 0%, #fffbeb 100%); }
-        .row-gold { background: linear-gradient(90deg, #fef3c7 0%, white 100%); }
-        .row-potential { background: linear-gradient(90deg, #d1fae5 0%, white 100%); }
-        .row-blacklist { background: linear-gradient(90deg, #fee2e2 0%, white 100%); }
-        .row-testing { background: linear-gradient(90deg, #dbeafe 0%, white 100%); }
-        .row-custom { background: linear-gradient(90deg, #ede9fe 0%, #f5f3ff 100%); }
-        .row-summary { background: linear-gradient(90deg, #e0e7ff 0%, #f5f3ff 100%); font-weight: 700; }
+        /* Sticky identifier column */
+        .sticky-col { position: sticky; inset-inline-start: 0; z-index: 5; }
+        th.sticky-col { z-index: 15; background: #f8fafc; box-shadow: 2px 0 4px rgba(0,0,0,0.05); }
+        td.sticky-col { box-shadow: 2px 0 4px rgba(0,0,0,0.03); background: white; }
+        
+        tr:nth-child(even) td { background-color: #fafbfc; }
+        tr:nth-child(even) td.sticky-col { background-color: #fafbfc; }
+        tr:hover td { background-color: #f1f5f9 !important; }
+        
+        /* Softer category row backgrounds for better text contrast */
+        .row-pure td { background: rgba(254, 252, 232, 0.5) !important; }
+        .row-pure:hover td { background: rgba(254, 249, 195, 0.7) !important; }
+        .row-gold td { background: rgba(254, 252, 232, 0.35) !important; }
+        .row-gold:hover td { background: rgba(254, 249, 195, 0.5) !important; }
+        .row-potential td { background: rgba(236, 253, 245, 0.5) !important; }
+        .row-potential:hover td { background: rgba(209, 250, 229, 0.6) !important; }
+        .row-blacklist td { background: rgba(254, 242, 242, 0.6) !important; }
+        .row-blacklist:hover td { background: rgba(254, 226, 226, 0.7) !important; }
+        .row-testing td { background: rgba(239, 246, 255, 0.5) !important; }
+        .row-testing:hover td { background: rgba(219, 234, 254, 0.6) !important; }
+        .row-custom td { background: rgba(245, 243, 255, 0.6) !important; }
+        .row-custom:hover td { background: rgba(237, 233, 254, 0.7) !important; }
+        .row-summary td { background: #eef2ff !important; }
+        .row-summary { font-weight: var(--font-bold); }
 
-        .cat-badge { font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 4px; white-space: nowrap; }
+        .cat-badge { font-size: var(--text-xs); font-weight: var(--font-bold); padding: 4px 8px; border-radius: 6px; white-space: nowrap; letter-spacing: 0.02em; }
         .badge-pure { background: #fef3c7; color: #92400e; }
         .badge-gold { background: #fde68a; color: #92400e; }
         .badge-potential { background: #d1fae5; color: #065f46; }
@@ -85,30 +148,30 @@
         .badge-custom { background: #ede9fe; color: #7c3aed; }
         .badge-summary { background: #e0e7ff; color: #4338ca; }
 
-        .score-pill { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 10px; }
-        .score-high { background: #fbbf24; color: #78350f; }
-        .score-mid { background: #10b981; color: white; }
-        .score-low { background: #e2e8f0; color: #64748b; }
+        .score-pill { font-family: 'Inter', sans-serif; font-size: var(--text-sm); font-weight: var(--font-bold); padding: 3px 8px; border-radius: 6px; }
+        .score-high { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #78350f; }
+        .score-mid { background: linear-gradient(135deg, #059669, #10b981); color: white; }
+        .score-low { background: #f1f5f9; color: #64748b; }
 
-        .btn-upload { background: #e0e7ff; color: #4338ca; border: 1px dashed #a5b4fc; padding: 0.75rem; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.2s; }
-        .btn-upload:hover { background: #c7d2fe; border-color: #6366f1; }
+        .btn-upload { background: #f8fafc; color: #4338ca; border: 2px dashed #c7d2fe; padding: 0.75rem; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .btn-upload:hover { background: #eef2ff; border-color: #818cf8; }
 
         .kpi-toggle { display: flex; flex-wrap: wrap; gap: 4px; }
-        .kpi-toggle-btn { font-size: 10px; padding: 4px 8px; border-radius: 4px; cursor: pointer; border: 1px solid #e2e8f0; background: white; font-weight: 700; transition: all 0.15s; }
+        .kpi-toggle-btn { font-size: var(--text-xs); padding: 4px 8px; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0; background: white; font-weight: var(--font-bold); transition: all 0.15s; }
         .kpi-toggle-btn.active { background: #1e293b; color: white; border-color: #1e293b; }
         .kpi-toggle-btn:hover:not(.active) { background: #f1f5f9; }
 
-        .filter-item { margin-bottom: 8px; position: relative; }
-        .filter-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 2px; }
-        .filter-btn { width: 100%; text-align: right; background: #f8fafc; border: 1px solid #cbd5e1; padding: 7px 11px; border-radius: 6px; font-size: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .filter-header { display: flex; justify-content: space-between; align-items: center; font-size: var(--text-base); font-weight: var(--font-bold); color: #475569; margin-bottom: 2px; }
+        .filter-btn { width: 100%; text-align: right; background: #f8fafc; border: 1px solid #cbd5e1; padding: 7px 11px; border-radius: 6px; font-size: var(--text-base); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .filter-btn:hover { border-color: #94a3b8; }
-        .filter-popup { position: absolute; top: 100%; left: 0; width: 260px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 50; display: none; flex-direction: column; padding: 8px; margin-top: 4px; }
+        .filter-popup { position: absolute; top: 100%; inset-inline-start: 0; width: 260px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 999; display: none; flex-direction: column; padding: 8px; margin-top: 4px; }
+        .filter-item { position: relative; margin-bottom: 8px; overflow: visible; }
         .filter-popup.show { display: flex; }
-        .filter-search { width: 100%; padding: 5px 9px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; margin-bottom: 6px; }
+        .filter-search { width: 100%; padding: 5px 9px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: var(--text-base); margin-bottom: 6px; }
         .filter-list { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; border: 1px solid #f1f5f9; padding: 4px; border-radius: 4px; margin-bottom: 6px; }
-        .filter-opt { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #334155; cursor: pointer; user-select: none; padding: 3px 5px; border-radius: 3px; }
+        .filter-opt { display: flex; align-items: center; gap: 6px; font-size: var(--text-base); color: #334155; cursor: pointer; user-select: none; padding: 3px 5px; border-radius: 3px; }
         .filter-opt:hover { background: #f8fafc; }
-        .btn-tiny { font-size: 11px; padding: 3px 10px; border-radius: 3px; cursor: pointer; font-weight: 600; }
+        .btn-tiny { font-size: var(--text-sm); padding: 3px 10px; border-radius: 3px; cursor: pointer; font-weight: var(--font-semibold); }
         .btn-apply { background: #3b82f6; color: white; }
         .btn-cancel { background: #f1f5f9; color: #64748b; }
 
@@ -131,11 +194,11 @@
         
         /* Search Box */
         .search-box { position: relative; }
-        .search-box input { width: 160px; padding: 6px 10px 6px 28px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; background: white; }
+        .search-box input { width: 160px; padding: 6px 10px 6px 28px; padding-inline-start: 28px; padding-inline-end: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; background: white; }
         .search-box input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
-        .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
+        .search-box i { position: absolute; inset-inline-start: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
         .search-highlight { background: #fef08a !important; padding: 0 2px; border-radius: 2px; }
-        .icloud-badge { font-size: 10px; margin-left: 4px; opacity: 0.7; cursor: help; color: #3b82f6; }
+        .icloud-badge { font-size: 10px; margin-inline-start: 4px; opacity: 0.7; cursor: help; color: #3b82f6; }
         
         /* iCloud Switcher */
         .icloud-switcher { display: flex; align-items: center; gap: 4px; padding: 2px 6px; background: #eff6ff; border-radius: 6px; border: 1px solid #bfdbfe; }
@@ -156,7 +219,7 @@
         /* Sortable Headers */
         .sortable-th { cursor: pointer; user-select: none; transition: background 0.15s; }
         .sortable-th:hover { background: #e2e8f0; }
-        .sortable-th .sort-icon { font-size: 10px; opacity: 0.4; margin-right: 2px; }
+        .sortable-th .sort-icon { font-size: 10px; opacity: 0.4; margin-inline-start: 2px; }
         .sortable-th.sort-asc .sort-icon { opacity: 1; }
         .sortable-th.sort-asc .sort-icon::after { content: '↑'; }
         .sortable-th.sort-asc .sort-icon { font-size: 0; }
@@ -202,7 +265,7 @@
             border-radius: 6px; 
             border: 1px solid #e2e8f0;
             top: 100%;
-            left: 0;
+            inset-inline-start: 0;
             margin-top: 4px;
         }
         .copy-dropdown-content.show { display: block; }
@@ -224,9 +287,17 @@
             background: #fef3c7; 
             color: #92400e; 
             border-radius: 4px; 
-            margin-left: 6px;
+            margin-inline-start: 6px;
             font-weight: 700;
         }
+        
+        /* RTL-safe utility classes */
+        .border-s { border-inline-start-width: 1px; }
+        .border-e { border-inline-end-width: 1px; }
+        .ps-3 { padding-inline-start: 0.75rem; }
+        .pe-3 { padding-inline-end: 0.75rem; }
+        .ms-1 { margin-inline-start: 0.25rem; }
+        .me-1 { margin-inline-end: 0.25rem; }
     </style>
 </head>
 <body>
@@ -238,7 +309,7 @@
                 </div>
                 <div>
                     <h1 class="text-base font-bold text-slate-800">ListLab</h1>
-                    <div class="text-[11px] text-amber-600 font-bold">V40 Quality Score</div>
+                    <div class="text-[11px] text-amber-600 font-bold">V41 Custom Weights</div>
                 </div>
             </div>
             
@@ -316,6 +387,11 @@
                     </div>
                 </div>
 
+                <!-- Section: Data Configuration -->
+                <div class="section-divider">
+                    <i data-lucide="database"></i> הגדרות נתונים
+                </div>
+
                 <!-- Identifier Type & Column Selection -->
                 <div class="control-box border-blue-200 bg-blue-50 mb-3">
                     <div class="text-xs font-bold text-blue-700 mb-2 flex items-center gap-1">
@@ -325,11 +401,11 @@
                     <!-- Identifier Column + Type in same row -->
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <div>
-                            <label class="text-[10px] text-slate-500 mb-1 block">עמודת מזהה:</label>
+                            <label class="text-[11px] text-slate-500 mb-1 block">עמודת מזהה:</label>
                             <select id="col-ip" class="w-full text-[11px] border border-blue-300 rounded p-1.5 font-medium"></select>
                         </div>
                         <div>
-                            <label class="text-[10px] text-slate-500 mb-1 block">סוג:</label>
+                            <label class="text-[11px] text-slate-500 mb-1 block">סוג:</label>
                             <select id="identifier-type" class="w-full text-[11px] border border-blue-300 rounded p-1.5 font-medium">
                                 <option value="auto">🔍 אוטומטי</option>
                                 <option value="subid">🎯 SubID</option>
@@ -339,11 +415,11 @@
                         </div>
                     </div>
                     
-                    <div id="detected-type" class="text-[10px] text-green-600 font-bold mb-2 hidden"></div>
+                    <div id="detected-type" class="text-[11px] text-green-600 font-bold mb-2 hidden"></div>
                     
                     <!-- Traffic Level -->
                     <div class="mb-2">
-                        <label class="text-[10px] text-slate-500 mb-1 block">רמת טראפיק:</label>
+                        <label class="text-[11px] text-slate-500 mb-1 block">רמת טראפיק:</label>
                         <select id="ip-level" class="w-full text-sm border border-blue-300 rounded p-1.5 font-medium">
                             <option value="1" selected>רמה 1 - SubID/IP32 (1.5×, 1K-3K)</option>
                             <option value="2">רמה 2 - Zone/IP24 (3×, 3K-10K)</option>
@@ -375,24 +451,30 @@
                 </div>
 
                 <!-- Advanced Filters -->
-                <div class="control-box border-slate-300 bg-slate-50">
+                <div id="filter-control-box" class="control-box border-slate-300 bg-slate-50">
                     <div class="collapsible-header" onclick="toggleSection('filters')">
                         <div class="text-xs font-bold text-slate-700 flex items-center gap-1">
                             <i data-lucide="filter" class="w-3 h-3"></i> סינון מתקדם
                             <span id="active-filters-badge" class="hidden text-[9px] bg-blue-500 text-white px-1.5 py-0.5 rounded-full">0</span>
+                            <button id="btn-clear-filters" class="hidden text-[9px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full hover:bg-red-200 font-bold" onclick="event.stopPropagation(); clearAllFilters();">נקה הכל</button>
                         </div>
                         <i data-lucide="chevron-down" class="w-4 h-4 text-slate-600 collapse-icon open" id="filters-icon"></i>
                     </div>
                     <div class="collapsible-content open" id="filters-content">
                         <div id="filters-list" class="mt-2"></div>
-                        <button onclick="showAddFilterMenu()" id="btn-add-filter" class="hidden w-full mt-2 border border-dashed border-indigo-300 text-indigo-600 rounded p-1.5 text-[10px] font-bold hover:bg-indigo-50 flex items-center justify-center gap-1">
+                        <button onclick="showAddFilterMenu()" id="btn-add-filter" class="hidden w-full mt-2 border border-dashed border-indigo-300 text-indigo-600 rounded p-1.5 text-[11px] font-bold hover:bg-indigo-50 flex items-center justify-center gap-1">
                             <i data-lucide="plus" class="w-3 h-3"></i> הוסף מסנן
                         </button>
                         <select id="col-selector" class="hidden w-full mt-1 text-[11px] border border-slate-300 rounded p-1" onchange="createNewFilter(this.value)">
                             <option value="">בחר עמודה...</option>
                         </select>
-                        <div id="filter-msg" class="text-[11px] text-slate-400 text-center py-2 italic">טען קובץ כדי להתחיל</div>
+                        <div id="filter-msg" class="text-[11px] text-slate-500 text-center py-2 italic">טען קובץ כדי להתחיל</div>
                     </div>
+                </div>
+
+                <!-- Section: Scoring Configuration -->
+                <div class="section-divider">
+                    <i data-lucide="star"></i> הגדרות ניקוד
                 </div>
 
                 <!-- Score Thresholds -->
@@ -408,6 +490,54 @@
                         <div class="control-item">
                             <div class="lbl-row"><span class="lbl-sm">🥇 GOLD</span><input type="number" id="gold-pct-num" value="25" class="dash-input text-amber-600"></div>
                             <input type="range" id="gold-pct" min="15" max="50" value="25" class="text-amber-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Score Weighting - V41 -->
+                <div class="control-box border-indigo-200 bg-indigo-50">
+                    <div class="collapsible-header" onclick="toggleSection('weights')">
+                        <div class="text-xs font-bold text-indigo-700 flex items-center gap-1">
+                            <i data-lucide="scale" class="w-3 h-3"></i> משקלי Score
+                            <span id="weights-badge" class="text-[9px] bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded-full">50/30/20</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-indigo-600 collapse-icon" id="weights-icon"></i>
+                    </div>
+                    <div class="collapsible-content" id="weights-content">
+                        <div class="mt-2 space-y-2">
+                            <!-- PPC Weight -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-[11px] font-bold text-amber-600 w-10">PPC</span>
+                                <input type="range" id="weight-ppc" min="0" max="100" value="50" class="flex-1 text-amber-500">
+                                <input type="number" id="weight-ppc-num" value="50" min="0" max="100" class="dash-input w-14 text-amber-600">
+                                <span class="text-[10px] text-slate-400">%</span>
+                            </div>
+                            <!-- ROI Weight -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-[11px] font-bold text-green-600 w-10">ROI</span>
+                                <input type="range" id="weight-roi" min="0" max="100" value="30" class="flex-1 text-green-500">
+                                <input type="number" id="weight-roi-num" value="30" min="0" max="100" class="dash-input w-14 text-green-600">
+                                <span class="text-[10px] text-slate-400">%</span>
+                            </div>
+                            <!-- CR Weight -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-[11px] font-bold text-blue-600 w-10">CR</span>
+                                <input type="range" id="weight-cr" min="0" max="100" value="20" class="flex-1 text-blue-500">
+                                <input type="number" id="weight-cr-num" value="20" min="0" max="100" class="dash-input w-14 text-blue-600">
+                                <span class="text-[10px] text-slate-400">%</span>
+                            </div>
+                            <!-- Total & Presets -->
+                            <div class="flex items-center justify-between pt-2 border-t border-indigo-200">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] text-slate-500">סה"כ:</span>
+                                    <span id="weights-total" class="text-[11px] font-bold text-green-600">100%</span>
+                                </div>
+                                <div class="flex gap-1">
+                                    <button onclick="setWeightPreset('balanced')" class="text-[9px] px-2 py-1 bg-white border border-indigo-200 rounded hover:bg-indigo-100 font-bold" title="50/30/20">מאוזן</button>
+                                    <button onclick="setWeightPreset('roi')" class="text-[9px] px-2 py-1 bg-white border border-indigo-200 rounded hover:bg-indigo-100 font-bold" title="20/60/20">ROI</button>
+                                    <button onclick="setWeightPreset('scale')" class="text-[9px] px-2 py-1 bg-white border border-indigo-200 rounded hover:bg-indigo-100 font-bold" title="30/20/50">סקייל</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -430,7 +560,7 @@
                         <!-- Row 1: Conv & Score -->
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">Conv</div>
+                                <div class="text-[11px] font-bold text-purple-600 mb-1.5">Conv</div>
                                 <div class="flex gap-1">
                                     <div class="flex-1">
                                         <input type="number" id="cust-conv-min" value="1" min="0" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
@@ -442,7 +572,7 @@
                                 </div>
                             </div>
                             <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">Score</div>
+                                <div class="text-[11px] font-bold text-purple-600 mb-1.5">Score</div>
                                 <div class="flex gap-1">
                                     <div class="flex-1">
                                         <input type="number" id="cust-score-min" value="0" step="0.1" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
@@ -458,7 +588,7 @@
                         <!-- Row 2: Clicks & ROI -->
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">Clicks</div>
+                                <div class="text-[11px] font-bold text-purple-600 mb-1.5">Clicks</div>
                                 <div class="flex gap-1">
                                     <div class="flex-1">
                                         <input type="number" id="cust-clicks-min" value="0" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
@@ -470,7 +600,7 @@
                                 </div>
                             </div>
                             <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">ROI%</div>
+                                <div class="text-[11px] font-bold text-purple-600 mb-1.5">ROI%</div>
                                 <div class="flex gap-1">
                                     <div class="flex-1">
                                         <input type="number" id="cust-roi-min" value="-100" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
@@ -486,7 +616,7 @@
                         <!-- Row 3: CR & PPC -->
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">CR%</div>
+                                <div class="text-[11px] font-bold text-purple-600 mb-1.5">CR%</div>
                                 <div class="flex gap-1">
                                     <div class="flex-1">
                                         <input type="number" id="cust-cr-min" value="0" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
@@ -498,7 +628,7 @@
                                 </div>
                             </div>
                             <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">PPC</div>
+                                <div class="text-[11px] font-bold text-purple-600 mb-1.5">PPC</div>
                                 <div class="flex gap-1">
                                     <div class="flex-1">
                                         <input type="number" id="cust-ppc-min" value="-1" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
@@ -515,6 +645,11 @@
                             <i data-lucide="check" class="w-3 h-3"></i> החל פילטר
                         </button>
                     </div>
+                </div>
+
+                <!-- Section: Display Settings -->
+                <div class="section-divider">
+                    <i data-lucide="eye"></i> תצוגה
                 </div>
 
                 <!-- KPI Visibility - ALL ACTIVE BY DEFAULT -->
@@ -630,14 +765,14 @@
                                 </div>
                                 
                                 <!-- Show Changes Toggle (Compare Mode) -->
-                                <div id="show-changes-box" class="hidden flex items-center gap-1 border-l border-slate-200 pl-3">
+                                <div id="show-changes-box" class="hidden flex items-center gap-1 border-s border-slate-200 ps-3">
                                     <label class="flex items-center gap-1 text-[11px] text-blue-600 font-bold cursor-pointer">
                                         <input type="checkbox" id="chk-show-changes" class="chk-input" checked> הצג שינויים
                                     </label>
                                 </div>
                                 
                                 <div class="flex items-center gap-2">
-                                    <span class="text-[11px] font-bold text-slate-400 uppercase">תצוגה:</span>
+                                    <span class="text-[11px] font-bold text-slate-500 uppercase">תצוגה:</span>
                                     <select id="filter-view" class="text-sm bg-slate-50 border border-slate-200 rounded px-2 py-1 font-medium w-36">
                                         <option value="all">הכל</option>
                                         <option value="relevant">🎯 Relevant</option>
@@ -657,15 +792,15 @@
                                 </div>
 
                                 <div class="flex items-center gap-2" id="level-filter-box" style="display:none;">
-                                    <span class="text-[11px] font-bold text-slate-400 uppercase">שכבה:</span>
+                                    <span class="text-[11px] font-bold text-slate-500 uppercase">שכבה:</span>
                                     <select id="level-view" class="text-sm bg-slate-50 border border-slate-200 rounded px-2 py-1 font-medium">
                                         <option value="detail">פירוט בלבד</option>
                                         <option value="all">הכל (כולל סיכומים)</option>
                                     </select>
                                 </div>
 
-                                <div class="flex items-center gap-2 border-r border-slate-200 pr-3">
-                                    <span class="text-[11px] font-bold text-slate-400">Min Score:</span>
+                                <div class="flex items-center gap-2 border-e border-slate-200 pe-3">
+                                    <span class="text-[11px] font-bold text-slate-500">Min Score:</span>
                                     <input type="number" id="min-score-filter" value="0" step="0.1" class="w-16 text-sm border border-slate-200 rounded px-2 py-1 num-font">
                                 </div>
 
@@ -694,20 +829,20 @@
                             </div>
                         </div>
                         
-                        <!-- Dynamic KPI Summary Bar - Compact & Clean -->
-                        <div id="view-kpi-bar" class="hidden bg-indigo-50 border-b-2 border-indigo-200 px-3 py-1.5">
+                        <!-- Dynamic KPI Summary Bar -->
+                        <div id="view-kpi-bar" class="hidden bg-slate-50 border-b border-slate-200 px-4 py-2">
                             <div class="flex items-center justify-between text-[11px]">
-                                <span id="view-kpi-name" class="font-bold text-indigo-700 bg-white px-2 py-0.5 rounded border border-indigo-200">-</span>
-                                <div class="flex items-center gap-3 num-font font-bold">
-                                    <span class="text-blue-600" title="Clicks"><span class="text-slate-400 font-normal">Clicks:</span> <span id="view-kpi-clicks">0</span></span>
-                                    <span title="Conversions"><span class="text-slate-400 font-normal">Conv:</span> <span id="view-kpi-conv">0</span></span>
-                                    <span class="text-green-600" title="Revenue"><span class="text-slate-400 font-normal">Rev:</span> <span id="view-kpi-revenue">$0</span></span>
-                                    <span class="text-slate-500" title="Cost"><span class="text-slate-400 font-normal">Cost:</span> <span id="view-kpi-cost">$0</span></span>
-                                    <span class="text-green-600" title="Profit"><span class="text-slate-400 font-normal">Profit:</span> <span id="view-kpi-profit">$0</span></span>
-                                    <span class="w-px h-3 bg-slate-300"></span>
-                                    <span class="text-green-600" title="ROI"><span class="text-slate-400 font-normal">ROI:</span> <span id="view-kpi-roi">0%</span></span>
-                                    <span class="text-blue-600" title="Conversion Rate"><span class="text-slate-400 font-normal">CR:</span> <span id="view-kpi-cr">0%</span></span>
-                                    <span class="text-amber-600" title="Profit Per Click"><span class="text-slate-400 font-normal">PPC:</span> <span id="view-kpi-ppc">$0</span></span>
+                                <span id="view-kpi-name" class="font-bold text-slate-700 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">-</span>
+                                <div class="flex items-center gap-4 num-font">
+                                    <span class="text-slate-500">Clicks: <strong id="view-kpi-clicks" class="text-slate-700">0</strong></span>
+                                    <span class="text-slate-500">Conv: <strong id="view-kpi-conv" class="text-slate-800">0</strong></span>
+                                    <span class="text-slate-500">Rev: <strong id="view-kpi-revenue" class="text-green-600">$0</strong></span>
+                                    <span class="text-slate-500">Cost: <strong id="view-kpi-cost" class="text-slate-600">$0</strong></span>
+                                    <span class="text-slate-500">Profit: <strong id="view-kpi-profit" class="text-green-600">$0</strong></span>
+                                    <span class="w-px h-4 bg-slate-300"></span>
+                                    <span class="text-slate-500">ROI: <strong id="view-kpi-roi" class="text-green-600">0%</strong></span>
+                                    <span class="text-slate-500">CR: <strong id="view-kpi-cr" class="text-blue-600">0%</strong></span>
+                                    <span class="text-slate-500">PPC: <strong id="view-kpi-ppc" class="text-amber-600">$0</strong></span>
                                 </div>
                             </div>
                         </div>
@@ -718,9 +853,9 @@
                                     <tr>
                                         <th class="text-center w-8">#</th>
                                         <th class="text-center w-10" id="th-level" style="display:none;">Lvl</th>
-                                        <th class="text-right sortable-th" data-sort="identifier" onclick="sortByColumn('identifier')">מזהה <span class="sort-icon">⇅</span></th>
+                                        <th class="text-right sortable-th sticky-col" data-sort="identifier" onclick="sortByColumn('identifier')">מזהה <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="category" onclick="sortByColumn('category')">קטגוריה <span class="sort-icon">⇅</span></th>
-                                        <th class="text-center sortable-th" data-sort="score" onclick="sortByColumn('score')" title="V40 Score = Quality × Reliability&#10;Quality = 0.5×(PPC/med) + 0.3×(ROI/med) + 0.2×(CR/med)&#10;Reliability = min(conv/10, 1.0)">Score <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="score" onclick="sortByColumn('score')" title="V41 Score = Quality × Reliability&#10;Quality = wPPC×(PPC/med) + wROI×(ROI/med) + wCR×(CR/med)&#10;Weights adjustable in sidebar&#10;Reliability = min(conv/10, 1.0)">Score <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="clicks" onclick="sortByColumn('clicks')">Clicks <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="conv" onclick="sortByColumn('conv')">Conv <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="revenue" onclick="sortByColumn('revenue')">Revenue <span class="sort-icon">⇅</span></th>
@@ -779,7 +914,9 @@
             // iCloud filter: 'all', 'hide', 'only'
             icloudFilter: 'all',
             // Track if filters are active for score recalculation
-            hasActiveAdvancedFilters: false
+            hasActiveAdvancedFilters: false,
+            // V41: Custom score weights (must sum to 100)
+            scoreWeights: { ppc: 50, roi: 30, cr: 20 }
         };
         
         // iCloud Private Relay IP ranges (/16)
@@ -814,6 +951,21 @@
 
         const $ = id => document.getElementById(id);
         const parseNum = v => { if (typeof v === 'number') return v; if (!v) return 0; return parseFloat(String(v).replace(/[,$%\s]/g, '')) || 0; };
+        
+        // XSS Protection - escape HTML entities
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[c]));
+        }
+        
+        // Debounce for performance - prevents rapid-fire processData calls
+        let debounceTimer;
+        function debounceProcess(ms = 150) {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(processData, ms);
+        }
 
         function toggleSection(section) {
             const content = $(section + '-content');
@@ -1237,7 +1389,7 @@
             $('filters-list').appendChild(div);
             lucide.createIcons();
             const lst = $('lst-' + fid);
-            (state.dimensions[col] || []).forEach(v => { lst.innerHTML += '<div class="filter-opt"><input type="checkbox" class="chk-input" value="' + v + '"> <span>' + v + '</span></div>'; });
+            (state.dimensions[col] || []).forEach(v => { lst.innerHTML += '<div class="filter-opt"><input type="checkbox" class="chk-input" value="' + String(v).replace(/"/g, '&quot;') + '"> <span>' + escapeHtml(v) + '</span></div>'; });
             state.activeFilters.push({ id: fid, col, colIdx: state.headers.indexOf(col), values: [] });
             $('col-selector').classList.add('hidden');
             if (state.activeFilters.length < 4) $('btn-add-filter').classList.remove('hidden');
@@ -1249,7 +1401,7 @@
             state.activeFilters = state.activeFilters.filter(f => f.id !== fid); 
             $('btn-add-filter').classList.remove('hidden'); 
             updateActiveFiltersBadge();
-            processData(); 
+            debounceProcess(); 
         }
         
         function togglePopup(fid) { const el = $('p-' + fid); const isOpen = el.classList.contains('show'); document.querySelectorAll('.filter-popup').forEach(p => p.classList.remove('show')); if (!isOpen) el.classList.add('show'); }
@@ -1265,19 +1417,43 @@
             lbl.className = vals.length ? 'text-blue-600 font-bold' : '';
             togglePopup(fid);
             updateActiveFiltersBadge();
-            processData();
+            debounceProcess();
         }
         
         function updateActiveFiltersBadge() {
             const activeCount = state.activeFilters.filter(f => f.values.length > 0).length;
             const badge = $('active-filters-badge');
+            const clearBtn = $('btn-clear-filters');
+            const filterBox = $('filter-control-box');
             if (activeCount > 0) {
                 badge.textContent = activeCount;
                 badge.classList.remove('hidden');
+                clearBtn.classList.remove('hidden');
+                filterBox.classList.add('filters-active');
             } else {
                 badge.classList.add('hidden');
+                clearBtn.classList.add('hidden');
+                filterBox.classList.remove('filters-active');
             }
             state.hasActiveAdvancedFilters = activeCount > 0;
+        }
+        
+        function clearAllFilters() {
+            // Clear all filter selections
+            state.activeFilters.forEach(f => {
+                f.values = [];
+                const lbl = $('l-' + f.id);
+                if (lbl) {
+                    lbl.innerText = '(הכל)';
+                    lbl.className = '';
+                }
+                const lst = $('lst-' + f.id);
+                if (lst) {
+                    lst.querySelectorAll('input:checked').forEach(chk => chk.checked = false);
+                }
+            });
+            updateActiveFiltersBadge();
+            debounceProcess();
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -1324,9 +1500,9 @@
                     $('level-badges').innerHTML = levels.map(l => '<span class="level-badge level-' + Math.min(l, 3) + '">' + l + '</span>').join('');
                 }
 
-                // Apply dimension filters
+                // Apply dimension filters (with trim for better matching)
                 let filtered = state.allRows.filter(r => {
-                    for (const f of state.activeFilters) { if (f.values.length > 0) { const val = String(r.raw[f.colIdx] || ''); if (!f.values.includes(val)) return false; } }
+                    for (const f of state.activeFilters) { if (f.values.length > 0) { const val = String(r.raw[f.colIdx] || '').trim(); if (!f.values.includes(val)) return false; } }
                     return true;
                 });
 
@@ -1447,10 +1623,16 @@
             
             if (medianPPC <= 0 || medianCR <= 0 || medianROI <= 0) return 0;
             
-            // V40: Quality Score = weighted combination of normalized metrics
-            const ppcComponent = 0.5 * (r.ppc / medianPPC);
-            const roiComponent = 0.3 * (r.roi / medianROI);
-            const crComponent = 0.2 * (r.cr / medianCR);
+            // V41: Dynamic weights from state (normalized to sum to 1.0)
+            const totalWeight = state.scoreWeights.ppc + state.scoreWeights.roi + state.scoreWeights.cr;
+            const wPPC = totalWeight > 0 ? state.scoreWeights.ppc / totalWeight : 0.5;
+            const wROI = totalWeight > 0 ? state.scoreWeights.roi / totalWeight : 0.3;
+            const wCR = totalWeight > 0 ? state.scoreWeights.cr / totalWeight : 0.2;
+            
+            // Quality Score = weighted combination of normalized metrics
+            const ppcComponent = wPPC * (r.ppc / medianPPC);
+            const roiComponent = wROI * (r.roi / medianROI);
+            const crComponent = wCR * (r.cr / medianCR);
             const quality = ppcComponent + roiComponent + crComponent;
             
             // Reliability factor: caps at 10 conversions
@@ -1492,8 +1674,11 @@
 
             const purePool = data.filter(r => r.conv >= 3 && r.profit > 0).sort((a, b) => b.score - a.score);
             const goldPool = data.filter(r => r.conv >= 2 && r.profit > 0).sort((a, b) => b.score - a.score);
-            const pureThreshold = purePool.length > 0 ? purePool[Math.floor(purePool.length * purePct / 100)]?.score || 0 : Infinity;
-            const goldThreshold = goldPool.length > 0 ? goldPool[Math.floor(goldPool.length * goldPct / 100)]?.score || 0 : Infinity;
+            // Fixed: use ceil-1 to get correct top X% cutoff
+            const pureIdx = Math.max(0, Math.ceil(purePool.length * purePct / 100) - 1);
+            const goldIdx = Math.max(0, Math.ceil(goldPool.length * goldPct / 100) - 1);
+            const pureThreshold = purePool.length > 0 ? purePool[pureIdx]?.score || 0 : Infinity;
+            const goldThreshold = goldPool.length > 0 ? goldPool[goldIdx]?.score || 0 : Infinity;
 
             return data.map(r => {
                 let category, action;
@@ -1687,7 +1872,7 @@
             });
         });
         
-        $('ip-level').addEventListener('change', () => { processData(); });
+        $('ip-level').addEventListener('change', () => { debounceProcess(); });
         $('identifier-type').addEventListener('change', () => { 
             state.identifierType = $('identifier-type').value;
             if (state.identifierType !== 'auto') {
@@ -1696,13 +1881,13 @@
                 else if (state.identifierType === 'zone') $('ip-level').value = '2';
                 else if (state.identifierType === 'ip') $('ip-level').value = '1';
             }
-            processData(); 
+            debounceProcess(); 
         });
         $('col-ip').addEventListener('change', () => {
             detectAndUpdateIdentifierType();
-            processData();
+            debounceProcess();
         });
-        $('custom-enabled').addEventListener('change', () => { processData(); });
+        $('custom-enabled').addEventListener('change', () => { debounceProcess(); });
 
         // ═══════════════════════════════════════════════════════════════
         // KPI TOGGLE
@@ -1744,7 +1929,7 @@
                 const isHidden = !state.visibleKpis.includes(cat.key);
                 const isCustomActive = cat.key === 'testing' && state.customEnabled;
 
-                html += '<div class="kpi-card ' + cat.cls + (isHidden ? ' hidden' : '') + (isCustomActive ? ' custom-active' : '') + '"><div class="flex justify-between items-center mb-1"><div class="flex items-center gap-1"><span class="text-lg">' + cat.icon + '</span><span class="text-[11px] font-black uppercase">' + cat.name + '</span></div><div class="text-xl font-black num-font text-slate-800">' + s.count.toLocaleString() + '</div></div><div class="bg-slate-100 border border-slate-200 rounded px-2 py-1 flex justify-between items-center mb-1"><div class="text-center flex-1"><div class="stat-lbl">Clicks</div><div class="stat-val text-[12px]">' + formatNum(s.clicks) + '</div></div><div class="text-center flex-1 border-r border-slate-200"><div class="stat-lbl">PPC</div><div class="stat-val text-[12px]">$' + s.ppc.toFixed(4) + '</div></div></div><div class="grid grid-cols-3 gap-0.5 text-center mb-1 border-b border-slate-100 pb-1"><div><div class="stat-lbl">Conv</div><div class="stat-val text-[12px]">' + s.conv.toLocaleString() + '</div></div><div><div class="stat-lbl">Revenue</div><div class="stat-val text-[12px] text-green-600">$' + formatNum(s.rev) + '</div></div><div><div class="stat-lbl">Cost</div><div class="stat-val text-[12px] text-slate-500">$' + formatNum(s.cost) + '</div></div></div><div class="grid grid-cols-3 gap-0.5 text-center"><div><div class="stat-lbl">Profit</div><div class="stat-val text-[12px] ' + (s.profit >= 0 ? 'text-green-600' : 'text-red-500') + '">$' + formatNum(s.profit) + '</div></div><div><div class="stat-lbl">ROI</div><div class="stat-val text-[12px] ' + (s.roi >= 0 ? 'text-green-600' : 'text-red-500') + '">' + s.roi.toFixed(0) + '%</div></div><div><div class="stat-lbl">CR</div><div class="stat-val text-[12px] text-blue-600">' + s.cr.toFixed(3) + '%</div></div></div></div>';
+                html += '<div class="kpi-card ' + cat.cls + (isHidden ? ' hidden' : '') + (isCustomActive ? ' custom-active' : '') + '"><div class="flex justify-between items-center mb-1"><div class="flex items-center gap-1"><span class="text-lg">' + cat.icon + '</span><span class="text-[11px] font-black uppercase">' + cat.name + '</span></div><div class="text-xl font-black num-font text-slate-800">' + s.count.toLocaleString() + '</div></div><div class="bg-slate-100 border border-slate-200 rounded px-2 py-1 flex justify-between items-center mb-1"><div class="text-center flex-1"><div class="stat-lbl">Clicks</div><div class="stat-val text-[12px]">' + formatNum(s.clicks) + '</div></div><div class="text-center flex-1 border-e border-slate-200"><div class="stat-lbl">PPC</div><div class="stat-val text-[12px]">$' + s.ppc.toFixed(4) + '</div></div></div><div class="grid grid-cols-3 gap-0.5 text-center mb-1 border-b border-slate-100 pb-1"><div><div class="stat-lbl">Conv</div><div class="stat-val text-[12px]">' + s.conv.toLocaleString() + '</div></div><div><div class="stat-lbl">Revenue</div><div class="stat-val text-[12px] text-green-600">$' + formatNum(s.rev) + '</div></div><div><div class="stat-lbl">Cost</div><div class="stat-val text-[12px] text-slate-500">$' + formatNum(s.cost) + '</div></div></div><div class="grid grid-cols-3 gap-0.5 text-center"><div><div class="stat-lbl">Profit</div><div class="stat-val text-[12px] ' + (s.profit >= 0 ? 'text-green-600' : 'text-red-500') + '">$' + formatNum(s.profit) + '</div></div><div><div class="stat-lbl">ROI</div><div class="stat-val text-[12px] ' + (s.roi >= 0 ? 'text-green-600' : 'text-red-500') + '">' + s.roi.toFixed(0) + '%</div></div><div><div class="stat-lbl">CR</div><div class="stat-val text-[12px] text-blue-600">' + s.cr.toFixed(3) + '%</div></div></div></div>';
             });
             $('kpi-container').innerHTML = html;
         }
@@ -1794,15 +1979,15 @@
             };
             
             const compareBadges = {
-                'new': '<span class="compare-badge badge-new ml-1">✨</span>',
-                'improved': '<span class="compare-badge badge-improved ml-1">📈</span>',
-                'declined': '<span class="compare-badge badge-declined ml-1">📉</span>'
+                'new': '<span class="compare-badge badge-new ms-1">✨</span>',
+                'improved': '<span class="compare-badge badge-improved ms-1">📈</span>',
+                'declined': '<span class="compare-badge badge-declined ms-1">📉</span>'
             };
             
             // Helper function to create delta display
             function makeDelta(current, old, prefix, suffix, decimals) {
                 if (!showChanges || old === undefined) return '';
-                const delta = old - current;
+                const delta = current - old;  // Fixed: shows change from old to current
                 if (Math.abs(delta) < 0.01) return '';
                 const cls = delta >= 0 ? 'delta-positive' : 'delta-negative';
                 const sign = delta >= 0 ? '+' : '';
@@ -1815,11 +2000,13 @@
                 const scoreCls = r.score > 5 ? 'score-high' : r.score > 1 ? 'score-mid' : 'score-low';
                 const levelCls = r.level === 1 ? 'level-1' : r.level === 2 ? 'level-2' : 'level-3';
                 
-                // Highlight search matches
-                let displayId = r.identifier;
+                // Highlight search matches (escape first for XSS protection)
+                let displayId = escapeHtml(r.identifier);
                 if (state.searchQuery && r.identifier.toLowerCase().includes(state.searchQuery)) {
-                    const regex = new RegExp('(' + state.searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
-                    displayId = r.identifier.replace(regex, '<mark class="search-highlight">$1</mark>');
+                    // Regex on escaped text, using raw query escaped for regex only
+                    const safeQuery = state.searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regex = new RegExp('(' + safeQuery + ')', 'gi');
+                    displayId = displayId.replace(regex, '<mark class="search-highlight">$1</mark>');
                 }
                 
                 // Add compare badge
@@ -1833,18 +2020,18 @@
                 const roiDelta = r.compareStatus !== 'new' ? makeDelta(r.roi, r.oldRoi, '', '%', 0) : '';
                 const crDelta = r.compareStatus !== 'new' ? makeDelta(r.cr * 100, r.oldCr * 100, '', '%', 2) : '';
                 
-                // Extra columns (OS, ISP, etc.)
+                // Extra columns (OS, ISP, etc.) - escape for XSS protection
                 let extraCells = '';
                 if (showExtraCols) {
                     state.extraColumns.forEach(col => {
-                        extraCells += '<td class="text-center text-[11px] text-slate-600">' + (r.extraData && r.extraData[col] || '-') + '</td>';
+                        extraCells += '<td class="text-center text-[11px] text-slate-600">' + escapeHtml(r.extraData && r.extraData[col] || '-') + '</td>';
                     });
                 }
                 
                 html += '<tr class="' + cfg.row + '">' +
                     '<td class="text-center num-font text-slate-400">' + (start + i + 1) + '</td>' +
                     (showLevel ? '<td class="text-center"><span class="level-badge ' + levelCls + '">' + r.level + '</span></td>' : '') +
-                    '<td class="text-right font-bold text-slate-700 ' + (r.isSummary ? 'text-indigo-700' : '') + '">' + icloudBadge + displayId + cmpBadge + '</td>' +
+                    '<td class="text-right font-bold text-slate-700 sticky-col ' + (r.isSummary ? 'text-indigo-700' : '') + '">' + icloudBadge + displayId + cmpBadge + '</td>' +
                     extraCells +
                     '<td class="text-center"><span class="cat-badge ' + cfg.badge + '">' + cfg.label + '</span></td>' +
                     '<td class="text-center"><span class="score-pill ' + scoreCls + '">' + r.score.toFixed(2) + '</span></td>' +
@@ -1923,11 +2110,12 @@
             $('view-kpi-revenue').textContent = '$' + formatNum(revenue);
             $('view-kpi-cost').textContent = '$' + formatNum(cost);
             $('view-kpi-profit').textContent = '$' + formatNum(profit);
-            $('view-kpi-profit').parentElement.className = profit >= 0 ? 'text-green-600' : 'text-red-500';
+            $('view-kpi-profit').className = profit >= 0 ? 'text-green-600' : 'text-red-500';
             $('view-kpi-roi').textContent = roi.toFixed(0) + '%';
-            $('view-kpi-roi').parentElement.className = roi >= 0 ? 'text-green-600' : 'text-red-500';
+            $('view-kpi-roi').className = roi >= 0 ? 'text-green-600' : 'text-red-500';
             $('view-kpi-cr').textContent = cr.toFixed(3) + '%';
             $('view-kpi-ppc').textContent = '$' + ppc.toFixed(4);
+            $('view-kpi-ppc').className = ppc >= 0 ? 'text-amber-600' : 'text-red-500';
             
             bar.classList.remove('hidden');
         }
@@ -1950,9 +2138,14 @@
         
         // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
+            // Close copy dropdown
             if (!e.target.closest('.copy-dropdown')) {
                 const dropdown = $('copy-dropdown-content');
                 if (dropdown) dropdown.classList.remove('show');
+            }
+            // Close filter popups
+            if (!e.target.closest('.filter-item')) {
+                document.querySelectorAll('.filter-popup').forEach(p => p.classList.remove('show'));
             }
         });
         
@@ -2051,22 +2244,101 @@
                     }
                 }
             });
-            if (count) XLSX.writeFile(wb, 'ListLab_V40_Export.xlsx');
+            if (count) XLSX.writeFile(wb, 'ListLab_V41_Export.xlsx');
             else alert('בחר לפחות רשימה אחת');
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // SYNC CONTROLS
+        // SYNC CONTROLS - with debounce for better performance
         // ═══════════════════════════════════════════════════════════════
         function syncControls(rangeId, numId) {
             const range = $(rangeId);
             const num = $(numId);
-            range.addEventListener('input', () => { num.value = range.value; processData(); });
-            num.addEventListener('input', () => { range.value = num.value; processData(); });
+            range.addEventListener('input', () => { num.value = range.value; debounceProcess(); });
+            num.addEventListener('input', () => { range.value = num.value; debounceProcess(); });
         }
 
         syncControls('pure-pct', 'pure-pct-num');
         syncControls('gold-pct', 'gold-pct-num');
+        
+        // ═══════════════════════════════════════════════════════════════
+        // V41: SCORE WEIGHTING CONTROLS
+        // ═══════════════════════════════════════════════════════════════
+        function syncWeightControl(metric) {
+            const range = $('weight-' + metric);
+            const num = $('weight-' + metric + '-num');
+            
+            range.addEventListener('input', () => {
+                num.value = range.value;
+                state.scoreWeights[metric] = parseInt(range.value) || 0;
+                updateWeightsDisplay();
+                debounceProcess();
+            });
+            
+            num.addEventListener('input', () => {
+                const val = Math.max(0, Math.min(100, parseInt(num.value) || 0));
+                num.value = val;
+                range.value = val;
+                state.scoreWeights[metric] = val;
+                updateWeightsDisplay();
+                debounceProcess();
+            });
+        }
+        
+        syncWeightControl('ppc');
+        syncWeightControl('roi');
+        syncWeightControl('cr');
+        
+        function updateWeightsDisplay() {
+            const total = state.scoreWeights.ppc + state.scoreWeights.roi + state.scoreWeights.cr;
+            const totalEl = $('weights-total');
+            const badgeEl = $('weights-badge');
+            
+            totalEl.textContent = total + '%';
+            
+            // Color coding for total
+            if (total === 100) {
+                totalEl.className = 'text-[11px] font-bold text-green-600';
+            } else if (total > 100) {
+                totalEl.className = 'text-[11px] font-bold text-red-500';
+            } else {
+                totalEl.className = 'text-[11px] font-bold text-amber-500';
+            }
+            
+            // Update badge
+            badgeEl.textContent = state.scoreWeights.ppc + '/' + state.scoreWeights.roi + '/' + state.scoreWeights.cr;
+            
+            // Highlight badge if not default
+            if (state.scoreWeights.ppc === 50 && state.scoreWeights.roi === 30 && state.scoreWeights.cr === 20) {
+                badgeEl.className = 'text-[9px] bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded-full';
+            } else {
+                badgeEl.className = 'text-[9px] bg-indigo-600 text-white px-1.5 py-0.5 rounded-full';
+            }
+        }
+        
+        function setWeightPreset(preset) {
+            const presets = {
+                'balanced': { ppc: 50, roi: 30, cr: 20 },  // Default - balanced approach
+                'roi': { ppc: 20, roi: 60, cr: 20 },       // Focus on ROI for high-AP campaigns
+                'scale': { ppc: 30, roi: 20, cr: 50 }      // Focus on CR for scaling campaigns
+            };
+            
+            const p = presets[preset];
+            if (!p) return;
+            
+            state.scoreWeights = { ...p };
+            
+            // Update UI
+            $('weight-ppc').value = p.ppc;
+            $('weight-ppc-num').value = p.ppc;
+            $('weight-roi').value = p.roi;
+            $('weight-roi-num').value = p.roi;
+            $('weight-cr').value = p.cr;
+            $('weight-cr-num').value = p.cr;
+            
+            updateWeightsDisplay();
+            debounceProcess();
+        }
         
         // ═══════════════════════════════════════════════════════════════
         // MINI DASHBOARD - Uses PPC instead of EPC
