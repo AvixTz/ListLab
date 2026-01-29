@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ListLab V41 - Quality Score Edition</title>
+    <title>ListLab V47 - Summary Edition</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -11,70 +11,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* ═══════════════════════════════════════════════════════════════
-           V40 DESIGN SYSTEM
-           Typography Scale: 10px / 11px / 12px / 14px
-           Font Weights: 400 (normal) / 600 (semibold) / 700 (bold)
-           RTL: Using logical properties (inline-start/end)
-        ═══════════════════════════════════════════════════════════════ */
-        
-        :root {
-            --text-xs: 10px;
-            --text-sm: 11px;
-            --text-base: 12px;
-            --text-lg: 14px;
-            --font-normal: 400;
-            --font-semibold: 600;
-            --font-bold: 700;
-        }
-        
-        body { font-family: 'Assistant', sans-serif; background: #f1f5f9; height: 100vh; overflow: hidden; color: #1e293b; font-size: var(--text-base); }
+        body { font-family: 'Assistant', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); height: 100vh; overflow: hidden; color: #1e293b; font-size: 15.4px; }
         .num-font { font-family: 'Inter', sans-serif; }
-        
-        /* Focus states for accessibility */
-        input:focus, select:focus, button:focus, [tabindex]:focus { 
-            outline: 2px solid #6366f1; 
-            outline-offset: 2px; 
-        }
-        input:focus-visible, select:focus-visible, button:focus-visible { 
-            outline: 2px solid #6366f1; 
-            outline-offset: 2px; 
-        }
-        
         .main-wrapper { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 0.5rem; }
-        .glass-header { background: white; border-radius: 12px; padding-inline: 1.5rem; margin-bottom: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; height: 68px; }
-        .dash-container { flex: 1; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; overflow: hidden; border: 1px solid #e2e8f0; }
-        .dash-sidebar { width: 380px; background: #fafbfc; border-inline-start: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow-y: auto; padding: 1rem; }
-        .dash-content { flex: 1; background: #ffffff; display: flex; flex-direction: column; overflow: hidden; }
+        .glass-header { background: white; border-radius: 10px; padding: 0 1.5rem; margin-bottom: 0.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; height: 68px; }
+        .dash-container { flex: 1; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05); display: flex; overflow: hidden; border: 1px solid #e2e8f0; }
+        .dash-sidebar { width: 380px; background: #ffffff; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow-y: auto; padding: 1rem; }
+        .dash-content { flex: 1; background: #f8fafc; display: flex; flex-direction: column; overflow: hidden; }
 
-        .control-box { border-radius: 10px; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid; background: white; transition: all 0.2s; }
-        .control-box.filters-active { border-color: #3b82f6 !important; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15); background: #f0f7ff !important; }
-        
-        /* Section dividers for sidebar navigation */
-        .section-divider { 
-            font-size: 9px; 
-            font-weight: 700; 
-            color: #94a3b8; 
-            text-transform: uppercase; 
-            letter-spacing: 0.1em; 
-            padding: 8px 4px 4px 4px; 
-            margin-top: 4px;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .section-divider:first-child { border-top: none; margin-top: 0; }
-        .section-divider i { width: 12px; height: 12px; opacity: 0.6; }
-        
+        .control-box { border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid; }
         .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
         .control-item { display: flex; flex-direction: column; }
         .lbl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
-        .lbl-sm { font-size: var(--text-base); font-weight: var(--font-bold); color: #64748b; }
+        .lbl-sm { font-size: 12px; font-weight: 700; color: #64748b; }
         
         input[type=range] { height: 5px; border-radius: 2px; background: rgba(0,0,0,0.1); outline: none; appearance: none; cursor: pointer; width: 100%; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: currentColor; border: 2px solid white; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-        .dash-input { width: 55px; font-family: 'Inter', sans-serif; font-weight: var(--font-bold); font-size: var(--text-base); text-align: center; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px; background: #fafbfc; height: 26px; }
+        .dash-input { width: 55px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 12px; text-align: center; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px; background: white; height: 26px; }
 
         .collapsible-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 6px 0; }
         .collapsible-content { display: none; }
@@ -83,62 +36,62 @@
         .collapse-icon.open { transform: rotate(180deg); }
 
         .kpi-container { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-        .kpi-card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; transition: all 0.2s; display: flex; flex-direction: column; padding: 0.6rem; flex: 1 1 auto; min-width: 180px; max-width: 280px; position: relative; overflow: hidden; }
-        .kpi-card::before { content: ''; position: absolute; top: 0; inset-inline-start: 0; inset-inline-end: 0; height: 3px; }
-        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .kpi-card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; transition: transform 0.2s; display: flex; flex-direction: column; padding: 0.6rem; flex: 1 1 auto; min-width: 180px; max-width: 280px; }
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -4px rgba(0,0,0,0.1); }
         .kpi-card.hidden { display: none !important; }
-        .kpi-card.custom-active { border: 2px solid #8b5cf6; box-shadow: 0 0 15px rgba(139, 92, 246, 0.2); }
+        .kpi-card.custom-active { border: 2px solid #8b5cf6; box-shadow: 0 0 15px rgba(139, 92, 246, 0.3); }
         
-        .kpi-pure::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-        .kpi-gold::before { background: linear-gradient(90deg, #d97706, #f59e0b); }
-        .kpi-potential::before { background: linear-gradient(90deg, #059669, #10b981); }
-        .kpi-ignore::before { background: linear-gradient(90deg, #6b7280, #9ca3af); }
-        .kpi-blacklist::before { background: linear-gradient(90deg, #dc2626, #ef4444); }
-        .kpi-testing::before { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+        .kpi-pure { border-top: 4px solid #fbbf24; }
+        .kpi-gold { border-top: 4px solid #f59e0b; }
+        .kpi-potential { border-top: 4px solid #10b981; }
+        .kpi-ignore { border-top: 4px solid #6b7280; }
+        .kpi-blacklist { border-top: 4px solid #ef4444; }
+        .kpi-testing { border-top: 4px solid #3b82f6; }
 
-        .stat-lbl { font-size: var(--text-xs); font-weight: var(--font-bold); color: #94a3b8; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.4; }
-        .stat-val { font-family: 'Inter', sans-serif; font-weight: var(--font-bold); font-size: var(--text-lg); color: #334155; line-height: 1.5; }
+        .stat-lbl { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+        .stat-val { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13px; color: #334155; }
         
-        .g-item { text-align: center; border-inline-start: 1px solid #f1f5f9; flex: 1; display: flex; flex-direction: column; justify-content: center; padding-inline: 6px; }
+        .g-item { text-align: center; border-left: 1px solid #f1f5f9; flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 6px; }
         .g-item:last-child { border: none; }
-        .g-lbl { font-size: var(--text-sm); font-weight: var(--font-bold); color: #94a3b8; text-transform: uppercase; line-height: 1.4; }
-        .g-val { font-size: var(--text-lg); font-weight: var(--font-bold); color: #334155; font-family: 'Inter', sans-serif; line-height: 1.5; }
+        .g-lbl { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+        .g-val { font-size: 14px; font-weight: 700; color: #334155; font-family: 'Inter', sans-serif; }
 
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         .chk-input { width: 15px; height: 15px; accent-color: #1e293b; cursor: pointer; }
         
-        th { font-size: var(--text-sm); text-transform: uppercase; letter-spacing: 0.03em; color: #64748b; font-weight: var(--font-bold); background: #f8fafc; position: sticky; top: 0; z-index: 10; padding: 10px; cursor: pointer; border-bottom: 2px solid #e2e8f0; }
+        /* Sticky Headers & Summary Row */
+        th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; color: #64748b; font-weight: 700; background: #f8fafc; position: sticky; top: 0; z-index: 20; padding: 9px 10px; cursor: pointer; border-bottom: 1px solid #e2e8f0; }
         th:hover { background: #f1f5f9; }
-        td { font-size: var(--text-base); border-bottom: 1px solid #f1f5f9; padding: 8px 10px; }
         
-        /* Sticky identifier column */
-        .sticky-col { position: sticky; inset-inline-start: 0; z-index: 5; }
-        th.sticky-col { z-index: 15; background: #f8fafc; box-shadow: 2px 0 4px rgba(0,0,0,0.05); }
-        td.sticky-col { box-shadow: 2px 0 4px rgba(0,0,0,0.03); background: white; }
-        
-        tr:nth-child(even) td { background-color: #fafbfc; }
-        tr:nth-child(even) td.sticky-col { background-color: #fafbfc; }
-        tr:hover td { background-color: #f1f5f9 !important; }
-        
-        /* Softer category row backgrounds for better text contrast */
-        .row-pure td { background: rgba(254, 252, 232, 0.5) !important; }
-        .row-pure:hover td { background: rgba(254, 249, 195, 0.7) !important; }
-        .row-gold td { background: rgba(254, 252, 232, 0.35) !important; }
-        .row-gold:hover td { background: rgba(254, 249, 195, 0.5) !important; }
-        .row-potential td { background: rgba(236, 253, 245, 0.5) !important; }
-        .row-potential:hover td { background: rgba(209, 250, 229, 0.6) !important; }
-        .row-blacklist td { background: rgba(254, 242, 242, 0.6) !important; }
-        .row-blacklist:hover td { background: rgba(254, 226, 226, 0.7) !important; }
-        .row-testing td { background: rgba(239, 246, 255, 0.5) !important; }
-        .row-testing:hover td { background: rgba(219, 234, 254, 0.6) !important; }
-        .row-custom td { background: rgba(245, 243, 255, 0.6) !important; }
-        .row-custom:hover td { background: rgba(237, 233, 254, 0.7) !important; }
-        .row-summary td { background: #eef2ff !important; }
-        .row-summary { font-weight: var(--font-bold); }
+        /* New Summary Row Style */
+        .summary-cell {
+            background-color: #eef2ff; /* Indigo-50 */
+            color: #312e81; /* Indigo-900 */
+            font-weight: 800;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            padding: 8px 10px;
+            position: sticky;
+            top: 36px; /* Offset to stick below the main header */
+            z-index: 19;
+            border-bottom: 2px solid #c7d2fe;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
 
-        .cat-badge { font-size: var(--text-xs); font-weight: var(--font-bold); padding: 4px 8px; border-radius: 6px; white-space: nowrap; letter-spacing: 0.02em; }
+        td { font-size: 12px; border-bottom: 1px solid #f1f5f9; padding: 7px 10px; }
+        tr:hover td { background-color: #f8fafc; }
+        
+        .row-pure { background: linear-gradient(90deg, #fef3c7 0%, #fffbeb 100%); }
+        .row-gold { background: linear-gradient(90deg, #fef3c7 0%, white 100%); }
+        .row-potential { background: linear-gradient(90deg, #d1fae5 0%, white 100%); }
+        .row-blacklist { background: linear-gradient(90deg, #fee2e2 0%, white 100%); }
+        .row-testing { background: linear-gradient(90deg, #dbeafe 0%, white 100%); }
+        .row-custom { background: linear-gradient(90deg, #ede9fe 0%, #f5f3ff 100%); }
+        .row-summary { background: linear-gradient(90deg, #e0e7ff 0%, #f5f3ff 100%); font-weight: 700; }
+
+        .cat-badge { font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 4px; white-space: nowrap; }
         .badge-pure { background: #fef3c7; color: #92400e; }
         .badge-gold { background: #fde68a; color: #92400e; }
         .badge-potential { background: #d1fae5; color: #065f46; }
@@ -148,30 +101,30 @@
         .badge-custom { background: #ede9fe; color: #7c3aed; }
         .badge-summary { background: #e0e7ff; color: #4338ca; }
 
-        .score-pill { font-family: 'Inter', sans-serif; font-size: var(--text-sm); font-weight: var(--font-bold); padding: 3px 8px; border-radius: 6px; }
-        .score-high { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #78350f; }
-        .score-mid { background: linear-gradient(135deg, #059669, #10b981); color: white; }
-        .score-low { background: #f1f5f9; color: #64748b; }
+        .score-pill { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 10px; }
+        .score-high { background: #fbbf24; color: #78350f; }
+        .score-mid { background: #10b981; color: white; }
+        .score-low { background: #e2e8f0; color: #64748b; }
 
-        .btn-upload { background: #f8fafc; color: #4338ca; border: 2px dashed #c7d2fe; padding: 0.75rem; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; }
-        .btn-upload:hover { background: #eef2ff; border-color: #818cf8; }
+        .btn-upload { background: #e0e7ff; color: #4338ca; border: 1px dashed #a5b4fc; padding: 0.75rem; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .btn-upload:hover { background: #c7d2fe; border-color: #6366f1; }
 
         .kpi-toggle { display: flex; flex-wrap: wrap; gap: 4px; }
-        .kpi-toggle-btn { font-size: var(--text-xs); padding: 4px 8px; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0; background: white; font-weight: var(--font-bold); transition: all 0.15s; }
+        .kpi-toggle-btn { font-size: 10px; padding: 4px 8px; border-radius: 4px; cursor: pointer; border: 1px solid #e2e8f0; background: white; font-weight: 700; transition: all 0.15s; }
         .kpi-toggle-btn.active { background: #1e293b; color: white; border-color: #1e293b; }
         .kpi-toggle-btn:hover:not(.active) { background: #f1f5f9; }
 
-        .filter-header { display: flex; justify-content: space-between; align-items: center; font-size: var(--text-base); font-weight: var(--font-bold); color: #475569; margin-bottom: 2px; }
-        .filter-btn { width: 100%; text-align: right; background: #f8fafc; border: 1px solid #cbd5e1; padding: 7px 11px; border-radius: 6px; font-size: var(--text-base); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .filter-item { margin-bottom: 8px; position: relative; }
+        .filter-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 2px; }
+        .filter-btn { width: 100%; text-align: right; background: #f8fafc; border: 1px solid #cbd5e1; padding: 7px 11px; border-radius: 6px; font-size: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .filter-btn:hover { border-color: #94a3b8; }
-        .filter-popup { position: absolute; top: 100%; inset-inline-start: 0; width: 260px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 999; display: none; flex-direction: column; padding: 8px; margin-top: 4px; }
-        .filter-item { position: relative; margin-bottom: 8px; overflow: visible; }
+        .filter-popup { position: absolute; top: 100%; left: 0; width: 260px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 50; display: none; flex-direction: column; padding: 8px; margin-top: 4px; }
         .filter-popup.show { display: flex; }
-        .filter-search { width: 100%; padding: 5px 9px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: var(--text-base); margin-bottom: 6px; }
+        .filter-search { width: 100%; padding: 5px 9px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; margin-bottom: 6px; }
         .filter-list { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; border: 1px solid #f1f5f9; padding: 4px; border-radius: 4px; margin-bottom: 6px; }
-        .filter-opt { display: flex; align-items: center; gap: 6px; font-size: var(--text-base); color: #334155; cursor: pointer; user-select: none; padding: 3px 5px; border-radius: 3px; }
+        .filter-opt { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #334155; cursor: pointer; user-select: none; padding: 3px 5px; border-radius: 3px; }
         .filter-opt:hover { background: #f8fafc; }
-        .btn-tiny { font-size: var(--text-sm); padding: 3px 10px; border-radius: 3px; cursor: pointer; font-weight: var(--font-semibold); }
+        .btn-tiny { font-size: 11px; padding: 3px 10px; border-radius: 3px; cursor: pointer; font-weight: 600; }
         .btn-apply { background: #3b82f6; color: white; }
         .btn-cancel { background: #f1f5f9; color: #64748b; }
 
@@ -194,32 +147,28 @@
         
         /* Search Box */
         .search-box { position: relative; }
-        .search-box input { width: 160px; padding: 6px 10px 6px 28px; padding-inline-start: 28px; padding-inline-end: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; background: white; }
+        .search-box input { width: 160px; padding: 6px 10px 6px 28px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; background: white; }
         .search-box input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
-        .search-box i { position: absolute; inset-inline-start: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
+        .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
         .search-highlight { background: #fef08a !important; padding: 0 2px; border-radius: 2px; }
-        .icloud-badge { font-size: 10px; margin-inline-start: 4px; opacity: 0.7; cursor: help; color: #3b82f6; }
+        .icloud-badge { font-size: 10px; margin-left: 4px; opacity: 0.7; cursor: help; color: #3b82f6; }
         
         /* iCloud Switcher */
         .icloud-switcher { display: flex; align-items: center; gap: 4px; padding: 2px 6px; background: #eff6ff; border-radius: 6px; border: 1px solid #bfdbfe; }
         .switcher-options { display: flex; gap: 2px; }
-        .switcher-btn { 
-            padding: 2px 6px; 
-            font-size: 10px; 
-            border: none; 
-            background: transparent; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            opacity: 0.5;
-            transition: all 0.15s;
-        }
-        .switcher-btn:hover { opacity: 0.8; background: #dbeafe; }
-        .switcher-btn.active { opacity: 1; background: #3b82f6; color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .switcher-btn { padding: 2px 6px; font-size: 10px; border: none; background: transparent; border-radius: 4px; cursor: pointer; opacity: 0.5; transition: all 0.15s; }
+        .icloud-switcher .switcher-btn:hover { opacity: 0.8; background: #dbeafe; }
+        .icloud-switcher .switcher-btn.active { opacity: 1; background: #3b82f6; color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        
+        /* Aggregation Mode Switcher */
+        .agg-switcher { display: flex; align-items: center; gap: 4px; padding: 2px 6px; background: #f0fdf4; border-radius: 6px; border: 1px solid #bbf7d0; }
+        .agg-switcher .switcher-btn:hover { opacity: 0.8; background: #dcfce7; }
+        .agg-switcher .switcher-btn.active { opacity: 1; background: #16a34a; color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         
         /* Sortable Headers */
         .sortable-th { cursor: pointer; user-select: none; transition: background 0.15s; }
         .sortable-th:hover { background: #e2e8f0; }
-        .sortable-th .sort-icon { font-size: 10px; opacity: 0.4; margin-inline-start: 2px; }
+        .sortable-th .sort-icon { font-size: 10px; opacity: 0.4; margin-right: 2px; }
         .sortable-th.sort-asc .sort-icon { opacity: 1; }
         .sortable-th.sort-asc .sort-icon::after { content: '↑'; }
         .sortable-th.sort-asc .sort-icon { font-size: 0; }
@@ -252,52 +201,6 @@
         .performer-item:last-child { border: none; }
         .performer-id { font-weight: 600; color: #334155; font-size: 11px; word-break: break-all; }
         .performer-val { font-weight: 700; font-family: 'Inter', sans-serif; white-space: nowrap; font-size: 11px; }
-        
-        /* Copy Options Dropdown */
-        .copy-dropdown { position: relative; display: inline-block; }
-        .copy-dropdown-content { 
-            display: none; 
-            position: absolute; 
-            background-color: white; 
-            min-width: 160px; 
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15); 
-            z-index: 100; 
-            border-radius: 6px; 
-            border: 1px solid #e2e8f0;
-            top: 100%;
-            inset-inline-start: 0;
-            margin-top: 4px;
-        }
-        .copy-dropdown-content.show { display: block; }
-        .copy-dropdown-item { 
-            padding: 8px 12px; 
-            cursor: pointer; 
-            font-size: 11px; 
-            font-weight: 600;
-            border-bottom: 1px solid #f1f5f9;
-            transition: background 0.15s;
-        }
-        .copy-dropdown-item:hover { background: #f8fafc; }
-        .copy-dropdown-item:last-child { border: none; }
-        
-        /* Filter recalculation indicator */
-        .recalc-indicator { 
-            font-size: 9px; 
-            padding: 2px 6px; 
-            background: #fef3c7; 
-            color: #92400e; 
-            border-radius: 4px; 
-            margin-inline-start: 6px;
-            font-weight: 700;
-        }
-        
-        /* RTL-safe utility classes */
-        .border-s { border-inline-start-width: 1px; }
-        .border-e { border-inline-end-width: 1px; }
-        .ps-3 { padding-inline-start: 0.75rem; }
-        .pe-3 { padding-inline-end: 0.75rem; }
-        .ms-1 { margin-inline-start: 0.25rem; }
-        .me-1 { margin-inline-end: 0.25rem; }
     </style>
 </head>
 <body>
@@ -309,7 +212,7 @@
                 </div>
                 <div>
                     <h1 class="text-base font-bold text-slate-800">ListLab</h1>
-                    <div class="text-[11px] text-amber-600 font-bold">V41 Custom Weights</div>
+                    <div class="text-[11px] text-amber-600 font-bold">V47 Summary Edition</div>
                 </div>
             </div>
             
@@ -318,14 +221,11 @@
             </div>
             
             <div id="medians-box" class="hidden shrink-0 text-[11px] bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
-                <span class="text-slate-500">Med PPC:</span> <strong id="med-ppc" class="text-amber-600 num-font">$0</strong>
+                <span class="text-slate-500">Median PPC:</span> <strong id="med-ppc" class="text-amber-600 num-font">$0</strong>
                 <span class="mx-2 text-slate-300">|</span>
-                <span class="text-slate-500">Med ROI:</span> <strong id="med-roi" class="text-green-600 num-font">0%</strong>
-                <span class="mx-2 text-slate-300">|</span>
-                <span class="text-slate-500">Med CR:</span> <strong id="med-cr" class="text-blue-600 num-font">0%</strong>
+                <span class="text-slate-500">Median CR:</span> <strong id="med-cr" class="text-blue-600 num-font">0%</strong>
                 <span class="mx-2 text-slate-300">|</span>
                 <span class="text-slate-500">סף קליקים:</span> <strong id="click-threshold" class="text-red-500 num-font">0</strong>
-                <span id="filter-recalc-badge" class="recalc-indicator hidden">🔄 מחושב מסינון</span>
             </div>
         </div>
 
@@ -340,7 +240,6 @@
                     <div id="filename" class="text-[10px] text-indigo-400 truncate"></div>
                 </div>
                 
-                <!-- Compare Files -->
                 <div class="flex gap-2 mb-3">
                     <button id="btn-compare" class="flex-1 flex items-center justify-center gap-1 bg-blue-50 border border-blue-200 text-blue-700 py-1.5 rounded text-[11px] font-bold hover:bg-blue-100 disabled:opacity-50" disabled>
                         <i data-lucide="git-compare" class="w-3 h-3"></i> השווה קבצים
@@ -351,7 +250,6 @@
                     </button>
                 </div>
                 
-                <!-- Compare Results Panel -->
                 <div id="compare-panel" class="compare-panel hidden">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-bold text-blue-700">📊 תוצאות השוואה</span>
@@ -387,25 +285,18 @@
                     </div>
                 </div>
 
-                <!-- Section: Data Configuration -->
-                <div class="section-divider">
-                    <i data-lucide="database"></i> הגדרות נתונים
-                </div>
-
-                <!-- Identifier Type & Column Selection -->
                 <div class="control-box border-blue-200 bg-blue-50 mb-3">
                     <div class="text-xs font-bold text-blue-700 mb-2 flex items-center gap-1">
                         <i data-lucide="layers" class="w-3 h-3"></i> סוג מזהה וסף קליקים
                     </div>
                     
-                    <!-- Identifier Column + Type in same row -->
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <div>
-                            <label class="text-[11px] text-slate-500 mb-1 block">עמודת מזהה:</label>
+                            <label class="text-[10px] text-slate-500 mb-1 block">עמודת מזהה:</label>
                             <select id="col-ip" class="w-full text-[11px] border border-blue-300 rounded p-1.5 font-medium"></select>
                         </div>
                         <div>
-                            <label class="text-[11px] text-slate-500 mb-1 block">סוג:</label>
+                            <label class="text-[10px] text-slate-500 mb-1 block">סוג:</label>
                             <select id="identifier-type" class="w-full text-[11px] border border-blue-300 rounded p-1.5 font-medium">
                                 <option value="auto">🔍 אוטומטי</option>
                                 <option value="subid">🎯 SubID</option>
@@ -415,11 +306,10 @@
                         </div>
                     </div>
                     
-                    <div id="detected-type" class="text-[11px] text-green-600 font-bold mb-2 hidden"></div>
+                    <div id="detected-type" class="text-[10px] text-green-600 font-bold mb-2 hidden"></div>
                     
-                    <!-- Traffic Level -->
                     <div class="mb-2">
-                        <label class="text-[11px] text-slate-500 mb-1 block">רמת טראפיק:</label>
+                        <label class="text-[10px] text-slate-500 mb-1 block">רמת טראפיק:</label>
                         <select id="ip-level" class="w-full text-sm border border-blue-300 rounded p-1.5 font-medium">
                             <option value="1" selected>רמה 1 - SubID/IP32 (1.5×, 1K-3K)</option>
                             <option value="2">רמה 2 - Zone/IP24 (3×, 3K-10K)</option>
@@ -433,7 +323,6 @@
                     </div>
                 </div>
 
-                <!-- Column Mapping - Collapsed -->
                 <div id="mapping-box" class="hidden control-box border-slate-200 bg-slate-50">
                     <div class="collapsible-header" onclick="toggleSection('mapping')">
                         <div class="text-xs font-bold text-slate-700 flex items-center gap-1">
@@ -450,34 +339,25 @@
                     </div>
                 </div>
 
-                <!-- Advanced Filters -->
-                <div id="filter-control-box" class="control-box border-slate-300 bg-slate-50">
+                <div class="control-box border-slate-300 bg-slate-50">
                     <div class="collapsible-header" onclick="toggleSection('filters')">
                         <div class="text-xs font-bold text-slate-700 flex items-center gap-1">
                             <i data-lucide="filter" class="w-3 h-3"></i> סינון מתקדם
-                            <span id="active-filters-badge" class="hidden text-[9px] bg-blue-500 text-white px-1.5 py-0.5 rounded-full">0</span>
-                            <button id="btn-clear-filters" class="hidden text-[9px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full hover:bg-red-200 font-bold" onclick="event.stopPropagation(); clearAllFilters();">נקה הכל</button>
                         </div>
                         <i data-lucide="chevron-down" class="w-4 h-4 text-slate-600 collapse-icon open" id="filters-icon"></i>
                     </div>
                     <div class="collapsible-content open" id="filters-content">
                         <div id="filters-list" class="mt-2"></div>
-                        <button onclick="showAddFilterMenu()" id="btn-add-filter" class="hidden w-full mt-2 border border-dashed border-indigo-300 text-indigo-600 rounded p-1.5 text-[11px] font-bold hover:bg-indigo-50 flex items-center justify-center gap-1">
+                        <button onclick="showAddFilterMenu()" id="btn-add-filter" class="hidden w-full mt-2 border border-dashed border-indigo-300 text-indigo-600 rounded p-1.5 text-[10px] font-bold hover:bg-indigo-50 flex items-center justify-center gap-1">
                             <i data-lucide="plus" class="w-3 h-3"></i> הוסף מסנן
                         </button>
                         <select id="col-selector" class="hidden w-full mt-1 text-[11px] border border-slate-300 rounded p-1" onchange="createNewFilter(this.value)">
                             <option value="">בחר עמודה...</option>
                         </select>
-                        <div id="filter-msg" class="text-[11px] text-slate-500 text-center py-2 italic">טען קובץ כדי להתחיל</div>
+                        <div id="filter-msg" class="text-[11px] text-slate-400 text-center py-2 italic">טען קובץ כדי להתחיל</div>
                     </div>
                 </div>
 
-                <!-- Section: Scoring Configuration -->
-                <div class="section-divider">
-                    <i data-lucide="star"></i> הגדרות ניקוד
-                </div>
-
-                <!-- Score Thresholds -->
                 <div class="control-box border-amber-200 bg-amber-50">
                     <div class="text-xs font-bold text-amber-700 mb-2 flex items-center gap-1">
                         <i data-lucide="sliders" class="w-3 h-3"></i> TOP % Thresholds
@@ -494,55 +374,6 @@
                     </div>
                 </div>
 
-                <!-- Score Weighting - V41 -->
-                <div class="control-box border-indigo-200 bg-indigo-50">
-                    <div class="collapsible-header" onclick="toggleSection('weights')">
-                        <div class="text-xs font-bold text-indigo-700 flex items-center gap-1">
-                            <i data-lucide="scale" class="w-3 h-3"></i> משקלי Score
-                            <span id="weights-badge" class="text-[9px] bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded-full">50/30/20</span>
-                        </div>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-indigo-600 collapse-icon" id="weights-icon"></i>
-                    </div>
-                    <div class="collapsible-content" id="weights-content">
-                        <div class="mt-2 space-y-2">
-                            <!-- PPC Weight -->
-                            <div class="flex items-center gap-2">
-                                <span class="text-[11px] font-bold text-amber-600 w-10">PPC</span>
-                                <input type="range" id="weight-ppc" min="0" max="100" value="50" class="flex-1 text-amber-500">
-                                <input type="number" id="weight-ppc-num" value="50" min="0" max="100" class="dash-input w-14 text-amber-600">
-                                <span class="text-[10px] text-slate-400">%</span>
-                            </div>
-                            <!-- ROI Weight -->
-                            <div class="flex items-center gap-2">
-                                <span class="text-[11px] font-bold text-green-600 w-10">ROI</span>
-                                <input type="range" id="weight-roi" min="0" max="100" value="30" class="flex-1 text-green-500">
-                                <input type="number" id="weight-roi-num" value="30" min="0" max="100" class="dash-input w-14 text-green-600">
-                                <span class="text-[10px] text-slate-400">%</span>
-                            </div>
-                            <!-- CR Weight -->
-                            <div class="flex items-center gap-2">
-                                <span class="text-[11px] font-bold text-blue-600 w-10">CR</span>
-                                <input type="range" id="weight-cr" min="0" max="100" value="20" class="flex-1 text-blue-500">
-                                <input type="number" id="weight-cr-num" value="20" min="0" max="100" class="dash-input w-14 text-blue-600">
-                                <span class="text-[10px] text-slate-400">%</span>
-                            </div>
-                            <!-- Total & Presets -->
-                            <div class="flex items-center justify-between pt-2 border-t border-indigo-200">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[10px] text-slate-500">סה"כ:</span>
-                                    <span id="weights-total" class="text-[11px] font-bold text-green-600">100%</span>
-                                </div>
-                                <div class="flex gap-1">
-                                    <button onclick="setWeightPreset('balanced')" class="text-[9px] px-2 py-1 bg-white border border-indigo-200 rounded hover:bg-indigo-100 font-bold" title="50/30/20">מאוזן</button>
-                                    <button onclick="setWeightPreset('roi')" class="text-[9px] px-2 py-1 bg-white border border-indigo-200 rounded hover:bg-indigo-100 font-bold" title="20/60/20">ROI</button>
-                                    <button onclick="setWeightPreset('scale')" class="text-[9px] px-2 py-1 bg-white border border-indigo-200 rounded hover:bg-indigo-100 font-bold" title="30/20/50">סקייל</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Custom List with Min/Max - 2 per row -->
                 <div class="control-box border-purple-200 bg-purple-50">
                     <div class="collapsible-header" onclick="toggleSection('custom')">
                         <div class="text-xs font-bold text-purple-700 flex items-center gap-1">
@@ -557,10 +388,9 @@
                             <label for="custom-enabled" class="text-[11px] font-bold text-purple-700">הפעל Custom List</label>
                         </div>
                         
-                        <!-- Row 1: Conv & Score -->
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[11px] font-bold text-purple-600 mb-1.5">Conv</div>
+                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">Conv</div>
                                 <div class="flex gap-1">
                                     <div class="flex-1">
                                         <input type="number" id="cust-conv-min" value="1" min="0" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
@@ -572,7 +402,7 @@
                                 </div>
                             </div>
                             <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[11px] font-bold text-purple-600 mb-1.5">Score</div>
+                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">Score</div>
                                 <div class="flex gap-1">
                                     <div class="flex-1">
                                         <input type="number" id="cust-score-min" value="0" step="0.1" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
@@ -585,10 +415,9 @@
                             </div>
                         </div>
                         
-                        <!-- Row 2: Clicks & ROI -->
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[11px] font-bold text-purple-600 mb-1.5">Clicks</div>
+                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">Clicks</div>
                                 <div class="flex gap-1">
                                     <div class="flex-1">
                                         <input type="number" id="cust-clicks-min" value="0" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
@@ -600,7 +429,7 @@
                                 </div>
                             </div>
                             <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[11px] font-bold text-purple-600 mb-1.5">ROI%</div>
+                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">ROI%</div>
                                 <div class="flex gap-1">
                                     <div class="flex-1">
                                         <input type="number" id="cust-roi-min" value="-100" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
@@ -613,10 +442,9 @@
                             </div>
                         </div>
                         
-                        <!-- Row 3: CR & PPC -->
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[11px] font-bold text-purple-600 mb-1.5">CR%</div>
+                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">CR%</div>
                                 <div class="flex gap-1">
                                     <div class="flex-1">
                                         <input type="number" id="cust-cr-min" value="0" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
@@ -628,7 +456,7 @@
                                 </div>
                             </div>
                             <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[11px] font-bold text-purple-600 mb-1.5">PPC</div>
+                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">PPC (Profit/Click)</div>
                                 <div class="flex gap-1">
                                     <div class="flex-1">
                                         <input type="number" id="cust-ppc-min" value="-1" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
@@ -647,12 +475,6 @@
                     </div>
                 </div>
 
-                <!-- Section: Display Settings -->
-                <div class="section-divider">
-                    <i data-lucide="eye"></i> תצוגה
-                </div>
-
-                <!-- KPI Visibility - ALL ACTIVE BY DEFAULT -->
                 <div class="control-box border-slate-200 bg-slate-50">
                     <div class="text-xs font-bold text-slate-700 mb-2">הצג KPIs</div>
                     <div class="kpi-toggle">
@@ -665,7 +487,6 @@
                     </div>
                 </div>
 
-                <!-- Export -->
                 <div class="mt-auto border-t pt-3">
                     <div class="grid grid-cols-3 gap-2 mb-2 text-[11px] font-medium text-slate-600">
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-pure" checked class="chk-input"> Pure</label>
@@ -686,7 +507,6 @@
                     <div id="kpi-container" class="kpi-container"></div>
                 </div>
                 
-                <!-- Mini Dashboard - Collapsible -->
                 <div id="mini-dashboard" class="hidden border-b border-slate-200">
                     <div class="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-slate-50 to-slate-100 cursor-pointer" onclick="toggleDashboard()">
                         <div class="flex items-center gap-2 text-xs font-bold text-slate-600">
@@ -698,7 +518,6 @@
                     <div id="dashboard-content" class="hidden px-3 py-2 bg-gradient-to-br from-slate-50 to-white">
                         <div class="grid grid-cols-4 gap-2">
                             
-                            <!-- Top 5 Performers -->
                             <div class="bg-white rounded-lg p-2 border border-green-200 shadow-sm">
                                 <div class="text-[11px] font-bold text-green-600 mb-1 flex items-center gap-1">
                                     <i data-lucide="trophy" class="w-3 h-3"></i> TOP 5 רווחיים
@@ -706,7 +525,6 @@
                                 <div id="top-performers" class="space-y-0.5"></div>
                             </div>
                             
-                            <!-- Top 5 Losers -->
                             <div class="bg-white rounded-lg p-2 border border-red-200 shadow-sm">
                                 <div class="text-[11px] font-bold text-red-600 mb-1 flex items-center gap-1">
                                     <i data-lucide="trending-down" class="w-3 h-3"></i> TOP 5 מפסידים
@@ -714,7 +532,6 @@
                                 <div id="top-losers" class="space-y-0.5"></div>
                             </div>
                             
-                            <!-- Star Performers -->
                             <div class="bg-white rounded-lg p-2 border border-purple-200 shadow-sm">
                                 <div class="text-[11px] font-bold text-purple-600 mb-1 flex items-center gap-1">
                                     <i data-lucide="star" class="w-3 h-3"></i> ראויים לקמפיין נפרד
@@ -722,7 +539,6 @@
                                 <div id="outstanding-list" class="space-y-0.5"></div>
                             </div>
                             
-                            <!-- Smart Break-Even -->
                             <div class="bg-white rounded-lg p-2 border border-blue-200 shadow-sm">
                                 <div class="text-[11px] font-bold text-blue-600 mb-1 flex items-center gap-1">
                                     <i data-lucide="calculator" class="w-3 h-3"></i> Break-Even Calculator
@@ -740,7 +556,6 @@
                                     </div>
                                 </div>
                             </div>
-                            
                         </div>
                     </div>
                 </div>
@@ -749,13 +564,11 @@
                     <div class="bg-white rounded-xl border border-slate-200 flex-1 flex flex-col overflow-hidden shadow-sm">
                         <div class="px-4 py-2 border-b border-slate-200 bg-white flex justify-between items-center shrink-0 flex-wrap gap-2">
                             <div class="flex items-center gap-3 flex-wrap">
-                                <!-- Search Box -->
                                 <div class="search-box">
                                     <i data-lucide="search" class="w-3 h-3"></i>
                                     <input type="text" id="search-input" placeholder="חפש מזהה..." class="text-right">
                                 </div>
                                 
-                                <!-- iCloud Filter Switcher -->
                                 <div class="icloud-switcher">
                                     <div class="switcher-options">
                                         <button type="button" class="switcher-btn" data-value="hide" title="הסתר iCloud">🚫</button>
@@ -764,20 +577,27 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Show Changes Toggle (Compare Mode) -->
-                                <div id="show-changes-box" class="hidden flex items-center gap-1 border-s border-slate-200 ps-3">
+                                <div class="agg-switcher" title="מצב תצוגה: MICRO/MACRO">
+                                    <div class="switcher-options">
+                                        <button type="button" class="switcher-btn active" data-agg="split" title="MICRO - כל שורה נפרדת">MICRO</button>
+                                        <button type="button" class="switcher-btn" data-agg="smart" title="MACRO - נתונים מאוגדים">MACRO</button>
+                                    </div>
+                                    <span id="macro-warning" class="hidden text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold animate-pulse border border-orange-200 shadow-sm">⚠️ מאוגד: <span id="macro-count">0</span> | מפוצל: <span id="micro-count">0</span></span>
+                                </div>
+                                
+                                <div id="show-changes-box" class="hidden flex items-center gap-1 border-l border-slate-200 pl-3">
                                     <label class="flex items-center gap-1 text-[11px] text-blue-600 font-bold cursor-pointer">
                                         <input type="checkbox" id="chk-show-changes" class="chk-input" checked> הצג שינויים
                                     </label>
                                 </div>
                                 
                                 <div class="flex items-center gap-2">
-                                    <span class="text-[11px] font-bold text-slate-500 uppercase">תצוגה:</span>
-                                    <select id="filter-view" class="text-sm bg-slate-50 border border-slate-200 rounded px-2 py-1 font-medium w-36">
+                                    <span class="text-[11px] font-bold text-slate-400 uppercase">תצוגה:</span>
+                                    <select id="filter-view" class="text-sm bg-slate-50 border border-slate-200 rounded px-2 py-1 font-medium w-40">
                                         <option value="all">הכל</option>
-                                        <option value="relevant">🎯 Relevant</option>
-                                        <option value="relevant-plus">🎯+ Relevant+</option>
-                                        <option value="winners">✨ Winners</option>
+                                        <option value="relevant">🎯 Relevant (P+G+Pot)</option>
+                                        <option value="relevant_plus">🚀 Relevant+ (incl. Test)</option>
+                                        <option value="winners">✨ Winners (P+G)</option>
                                         <option value="pure">💎 Pure</option>
                                         <option value="gold">🥇 Gold</option>
                                         <option value="potential">🌱 Potential</option>
@@ -792,15 +612,15 @@
                                 </div>
 
                                 <div class="flex items-center gap-2" id="level-filter-box" style="display:none;">
-                                    <span class="text-[11px] font-bold text-slate-500 uppercase">שכבה:</span>
+                                    <span class="text-[11px] font-bold text-slate-400 uppercase">שכבה:</span>
                                     <select id="level-view" class="text-sm bg-slate-50 border border-slate-200 rounded px-2 py-1 font-medium">
                                         <option value="detail">פירוט בלבד</option>
                                         <option value="all">הכל (כולל סיכומים)</option>
                                     </select>
                                 </div>
 
-                                <div class="flex items-center gap-2 border-e border-slate-200 pe-3">
-                                    <span class="text-[11px] font-bold text-slate-500">Min Score:</span>
+                                <div class="flex items-center gap-2 border-r border-slate-200 pr-3">
+                                    <span class="text-[11px] font-bold text-slate-400">Min Score:</span>
                                     <input type="number" id="min-score-filter" value="0" step="0.1" class="w-16 text-sm border border-slate-200 rounded px-2 py-1 num-font">
                                 </div>
 
@@ -808,54 +628,25 @@
                                     <label class="flex items-center gap-1 text-[11px] text-slate-500 font-bold cursor-pointer">
                                         <input type="checkbox" id="chk-copy-cidr" class="chk-input"> CIDR
                                     </label>
-                                    
-                                    <!-- Copy Dropdown -->
-                                    <div class="copy-dropdown">
-                                        <button onclick="toggleCopyDropdown()" id="btn-copy" class="flex items-center gap-1 bg-white border border-slate-200 text-slate-600 px-2 py-1 rounded hover:bg-slate-50 text-[11px] font-bold">
-                                            <i data-lucide="copy" class="w-3 h-3"></i> העתק ▼
-                                        </button>
-                                        <div id="copy-dropdown-content" class="copy-dropdown-content">
-                                            <div class="copy-dropdown-item" onclick="copyByCategory('current')">📋 תצוגה נוכחית</div>
-                                            <div class="copy-dropdown-item" onclick="copyByCategory('winners')">✨ Winners (Pure+Gold)</div>
-                                            <div class="copy-dropdown-item" onclick="copyByCategory('relevant')">🎯 Relevant (Pure+Gold+Potential)</div>
-                                            <div class="copy-dropdown-item" onclick="copyByCategory('relevant-plus')">🎯+ Relevant+ (כולל Testing)</div>
-                                            <div class="copy-dropdown-item" onclick="copyByCategory('blacklist')">🚫 Blacklist</div>
-                                        </div>
-                                    </div>
+                                    <button onclick="copyIPs()" id="btn-copy" class="flex items-center gap-1 bg-white border border-slate-200 text-slate-600 px-2 py-1 rounded hover:bg-slate-50 text-[11px] font-bold">
+                                        <i data-lucide="copy" class="w-3 h-3"></i> העתק
+                                    </button>
                                 </div>
                             </div>
                             <div class="text-[11px] text-slate-400 font-medium">
                                 סה"כ: <span id="disp-count" class="font-bold text-slate-800 num-font text-base">0</span>
                             </div>
                         </div>
-                        
-                        <!-- Dynamic KPI Summary Bar -->
-                        <div id="view-kpi-bar" class="hidden bg-slate-50 border-b border-slate-200 px-4 py-2">
-                            <div class="flex items-center justify-between text-[11px]">
-                                <span id="view-kpi-name" class="font-bold text-slate-700 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">-</span>
-                                <div class="flex items-center gap-4 num-font">
-                                    <span class="text-slate-500">Clicks: <strong id="view-kpi-clicks" class="text-slate-700">0</strong></span>
-                                    <span class="text-slate-500">Conv: <strong id="view-kpi-conv" class="text-slate-800">0</strong></span>
-                                    <span class="text-slate-500">Rev: <strong id="view-kpi-revenue" class="text-green-600">$0</strong></span>
-                                    <span class="text-slate-500">Cost: <strong id="view-kpi-cost" class="text-slate-600">$0</strong></span>
-                                    <span class="text-slate-500">Profit: <strong id="view-kpi-profit" class="text-green-600">$0</strong></span>
-                                    <span class="w-px h-4 bg-slate-300"></span>
-                                    <span class="text-slate-500">ROI: <strong id="view-kpi-roi" class="text-green-600">0%</strong></span>
-                                    <span class="text-slate-500">CR: <strong id="view-kpi-cr" class="text-blue-600">0%</strong></span>
-                                    <span class="text-slate-500">PPC: <strong id="view-kpi-ppc" class="text-amber-600">$0</strong></span>
-                                </div>
-                            </div>
-                        </div>
 
                         <div class="flex-1 overflow-auto custom-scrollbar bg-white">
                             <table class="w-full text-sm relative">
-                                <thead class="bg-slate-50 sticky top-0 z-10">
+                                <thead class="bg-slate-50 sticky top-0 z-20">
                                     <tr>
                                         <th class="text-center w-8">#</th>
                                         <th class="text-center w-10" id="th-level" style="display:none;">Lvl</th>
-                                        <th class="text-right sortable-th sticky-col" data-sort="identifier" onclick="sortByColumn('identifier')">מזהה <span class="sort-icon">⇅</span></th>
+                                        <th class="text-right sortable-th" data-sort="identifier" onclick="sortByColumn('identifier')">מזהה <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="category" onclick="sortByColumn('category')">קטגוריה <span class="sort-icon">⇅</span></th>
-                                        <th class="text-center sortable-th" data-sort="score" onclick="sortByColumn('score')" title="V41 Score = Quality × Reliability&#10;Quality = wPPC×(PPC/med) + wROI×(ROI/med) + wCR×(CR/med)&#10;Weights adjustable in sidebar&#10;Reliability = min(conv/10, 1.0)">Score <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="score" onclick="sortByColumn('score')">Score <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="clicks" onclick="sortByColumn('clicks')">Clicks <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="conv" onclick="sortByColumn('conv')">Conv <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="revenue" onclick="sortByColumn('revenue')">Revenue <span class="sort-icon">⇅</span></th>
@@ -865,6 +656,8 @@
                                         <th class="text-center sortable-th" data-sort="cr" onclick="sortByColumn('cr')">CR% <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="ppc" onclick="sortByColumn('ppc')">PPC <span class="sort-icon">⇅</span></th>
                                     </tr>
+                                    <tr id="table-summary-row">
+                                        </tr>
                                 </thead>
                                 <tbody id="table-body"></tbody>
                             </table>
@@ -883,45 +676,42 @@
 
     <script>
         lucide.createIcons();
-
-        // ═══════════════════════════════════════════════════════════════
-        // STATE - ALL KPIs VISIBLE BY DEFAULT
-        // ═══════════════════════════════════════════════════════════════
+        
+        // Click outside to close filter popups
+        document.addEventListener('click', (e) => {
+            const insidePopup = e.target.closest('.filter-popup');
+            const insideBtn = e.target.closest('.filter-btn');
+            const insideFilterItem = e.target.closest('.filter-item');
+            if (insidePopup || insideBtn || insideFilterItem) return;
+            document.querySelectorAll('.filter-popup').forEach(p => p.classList.remove('show'));
+        });
+        
         const state = {
             rawData: [], allRows: [], detailRows: [], summaryRows: [], aggregatedData: [], processed: [], filtered: [],
             headers: [], dimensions: {}, activeFilters: [], page: 1, pageSize: 100,
-            medianPPC: 0, medianCR: 0, medianROI: 0, campaignCR: 0, clickThreshold: 7000,
-            // Filtered context medians (for dynamic score recalculation)
-            filteredMedianPPC: 0, filteredMedianCR: 0, filteredMedianROI: 0, filteredCampaignCR: 0,
+            medianPPC: 0, medianCR: 0, medianROI: 100, campaignCR: 0, clickThreshold: 7000,
             visibleKpis: ['pure', 'gold', 'potential', 'ignore', 'blacklist', 'testing'],
             hasHierarchy: false, levelColumn: null, maxLevel: 1, ipColumn: '',
             customEnabled: false,
             identifierType: 'auto', // auto, ip, zone, subid
             detectedType: null,
-            // Compare mode
             compareMode: false,
             compareData: null,
             compareResults: { new: [], improved: [], declined: [], gone: [] },
-            // Search
             searchQuery: '',
-            // Extra columns (OS, ISP, etc)
             osColumn: null,
             ispColumn: null,
             extraColumns: [],
-            // Sorting
             sortColumn: null,
             sortDirection: 'desc',
-            // iCloud filter: 'all', 'hide', 'only'
             icloudFilter: 'all',
-            // Track if filters are active for score recalculation
-            hasActiveAdvancedFilters: false,
-            // V41: Custom score weights (must sum to 100)
-            scoreWeights: { ppc: 50, roi: 30, cr: 20 }
+            aggMode: 'split',
+            rawDetailRows: [],
+            processedRaw: null,
+            hasActiveAdvancedFilters: false
         };
         
-        // iCloud Private Relay IP ranges (/16)
         const ICLOUD_RANGES = ['104.28', '172.226', '172.225', '172.224', '146.75', '140.248'];
-        
         function isIcloudIP(identifier) {
             if (!identifier) return false;
             const str = String(identifier);
@@ -931,42 +721,58 @@
             return false;
         }
 
-        // Traffic Level configurations (same thresholds for IP/Zone/SubID)
         const IP_LEVELS = {
             1: { name: 'SubID/IP32', multiplier: 1.5, min: 500, max: 3000, default: 1500 },
             2: { name: 'Zone/IP24', multiplier: 3, min: 2500, max: 10000, default: 7000 },
             3: { name: 'IP16', multiplier: 5, min: 5000, max: 15000, default: 10000 }
         };
         
-        // Invalid identifier patterns to filter out
         const INVALID_PATTERNS = [
-            '0.0.0.0', 
-            /^0\.0\.0\./,
+            '0.0.0.0', /^0\.0\.0\./,
             '{zone_id}', '{zoneid}', '{zone}',
             '{sub}', '{subid}', '{sub_id}',
             '{click_id}', '{clickid}',
             'לא מזוהה', 'not identified', 'unknown', 'undefined', 'null',
             '(not set)', '(none)', 'n/a', 'na'
         ];
-
         const $ = id => document.getElementById(id);
         const parseNum = v => { if (typeof v === 'number') return v; if (!v) return 0; return parseFloat(String(v).replace(/[,$%\s]/g, '')) || 0; };
         
-        // XSS Protection - escape HTML entities
-        function escapeHtml(str) {
-            if (str === null || str === undefined) return '';
-            return String(str).replace(/[&<>"']/g, c => ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-            }[c]));
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = String(text ?? '');
+            return div.innerHTML;
         }
         
-        // Debounce for performance - prevents rapid-fire processData calls
-        let debounceTimer;
-        function debounceProcess(ms = 150) {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(processData, ms);
+        function highlightSafe(text, query) {
+            const raw = String(text ?? '');
+            const q = String(query ?? '').trim();
+            if (!q) return escapeHtml(raw);
+            
+            const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+            let out = '';
+            let last = 0;
+            
+            raw.replace(re, (m, offset) => {
+                out += escapeHtml(raw.slice(last, offset));
+                out += '<mark class="search-highlight">' + escapeHtml(m) + '</mark>';
+                last = offset + m.length;
+                return m;
+            });
+            
+            out += escapeHtml(raw.slice(last));
+            return out;
         }
-
+        
+        function fillSelectWithHeaders(selectEl, headers) {
+            selectEl.textContent = '';
+            headers.forEach((h, i) => {
+                const opt = document.createElement('option');
+                opt.value = String(i);
+                opt.textContent = String(h ?? '');
+                selectEl.appendChild(opt);
+            });
+        }
         function toggleSection(section) {
             const content = $(section + '-content');
             const icon = $(section + '-icon');
@@ -974,14 +780,9 @@
             icon.classList.toggle('open');
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // IDENTIFIER DETECTION & VALIDATION
-        // ═══════════════════════════════════════════════════════════════
         function isInvalidIdentifier(id) {
             if (!id || id.trim() === '') return true;
-            
             const lower = id.toLowerCase().trim();
-            
             for (const pattern of INVALID_PATTERNS) {
                 if (pattern instanceof RegExp) {
                     if (pattern.test(lower)) return true;
@@ -989,54 +790,37 @@
                     if (lower === pattern.toLowerCase()) return true;
                 }
             }
-            
-            // Check for placeholder patterns with curly braces
             if (/^\{.*\}$/.test(lower)) return true;
-            
             return false;
         }
         
         function detectIdentifierType(values) {
-            // Sample up to 100 values for detection
             const sample = values.slice(0, 100);
-            
             let ipCount = 0;
             let numericCount = 0;
             let mixedCount = 0;
-            
             for (const val of sample) {
                 if (!val || isInvalidIdentifier(val)) continue;
-                
-                // IP pattern: x.x.x.x or x.x.x.x/xx
                 if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/\d{1,2})?$/.test(val)) {
                     ipCount++;
                 }
-                // Pure numeric (Zone or SubID)
                 else if (/^\d+$/.test(val)) {
                     numericCount++;
                 }
-                // Mixed alphanumeric
                 else {
                     mixedCount++;
                 }
             }
-            
             const total = ipCount + numericCount + mixedCount;
             if (total === 0) return 'unknown';
-            
-            // Determine type based on majority
             if (ipCount / total > 0.5) return 'ip';
             if (numericCount / total > 0.5) {
-                // Distinguish Zone from SubID based on value ranges
                 const numericValues = sample.filter(v => /^\d+$/.test(v)).map(Number);
                 const avgValue = numericValues.reduce((a, b) => a + b, 0) / numericValues.length;
                 const maxValue = Math.max(...numericValues);
-                
-                // SubIDs tend to be large numbers, Zones are smaller
                 if (maxValue > 10000 || avgValue > 1000) return 'subid';
                 return 'zone';
             }
-            
             return 'mixed';
         }
         
@@ -1051,102 +835,41 @@
             return labels[type] || type;
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // CIDR CONVERSION - Fixed for Level 1 (IP32)
-        // ═══════════════════════════════════════════════════════════════
         function ipToLong(ip) {
             return ip.split('.').reduce((long, octet) => (long << 8) + parseInt(octet, 10), 0) >>> 0;
         }
         
         function longToIp(long) {
-            return [
-                (long >>> 24) & 255,
-                (long >>> 16) & 255,
-                (long >>> 8) & 255,
-                long & 255
-            ].join('.');
+            return [(long >>> 24) & 255, (long >>> 16) & 255, (long >>> 8) & 255, long & 255].join('.');
         }
         
-        /**
-         * Convert identifier to CIDR format based on current IP Level
-         * Level 1 (IP32): Always /32, even for IPs ending in 0
-         * Level 2 (IP24): x.x.x.0/24
-         * Level 3 (IP16): x.x.0.0/16
-         */
         function toCIDR(identifier) {
             const str = String(identifier).trim();
             const ipLevel = parseInt($('ip-level').value);
-            
-            // Already has CIDR notation - return as is
+
             if (str.includes('/')) return str;
-            
-            // Check if it's an IP address format
+
             if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(str)) {
                 const parts = str.split('.').map(Number);
-                
-                // Level 1 (IP32): ALWAYS /32, regardless of trailing zeros
+
                 if (ipLevel === 1) {
                     return str + '/32';
                 }
-                
-                // Level 2 (IP24): x.x.x.0/24
+
                 if (ipLevel === 2) {
-                    // If already ends with .0 or full IP, make it /24
-                    if (parts[3] === 0) {
-                        return str + '/24';
-                    }
-                    // Convert full IP to /24 range
                     return parts[0] + '.' + parts[1] + '.' + parts[2] + '.0/24';
                 }
-                
-                // Level 3 (IP16): x.x.0.0/16
+
                 if (ipLevel === 3) {
-                    // If already ends with .0.0 or any format, make it /16
-                    if (parts[2] === 0 && parts[3] === 0) {
-                        return str + '/16';
-                    }
-                    // Convert to /16 range
                     return parts[0] + '.' + parts[1] + '.0.0/16';
                 }
-                
-                // Default: /32
+
                 return str + '/32';
             }
-            
-            // Not an IP - return as is (Zone, SubID, etc.)
+
             return str;
         }
-        
-        function rangeToOptimalCIDRs(startStr, endStr) {
-            let start = ipToLong(startStr);
-            let end = ipToLong(endStr);
-            let result = [];
-            
-            while (start <= end) {
-                let maxBlockSizeAllowedByIP = 1;
-                while ((start & maxBlockSizeAllowedByIP) === 0 && maxBlockSizeAllowedByIP <= (1 << 30)) {
-                    maxBlockSizeAllowedByIP <<= 1;
-                }
-                
-                let remainingSize = end - start + 1;
-                let maxPow = Math.floor(Math.log2(remainingSize));
-                let maxSize = Math.pow(2, maxPow);
-                
-                if (maxBlockSizeAllowedByIP < maxSize) {
-                    maxSize = maxBlockSizeAllowedByIP;
-                    maxPow = Math.floor(Math.log2(maxSize));
-                }
-                
-                result.push(longToIp(start) + '/' + (32 - maxPow));
-                start += maxSize;
-            }
-            
-            return result;
-        }
 
-        // ═══════════════════════════════════════════════════════════════
-        // CLICK THRESHOLD CALCULATION
-        // ═══════════════════════════════════════════════════════════════
         function calculateClickThreshold() {
             const level = parseInt($('ip-level').value);
             const config = IP_LEVELS[level];
@@ -1159,14 +882,10 @@
                 threshold = Math.max(config.min, Math.min(config.max, threshold));
                 state.clickThreshold = Math.round(threshold);
             }
-            
             $('current-threshold').textContent = state.clickThreshold.toLocaleString();
             $('click-threshold').textContent = state.clickThreshold.toLocaleString();
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // FILE HANDLING
-        // ═══════════════════════════════════════════════════════════════
         const dz = $('drop-zone');
         const fi = $('file-input');
         dz.addEventListener('click', () => fi.click());
@@ -1176,47 +895,22 @@
 
         function loadFile(file) {
             if (!file) return;
-            
             const sizeMB = file.size / (1024 * 1024);
-            if (sizeMB > 50) {
-                alert('קובץ גדול מדי (מעל 50MB). נסה לפצל את הקובץ.');
-                return;
-            }
-            
-            $('filename').innerHTML = '<span class="animate-pulse">⏳ טוען ' + file.name + ' (' + sizeMB.toFixed(1) + 'MB)...</span>';
+            if (sizeMB > 50) { alert('קובץ גדול מדי (מעל 50MB). נסה לפצל את הקובץ.'); return; }
+            $('filename').innerHTML = '<span class="animate-pulse">⏳ טוען ' + escapeHtml(file.name) + ' (' + sizeMB.toFixed(1) + 'MB)...</span>';
             $('global-stats').innerHTML = '<span class="text-amber-500 animate-pulse">🔄 מעבד נתונים...</span>';
-            
             setTimeout(() => {
                 const reader = new FileReader();
-                reader.onerror = () => {
-                    alert('שגיאה בקריאת הקובץ');
-                    $('filename').textContent = '';
-                };
+                reader.onerror = () => { alert('שגיאה בקריאת הקובץ'); $('filename').textContent = ''; };
                 reader.onload = e => {
                     try {
-                        const wb = XLSX.read(e.target.result, { 
-                            type: 'array',
-                            cellDates: false,
-                            cellNF: false,
-                            cellStyles: false
-                        });
-                        
-                        const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { 
-                            header: 1,
-                            defval: '',
-                            raw: true
-                        });
-                        
-                        if (json.length < 2) {
-                            alert('קובץ ריק');
-                            $('filename').textContent = '';
-                            return;
-                        }
+                        const wb = XLSX.read(e.target.result, { type: 'array', cellDates: false, cellNF: false, cellStyles: false });
+                        const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '', raw: true });
+                        if (json.length < 2) { alert('קובץ ריק'); $('filename').textContent = ''; return; }
 
                         state.headers = json[0].map(h => String(h || '').trim());
                         state.rawData = json.slice(1).filter(row => row.some(c => c !== '' && c != null));
                         $('filename').textContent = file.name + ' (' + state.rawData.length.toLocaleString() + ' שורות)';
-                        
                         const hLower = state.headers.map(h => h.toLowerCase());
                         const levelIdx = hLower.findIndex(x => x === 'level' || x === 'lvl' || x === 'depth');
                         state.levelColumn = levelIdx !== -1 ? state.headers[levelIdx] : null;
@@ -1224,9 +918,7 @@
 
                         setupMapping();
                         setupFilters();
-                        
                         setTimeout(() => processData(), 10);
-                        
                     } catch (err) {
                         console.error('Error processing file:', err);
                         alert('שגיאה בעיבוד הקובץ: ' + err.message);
@@ -1239,11 +931,8 @@
         }
 
         function setupMapping() {
-            // Populate identifier column selector (in the top section)
             const ipSel = $('col-ip');
-            ipSel.innerHTML = state.headers.map((h, i) => '<option value="' + i + '">' + h + '</option>').join('');
-            
-            // Find best identifier column - prioritize SubID columns
+            fillSelectWithHeaders(ipSel, state.headers);
             const hLower = state.headers.map(h => h.toLowerCase());
             const subidPatterns = ['subid', 'sub_id', 'sub id', 'token 3', 'token3'];
             const zonePatterns = ['zone', 'zone_id', 'zoneid', 'token 4', 'token4'];
@@ -1253,8 +942,7 @@
             if (matchIdx < 0) matchIdx = hLower.findIndex(h => zonePatterns.some(p => h.includes(p)));
             if (matchIdx < 0) matchIdx = hLower.findIndex(h => ipPatterns.some(p => h.includes(p)));
             if (matchIdx >= 0) ipSel.value = matchIdx;
-            
-            // Other column mappings
+
             const selects = ['col-clicks', 'col-conv', 'col-rev', 'col-cost'];
             const defaults = { 
                 'col-clicks': ['clicks', 'click', 'impressions'], 
@@ -1262,10 +950,9 @@
                 'col-rev': ['revenue', 'rev', 'income', 'payout'], 
                 'col-cost': ['cost', 'spend', 'expense'] 
             };
-            
             selects.forEach(id => {
                 const sel = $(id);
-                sel.innerHTML = state.headers.map((h, i) => '<option value="' + i + '">' + h + '</option>').join('');
+                fillSelectWithHeaders(sel, state.headers);
                 const matchIdx = hLower.findIndex(h => defaults[id].some(k => h.includes(k)));
                 if (matchIdx >= 0) sel.value = matchIdx;
             });
@@ -1273,8 +960,6 @@
             state.ipColumn = state.headers[+$('col-ip').value];
             $('mapping-box').classList.remove('hidden');
             $('medians-box').classList.remove('hidden');
-            
-            // Detect OS/ISP columns
             state.extraColumns = [];
             const osPatterns = ['os', 'operating system', 'device os', 'platform'];
             const ispPatterns = ['isp', 'carrier', 'network', 'provider'];
@@ -1291,9 +976,7 @@
             if (browserIdx >= 0 && state.extraColumns.length < 2) state.extraColumns.push(state.headers[browserIdx]);
             if (countryIdx >= 0 && state.extraColumns.length < 2) state.extraColumns.push(state.headers[countryIdx]);
 
-            // Auto-detect identifier type based on column values
             detectAndUpdateIdentifierType();
-
             if (state.hasHierarchy) {
                 $('hierarchy-box').classList.remove('hidden');
                 $('level-filter-box').style.display = 'flex';
@@ -1309,38 +992,22 @@
             const ipColIdx = +$('col-ip').value;
             const colName = state.headers[ipColIdx] || '';
             const identifierValues = state.rawData.map(row => String(row[ipColIdx] || '').trim());
-            
-            // Detect type from values
             state.detectedType = detectIdentifierType(identifierValues);
-            
-            // Also check column name for hints
             const colLower = colName.toLowerCase();
             let nameHint = null;
-            if (colLower.includes('subid') || colLower.includes('sub_id') || colLower.includes('token 3') || colLower.includes('token3')) {
-                nameHint = 'subid';
-            } else if (colLower.includes('zone') || colLower.includes('token 4') || colLower.includes('token4')) {
-                nameHint = 'zone';
-            } else if (colLower.includes('ip')) {
-                nameHint = 'ip';
-            }
+            if (colLower.includes('subid') || colLower.includes('sub_id') || colLower.includes('token 3') || colLower.includes('token3')) nameHint = 'subid';
+            else if (colLower.includes('zone') || colLower.includes('token 4') || colLower.includes('token4')) nameHint = 'zone';
+            else if (colLower.includes('ip')) nameHint = 'ip';
             
-            // Prefer column name hint if available
             const finalType = nameHint || state.detectedType;
-            
-            // Update UI with detected type
             const detectedEl = $('detected-type');
             if (finalType && finalType !== 'unknown') {
-                detectedEl.innerHTML = '✓ זוהה: ' + getIdentifierTypeLabel(finalType) + ' <span class="text-slate-400">(' + colName + ')</span>';
+                detectedEl.innerHTML = '✓ זוהה: ' + getIdentifierTypeLabel(finalType) + ' <span class="text-slate-400">(' + escapeHtml(colName) + ')</span>';
                 detectedEl.classList.remove('hidden');
-                
-                // Auto-set traffic level based on detected type
                 if ($('identifier-type').value === 'auto') {
-                    if (finalType === 'subid') {
-                        $('ip-level').value = '1'; // SubID = Level 1
-                    } else if (finalType === 'zone') {
-                        $('ip-level').value = '2'; // Zone = Level 2
-                    } else if (finalType === 'ip') {
-                        // Check if IPs are /24 or /32
+                    if (finalType === 'subid') $('ip-level').value = '1';
+                    else if (finalType === 'zone') $('ip-level').value = '2';
+                    else if (finalType === 'ip') {
                         const hasSlash24 = identifierValues.some(v => v.endsWith('.0') || v.includes('/24'));
                         $('ip-level').value = hasSlash24 ? '2' : '1';
                     }
@@ -1348,13 +1015,12 @@
             } else {
                 detectedEl.classList.add('hidden');
             }
-            
             state.ipColumn = colName;
         }
 
         function setupFilters() {
             state.dimensions = {};
-            const skip = ['clicks', 'conversions', 'revenue', 'cost', 'profit', 'roi', 'cr', 'ppc', 'epc', 'cpc', 'level'];
+            const skip = ['clicks', 'conversions', 'revenue', 'cost', 'profit', 'roi', 'cr', 'epc', 'cpc', 'level'];
             state.headers.forEach((h, idx) => {
                 if (skip.some(s => h.toLowerCase().includes(s))) return;
                 const vals = new Set();
@@ -1362,16 +1028,23 @@
                 if (vals.size > 0 && vals.size < 500) state.dimensions[h] = [...vals].sort();
             });
             const colSel = $('col-selector');
-            colSel.innerHTML = '<option value="">בחר עמודה...</option>' + Object.keys(state.dimensions).map(h => '<option value="' + h + '">' + h + '</option>').join('');
+            colSel.textContent = '';
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = '';
+            defaultOpt.textContent = 'בחר עמודה...';
+            colSel.appendChild(defaultOpt);
+            Object.keys(state.dimensions).forEach(h => {
+                const opt = document.createElement('option');
+                opt.value = h;
+                opt.textContent = h;
+                colSel.appendChild(opt);
+            });
             $('filter-msg').classList.add('hidden');
             $('btn-add-filter').classList.remove('hidden');
             state.activeFilters = [];
             $('filters-list').innerHTML = '';
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // ADVANCED FILTERS
-        // ═══════════════════════════════════════════════════════════════
         function showAddFilterMenu() {
             if (state.activeFilters.length >= 4) return alert("מקסימום 4 מסננים");
             $('btn-add-filter').classList.add('hidden');
@@ -1385,28 +1058,31 @@
             const div = document.createElement('div');
             div.className = 'filter-item';
             div.id = 'f-' + fid;
-            div.innerHTML = '<div class="filter-header"><span>' + col + '</span><i data-lucide="x" class="w-3 h-3 cursor-pointer text-red-400 hover:text-red-600" onclick="removeFilter(' + fid + ')"></i></div><div class="filter-btn" onclick="togglePopup(' + fid + ')"><span id="l-' + fid + '">(הכל)</span><i data-lucide="chevron-down" class="w-3 h-3"></i></div><div class="filter-popup" id="p-' + fid + '"><input type="text" class="filter-search" placeholder="חפש..." oninput="filterOpts(' + fid + ', this.value)"><div class="filter-list custom-scrollbar" id="lst-' + fid + '"></div><div class="flex justify-between mt-2"><div class="btn-tiny btn-cancel" onclick="togglePopup(' + fid + ')">סגור</div><div class="btn-tiny btn-apply" onclick="applyFilterSelection(' + fid + ')">החל</div></div></div>';
+            div.innerHTML = '<div class="filter-header"><span>' + escapeHtml(col) + '</span><i data-lucide="x" class="w-3 h-3 cursor-pointer text-red-400 hover:text-red-600" onclick="removeFilter(' + fid + ')"></i></div><div class="filter-btn" onclick="togglePopup(' + fid + ')"><span id="l-' + fid + '">(הכל)</span><i data-lucide="chevron-down" class="w-3 h-3"></i></div><div class="filter-popup" id="p-' + fid + '"><input type="text" class="filter-search" placeholder="חפש..." oninput="filterOpts(' + fid + ', this.value)"><div class="filter-list custom-scrollbar" id="lst-' + fid + '"></div><div class="flex justify-between mt-2"><div class="btn-tiny btn-cancel" onclick="togglePopup(' + fid + ')">סגור</div><div class="btn-tiny btn-apply" onclick="applyFilterSelection(' + fid + ')">החל</div></div></div>';
             $('filters-list').appendChild(div);
             lucide.createIcons();
             const lst = $('lst-' + fid);
-            (state.dimensions[col] || []).forEach(v => { lst.innerHTML += '<div class="filter-opt"><input type="checkbox" class="chk-input" value="' + String(v).replace(/"/g, '&quot;') + '"> <span>' + escapeHtml(v) + '</span></div>'; });
+            (state.dimensions[col] || []).forEach(v => {
+                const optDiv = document.createElement('div');
+                optDiv.className = 'filter-opt';
+                const chk = document.createElement('input');
+                chk.type = 'checkbox';
+                chk.className = 'chk-input';
+                chk.value = v;
+                const span = document.createElement('span');
+                span.textContent = v;
+                optDiv.appendChild(chk);
+                optDiv.appendChild(span);
+                lst.appendChild(optDiv);
+            });
             state.activeFilters.push({ id: fid, col, colIdx: state.headers.indexOf(col), values: [] });
             $('col-selector').classList.add('hidden');
             if (state.activeFilters.length < 4) $('btn-add-filter').classList.remove('hidden');
-            updateActiveFiltersBadge();
         }
 
-        function removeFilter(fid) { 
-            $('f-' + fid).remove(); 
-            state.activeFilters = state.activeFilters.filter(f => f.id !== fid); 
-            $('btn-add-filter').classList.remove('hidden'); 
-            updateActiveFiltersBadge();
-            debounceProcess(); 
-        }
-        
+        function removeFilter(fid) { $('f-' + fid).remove(); state.activeFilters = state.activeFilters.filter(f => f.id !== fid); $('btn-add-filter').classList.remove('hidden'); processData(); }
         function togglePopup(fid) { const el = $('p-' + fid); const isOpen = el.classList.contains('show'); document.querySelectorAll('.filter-popup').forEach(p => p.classList.remove('show')); if (!isOpen) el.classList.add('show'); }
         function filterOpts(fid, txt) { const term = txt.toLowerCase(); const opts = $('lst-' + fid).children; for (let o of opts) o.style.display = o.innerText.toLowerCase().includes(term) ? 'flex' : 'none'; }
-        
         function applyFilterSelection(fid) {
             const lst = $('lst-' + fid);
             const vals = Array.from(lst.querySelectorAll('input:checked')).map(c => c.value);
@@ -1416,68 +1092,31 @@
             lbl.innerText = vals.length ? vals.length + ' נבחרו' : '(הכל)';
             lbl.className = vals.length ? 'text-blue-600 font-bold' : '';
             togglePopup(fid);
-            updateActiveFiltersBadge();
-            debounceProcess();
-        }
-        
-        function updateActiveFiltersBadge() {
-            const activeCount = state.activeFilters.filter(f => f.values.length > 0).length;
-            const badge = $('active-filters-badge');
-            const clearBtn = $('btn-clear-filters');
-            const filterBox = $('filter-control-box');
-            if (activeCount > 0) {
-                badge.textContent = activeCount;
-                badge.classList.remove('hidden');
-                clearBtn.classList.remove('hidden');
-                filterBox.classList.add('filters-active');
-            } else {
-                badge.classList.add('hidden');
-                clearBtn.classList.add('hidden');
-                filterBox.classList.remove('filters-active');
-            }
-            state.hasActiveAdvancedFilters = activeCount > 0;
-        }
-        
-        function clearAllFilters() {
-            // Clear all filter selections
-            state.activeFilters.forEach(f => {
-                f.values = [];
-                const lbl = $('l-' + f.id);
-                if (lbl) {
-                    lbl.innerText = '(הכל)';
-                    lbl.className = '';
-                }
-                const lst = $('lst-' + f.id);
-                if (lst) {
-                    lst.querySelectorAll('input:checked').forEach(chk => chk.checked = false);
-                }
-            });
-            updateActiveFiltersBadge();
-            debounceProcess();
+            processData(); 
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // DATA PROCESSING - with dynamic score recalculation
-        // ═══════════════════════════════════════════════════════════════
         function processData() {
             try {
-                console.log('Starting processData with', state.rawData.length, 'rows');
-                $('global-stats').innerHTML = '<span class="text-amber-500">🔄 מעבד ' + state.rawData.length.toLocaleString() + ' שורות...</span>';
+                console.log('Starting processData...');
                 
+                if (state.compareMode) {
+                    state.compareMode = false;
+                    state.compareData = null;
+                    state.compareResults = { new: [], improved: [], declined: [], gone: [] };
+                    $('compare-panel').classList.add('hidden');
+                    $('btn-clear-compare').classList.add('hidden');
+                    $('show-changes-box').classList.add('hidden');
+                }
+                
+                $('global-stats').innerHTML = '<span class="text-amber-500">🔄 מעבד ' + state.rawData.length.toLocaleString() + ' שורות...</span>';
                 const cols = { ip: +$('col-ip').value, clicks: +$('col-clicks').value, conv: +$('col-conv').value, rev: +$('col-rev').value, cost: +$('col-cost').value };
                 state.ipColumn = state.headers[cols.ip];
                 const levelIdx = state.levelColumn ? state.headers.indexOf(state.levelColumn) : -1;
-                
-                // Get extra column indices
                 const extraColIndices = {};
-                state.extraColumns.forEach(col => {
-                    extraColIndices[col] = state.headers.indexOf(col);
-                });
+                state.extraColumns.forEach(col => { extraColIndices[col] = state.headers.indexOf(col); });
 
-                console.log('Parsing rows...');
                 state.allRows = state.rawData.map((row, idx) => {
                     const level = levelIdx >= 0 ? parseNum(row[levelIdx]) : 1;
-                    // Collect extra data
                     const extraData = {};
                     state.extraColumns.forEach(col => {
                         const colIdx = extraColIndices[col];
@@ -1485,7 +1124,6 @@
                     });
                     return { idx, raw: row, identifier: String(row[cols.ip] || '').trim(), level, clicks: parseNum(row[cols.clicks]), conv: parseNum(row[cols.conv]), rev: parseNum(row[cols.rev]), cost: parseNum(row[cols.cost]), profit: parseNum(row[cols.rev]) - parseNum(row[cols.cost]), extraData };
                 });
-                console.log('Parsed', state.allRows.length, 'rows');
 
                 if (state.hasHierarchy) {
                     let maxLvl = 1;
@@ -1500,105 +1138,11 @@
                     $('level-badges').innerHTML = levels.map(l => '<span class="level-badge level-' + Math.min(l, 3) + '">' + l + '</span>').join('');
                 }
 
-                // Apply dimension filters (with trim for better matching)
-                let filtered = state.allRows.filter(r => {
-                    for (const f of state.activeFilters) { if (f.values.length > 0) { const val = String(r.raw[f.colIdx] || '').trim(); if (!f.values.includes(val)) return false; } }
-                    return true;
-                });
-
-                if (state.hasHierarchy) {
-                    state.detailRows = filtered.filter(r => r.level === state.maxLevel);
-                    state.summaryRows = filtered.filter(r => r.level < state.maxLevel);
-                } else {
-                    state.detailRows = filtered.filter(r => r.identifier !== '');
-                    state.summaryRows = [];
-                }
-
-                // Filter out invalid identifiers using comprehensive validation
-                const beforeFilter = state.detailRows.length;
-                state.detailRows = state.detailRows.filter(r => !isInvalidIdentifier(r.identifier));
-                const filteredOut = beforeFilter - state.detailRows.length;
-                if (filteredOut > 0) {
-                    console.log('Filtered out', filteredOut, 'invalid identifiers');
-                }
-
-                console.log('Aggregating', state.detailRows.length, 'detail rows...');
-                
-                const grouped = {};
-                state.detailRows.forEach(r => {
-                    const key = r.identifier || 'Unknown';
-                    if (!grouped[key]) grouped[key] = { identifier: key, level: r.level, clicks: 0, conv: 0, rev: 0, cost: 0, profit: 0, isSummary: false, extraData: r.extraData };
-                    const g = grouped[key];
-                    g.clicks += r.clicks; g.conv += r.conv; g.rev += r.rev; g.cost += r.cost; g.profit += r.profit;
-                });
-
-                state.aggregatedData = Object.values(grouped).map(g => ({
-                    ...g,
-                    roi: g.cost > 0 ? (g.profit / g.cost) * 100 : (g.profit > 0 ? 999 : 0),
-                    cr: g.clicks > 0 ? g.conv / g.clicks : 0,
-                    ppc: g.clicks > 0 ? g.profit / g.clicks : 0  // PPC = Profit Per Click
-                }));
-                
-                console.log('Aggregated to', state.aggregatedData.length, 'unique identifiers');
-
-                const totalClicks = state.aggregatedData.reduce((s, r) => s + r.clicks, 0);
-                const totalConv = state.aggregatedData.reduce((s, r) => s + r.conv, 0);
-                state.campaignCR = totalClicks > 0 ? totalConv / totalClicks : 0;
-
-                // Calculate medians based on FILTERED data (for dynamic score recalculation)
-                const profitable = state.aggregatedData.filter(r => r.conv > 0 && r.ppc > 0);
-                if (profitable.length > 0) {
-                    const ppcs = profitable.map(r => r.ppc).sort((a, b) => a - b);
-                    const crs = profitable.map(r => r.cr).sort((a, b) => a - b);
-                    const rois = profitable.filter(r => r.roi > 0).map(r => r.roi).sort((a, b) => a - b);
-                    state.medianPPC = ppcs[Math.floor(ppcs.length / 2)];
-                    state.medianCR = crs[Math.floor(crs.length / 2)];
-                    state.medianROI = rois.length > 0 ? rois[Math.floor(rois.length / 2)] : 100;
-                    // Store filtered medians
-                    state.filteredMedianPPC = state.medianPPC;
-                    state.filteredMedianCR = state.medianCR;
-                    state.filteredMedianROI = state.medianROI;
-                    state.filteredCampaignCR = state.campaignCR;
-                } else {
-                    state.medianPPC = 0.001;
-                    state.medianCR = 0.001;
-                    state.medianROI = 100;
-                    state.filteredMedianPPC = 0.001;
-                    state.filteredMedianCR = 0.001;
-                    state.filteredMedianROI = 100;
-                    state.filteredCampaignCR = 0.001;
-                }
-
-                calculateClickThreshold();
-
-                $('med-ppc').textContent = '$' + state.medianPPC.toFixed(4);
-                $('med-roi').textContent = state.medianROI.toFixed(0) + '%';
-                $('med-cr').textContent = (state.medianCR * 100).toFixed(3) + '%';
-                
-                // Show/hide filter recalculation indicator
-                const filterBadge = $('filter-recalc-badge');
-                if (state.hasActiveAdvancedFilters) {
-                    filterBadge.classList.remove('hidden');
-                } else {
-                    filterBadge.classList.add('hidden');
-                }
-
                 state.customEnabled = $('custom-enabled').checked;
                 $('custom-badge').classList.toggle('hidden', !state.customEnabled);
 
-                console.log('Classifying ranges...');
-                state.processed = classifyRanges(state.aggregatedData);
-                console.log('Classified', state.processed.length, 'ranges');
-                
-                applyFilter();
-                renderKPIs();
-                renderTable();
-                renderGlobalStats();
-                updateMiniDashboard();
-                enableCompareButton();
-                
-                console.log('processData completed successfully');
-                
+                processFullPipeline();
+
             } catch (err) {
                 console.error('Error in processData:', err);
                 $('global-stats').innerHTML = '<span class="text-red-500">❌ שגיאה: ' + err.message + '</span>';
@@ -1606,50 +1150,28 @@
             }
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // SCORING ENGINE V40 - Quality × Reliability
-        // Quality = 0.5×(PPC/med) + 0.3×(ROI/med) + 0.2×(CR/med)
-        // Reliability = min(conv/10, 1.0)
-        // ═══════════════════════════════════════════════════════════════
-        function calculateScore(r) {
+        function calculateScore(r, medianPPC, medianCR, medianROI) {
             if (r.conv === 0) return 0;
             if (r.ppc <= 0) return 0;
             if (r.profit <= 0) return 0;
+            if (medianPPC <= 0 || medianCR <= 0) return 0;
             
-            // Use filtered medians when filters are active
-            const medianPPC = state.filteredMedianPPC > 0 ? state.filteredMedianPPC : state.medianPPC;
-            const medianCR = state.filteredMedianCR > 0 ? state.filteredMedianCR : state.medianCR;
-            const medianROI = state.filteredMedianROI > 0 ? state.filteredMedianROI : state.medianROI;
-            
-            if (medianPPC <= 0 || medianCR <= 0 || medianROI <= 0) return 0;
-            
-            // V41: Dynamic weights from state (normalized to sum to 1.0)
-            const totalWeight = state.scoreWeights.ppc + state.scoreWeights.roi + state.scoreWeights.cr;
-            const wPPC = totalWeight > 0 ? state.scoreWeights.ppc / totalWeight : 0.5;
-            const wROI = totalWeight > 0 ? state.scoreWeights.roi / totalWeight : 0.3;
-            const wCR = totalWeight > 0 ? state.scoreWeights.cr / totalWeight : 0.2;
-            
-            // Quality Score = weighted combination of normalized metrics
-            const ppcComponent = wPPC * (r.ppc / medianPPC);
-            const roiComponent = wROI * (r.roi / medianROI);
-            const crComponent = wCR * (r.cr / medianCR);
+            const roiMed = medianROI > 0 ? medianROI : 100;
+            const ppcComponent = 0.5 * (r.ppc / medianPPC);
+            const roiComponent = 0.3 * (r.roi / roiMed);
+            const crComponent = 0.2 * (r.cr / medianCR);
             const quality = ppcComponent + roiComponent + crComponent;
-            
-            // Reliability factor: caps at 10 conversions
             const reliability = Math.min(r.conv / 10, 1.0);
             
             return quality * reliability;
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // CLASSIFICATION ENGINE - Uses PPC instead of EPC
-        // ═══════════════════════════════════════════════════════════════
-        function classifyRanges(data) {
+        function classifyRanges(data, medianPPC, medianCR, campaignAvgCR, campaignAvgPPC, totalCost, totalProfit, medianROI) {
             const purePct = +$('pure-pct-num').value || 10;
             const goldPct = +$('gold-pct-num').value || 25;
             const clickThreshold = state.clickThreshold;
+            const medROI = medianROI || state.medianROI || 100;
 
-            // Custom list settings - Min/Max (PPC instead of EPC)
             const custConvMin = parseFloat($('cust-conv-min').value) || 0;
             const custConvMax = $('cust-conv-max').value !== '' ? parseFloat($('cust-conv-max').value) : Infinity;
             const custScoreMin = parseFloat($('cust-score-min').value) || 0;
@@ -1660,44 +1182,37 @@
             const custRoiMax = $('cust-roi-max').value !== '' ? parseFloat($('cust-roi-max').value) : Infinity;
             const custCrMin = parseFloat($('cust-cr-min').value) || 0;
             const custCrMax = $('cust-cr-max').value !== '' ? parseFloat($('cust-cr-max').value) : Infinity;
-            const custPpcMin = parseFloat($('cust-ppc-min').value) || -9999;
+            const custPpcMin = parseFloat($('cust-ppc-min').value) || 0;
             const custPpcMax = $('cust-ppc-max').value !== '' ? parseFloat($('cust-ppc-max').value) : Infinity;
 
-            data = data.map(r => ({ ...r, score: calculateScore(r) }));
+            data = data.map(r => ({ ...r, score: calculateScore(r, medianPPC, medianCR, medROI) }));
 
-            const totalClicks = data.reduce((s, r) => s + r.clicks, 0);
-            const totalConv = data.reduce((s, r) => s + r.conv, 0);
-            const totalProfit = data.reduce((s, r) => s + r.profit, 0);
-            const totalCost = data.reduce((s, r) => s + r.cost, 0);
-            const campaignAvgCR = totalClicks > 0 ? totalConv / totalClicks : 0;
-            const campaignAvgPPC = totalClicks > 0 ? totalProfit / totalClicks : 0;
-
+            function percentileThreshold(pool, pct) {
+                if (!pool.length) return Infinity;
+                const idx = Math.max(0, Math.min(pool.length - 1, Math.ceil(pool.length * pct / 100) - 1));
+                return pool[idx].score;
+            }
+            
             const purePool = data.filter(r => r.conv >= 3 && r.profit > 0).sort((a, b) => b.score - a.score);
             const goldPool = data.filter(r => r.conv >= 2 && r.profit > 0).sort((a, b) => b.score - a.score);
-            // Fixed: use ceil-1 to get correct top X% cutoff
-            const pureIdx = Math.max(0, Math.ceil(purePool.length * purePct / 100) - 1);
-            const goldIdx = Math.max(0, Math.ceil(goldPool.length * goldPct / 100) - 1);
-            const pureThreshold = purePool.length > 0 ? purePool[pureIdx]?.score || 0 : Infinity;
-            const goldThreshold = goldPool.length > 0 ? goldPool[goldIdx]?.score || 0 : Infinity;
+            const pureThreshold = percentileThreshold(purePool, purePct);
+            const goldThreshold = percentileThreshold(goldPool, goldPct);
+
+            const campaignAvgROI = totalCost > 0 ? (totalProfit / totalCost * 100) : 0;
 
             return data.map(r => {
                 let category, action;
                 const hasEnoughClicks = r.clicks >= clickThreshold;
-
                 const blCond1_ZeroConv = r.conv === 0;
                 const blCond2_NegProfit = r.profit < 0;
-                
                 const crBelow50OfAvg = r.cr < (campaignAvgCR * 0.5);
                 const ppcBelow50OfAvg = r.ppc < (campaignAvgPPC * 0.5);
-                const campaignAvgROI = totalCost > 0 ? (totalProfit / totalCost * 100) : 0;
                 const roiBelow50OfAvg = r.roi < (campaignAvgROI * 0.5);
-                
                 const blCond3_PoorPerformance = r.conv > 0 && (crBelow50OfAvg || ppcBelow50OfAvg || roiBelow50OfAvg);
                 
                 const isBlacklist = hasEnoughClicks && (blCond1_ZeroConv || blCond2_NegProfit || blCond3_PoorPerformance);
                 const isTesting = r.conv === 0 && r.clicks < clickThreshold;
 
-                // Custom List with Min/Max (using PPC)
                 const crPercent = r.cr * 100;
                 const matchesCustom = state.customEnabled &&
                     r.conv >= custConvMin && r.conv <= custConvMax &&
@@ -1707,44 +1222,202 @@
                     crPercent >= custCrMin && crPercent <= custCrMax &&
                     r.ppc >= custPpcMin && r.ppc <= custPpcMax;
 
-                if (isBlacklist) {
-                    category = 'blacklist';
-                    action = 'Block';
-                } else if (isTesting) {
-                    category = 'testing';
-                    action = 'Wait';
-                } else if (matchesCustom) {
-                    category = 'custom';
-                    action = 'Custom';
-                } else if (r.conv >= 3 && r.profit > 0 && r.score >= pureThreshold) {
-                    category = 'pure';
-                    action = 'Bid +30%';
-                } else if (r.conv >= 2 && r.profit > 0 && r.score >= goldThreshold) {
-                    category = 'gold';
-                    action = 'Bid +15%';
-                } else if (r.conv >= 1 && r.profit > 0) {
-                    category = 'potential';
-                    action = 'Bid +5-10%';
-                } else {
-                    category = 'ignore';
-                    action = 'RON';
-                }
+                if (isBlacklist) { category = 'blacklist'; action = 'Block'; }
+                else if (isTesting) { category = 'testing'; action = 'Wait'; }
+                else if (matchesCustom) { category = 'custom'; action = 'Custom'; }
+                else if (r.conv >= 3 && r.profit > 0 && r.score >= pureThreshold) { category = 'pure'; action = 'Bid +30%'; }
+                else if (r.conv >= 2 && r.profit > 0 && r.score >= goldThreshold) { category = 'gold'; action = 'Bid +15%'; }
+                else if (r.conv >= 1 && r.profit > 0) { category = 'potential'; action = 'Bid +5-10%'; }
+                else { category = 'ignore'; action = 'RON'; }
 
-                return { ...r, category, action, matchesCustom, isBlacklist, isTesting, blCond1_ZeroConv, blCond2_NegProfit, blCond3_PoorPerformance };
+                return { ...r, category, action, matchesCustom, isBlacklist, isTesting };
             });
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // FILTERING - Updated categories
-        // Winners = PURE + GOLD only
-        // Relevant = PURE + GOLD + POTENTIAL
-        // Relevant+ = PURE + GOLD + POTENTIAL + TESTING
-        // ═══════════════════════════════════════════════════════════════
-        function applyFilter() {
+        function processFullPipeline() {
+            let filteredRows = state.allRows.filter(r => {
+                for (const f of state.activeFilters) { 
+                    if (f.values.length > 0) { 
+                        const val = String(r.raw[f.colIdx] || ''); 
+                        if (!f.values.includes(val)) return false; 
+                    } 
+                }
+                if (state.icloudFilter === 'hide' && isIcloudIP(r.identifier)) return false;
+                if (state.icloudFilter === 'only' && !isIcloudIP(r.identifier)) return false;
+                return true;
+            });
+
+            if (state.hasHierarchy) {
+                state.detailRows = filteredRows.filter(r => r.level === state.maxLevel);
+                state.summaryRows = filteredRows.filter(r => r.level < state.maxLevel);
+            } else {
+                state.detailRows = filteredRows.filter(r => r.identifier !== '');
+                state.summaryRows = [];
+            }
+
+            state.detailRows = state.detailRows.filter(r => !isInvalidIdentifier(r.identifier));
+
+            state.rawDetailRows = state.detailRows.map(r => ({
+                ...r,
+                identifier: r.identifier || 'Unknown',
+                roi: r.cost > 0 ? (r.profit / r.cost) * 100 : (r.profit > 0 ? 999 : 0),
+                cr: r.clicks > 0 ? r.conv / r.clicks : 0,
+                ppc: r.clicks > 0 ? r.profit / r.clicks : 0
+            }));
+            
+            const getAggKey = (r) => {
+                let keyParts = [r.identifier || 'Unknown'];
+                state.activeFilters.forEach(f => {
+                    if (f.values.length > 0) {
+                        const val = String(r.raw[f.colIdx] || '').trim();
+                        keyParts.push(f.colIdx + ':' + val);
+                    }
+                });
+                return keyParts.join('|');
+            };
+            
+            const grouped = {};
+            state.detailRows.forEach(r => {
+                const key = getAggKey(r);
+                if (!grouped[key]) {
+                    grouped[key] = { 
+                        identifier: r.identifier || 'Unknown', 
+                        level: r.level, 
+                        clicks: 0, conv: 0, rev: 0, cost: 0, profit: 0, 
+                        isSummary: false, 
+                        extraData: { ...r.extraData },
+                        _extraSets: {},
+                        _rowCount: 0
+                    };
+                    state.extraColumns.forEach(col => {
+                        grouped[key]._extraSets[col] = new Set();
+                        if (r.extraData && r.extraData[col]) {
+                            grouped[key]._extraSets[col].add(r.extraData[col]);
+                        }
+                    });
+                } else {
+                    state.extraColumns.forEach(col => {
+                        if (r.extraData && r.extraData[col]) {
+                            grouped[key]._extraSets[col].add(r.extraData[col]);
+                        }
+                    });
+                }
+                const g = grouped[key];
+                g.clicks += r.clicks; g.conv += r.conv; g.rev += r.rev; g.cost += r.cost; g.profit += r.profit;
+                g._rowCount++;
+            });
+            
+            state.aggregatedData = Object.values(grouped).map(g => {
+                const finalExtraData = { ...g.extraData };
+                state.extraColumns.forEach(col => {
+                    if (g._extraSets[col] && g._extraSets[col].size > 1) {
+                        finalExtraData[col] = 'מעורב (' + g._extraSets[col].size + ')';
+                    }
+                });
+                return {
+                    ...g,
+                    extraData: finalExtraData,
+                    roi: g.cost > 0 ? (g.profit / g.cost) * 100 : (g.profit > 0 ? 999 : 0),
+                    cr: g.clicks > 0 ? g.conv / g.clicks : 0,
+                    ppc: g.clicks > 0 ? g.profit / g.clicks : 0
+                };
+            });
+
+            const totalClicks = state.aggregatedData.reduce((s, r) => s + r.clicks, 0);
+            const totalConv = state.aggregatedData.reduce((s, r) => s + r.conv, 0);
+            const totalProfit = state.aggregatedData.reduce((s, r) => s + r.profit, 0);
+            const totalCost = state.aggregatedData.reduce((s, r) => s + r.cost, 0);
+            
+            const campaignAvgCR = totalClicks > 0 ? totalConv / totalClicks : 0;
+            const campaignAvgPPC = totalClicks > 0 ? totalProfit / totalClicks : 0;
+
+            const profitable = state.aggregatedData.filter(r => r.conv > 0 && r.ppc > 0);
+            let medianPPC = 0.001;
+            let medianCR = 0.001;
+            let medianROI = 100;
+
+            if (profitable.length > 0) {
+                const ppcs = profitable.map(r => r.ppc).sort((a, b) => a - b);
+                const crs = profitable.map(r => r.cr).sort((a, b) => a - b);
+                const rois = profitable
+                    .filter(r => r.cost > 0 && r.roi > 0)
+                    .map(r => Math.min(r.roi, 300))
+                    .sort((a, b) => a - b);
+                medianPPC = ppcs[Math.floor(ppcs.length / 2)];
+                medianCR = crs[Math.floor(crs.length / 2)];
+                medianROI = rois.length > 0 ? rois[Math.floor(rois.length / 2)] : 100;
+            }
+            
+            state.medianPPC = medianPPC;
+            state.medianCR = medianCR;
+            state.medianROI = medianROI;
+            state.campaignCR = campaignAvgCR;
+            $('med-ppc').textContent = '$' + state.medianPPC.toFixed(4);
+            $('med-cr').textContent = (state.medianCR * 100).toFixed(3) + '%';
+            if ($('med-roi')) $('med-roi').textContent = state.medianROI.toFixed(0) + '%';
+            calculateClickThreshold();
+
+            state.processed = classifyRanges(state.aggregatedData, medianPPC, medianCR, campaignAvgCR, campaignAvgPPC, totalCost, totalProfit, medianROI);
+            
+            state.processedRaw = null;
+
+            applyViewFilter();
+
+            renderKPIs();
+            renderTable();
+            renderGlobalStats();
+            updateMiniDashboard();
+            enableCompareButton();
+            updateMacroWarning();
+        }
+        
+        function applyViewFilter() {
             const view = $('filter-view').value;
             const levelView = $('level-view').value;
             const minScore = parseFloat($('min-score-filter').value) || 0;
-            let data = [...state.processed];
+            
+            if (state.aggMode === 'split' && !state.processedRaw && state.rawDetailRows.length > 0) {
+                const rawClicks = state.rawDetailRows.reduce((s, r) => s + r.clicks, 0);
+                const rawConv = state.rawDetailRows.reduce((s, r) => s + r.conv, 0);
+                const rawCost = state.rawDetailRows.reduce((s, r) => s + r.cost, 0);
+                const rawProfit = state.rawDetailRows.reduce((s, r) => s + r.profit, 0);
+                
+                const rawCampaignAvgCR = rawClicks > 0 ? (rawConv / rawClicks) : 0;
+                const rawCampaignAvgPPC = rawClicks > 0 ? (rawProfit / rawClicks) : 0;
+                
+                state.processedRaw = classifyRanges(
+                    state.rawDetailRows,
+                    state.medianPPC,
+                    state.medianCR,
+                    rawCampaignAvgCR,
+                    rawCampaignAvgPPC,
+                    rawCost,
+                    rawProfit,
+                    state.medianROI
+                );
+                
+                if (state.compareMode && state.compareData) {
+                    state.processedRaw.forEach(r => {
+                        const old = state.compareData.get(r.identifier);
+                        if (!old) {
+                            r.compareStatus = 'new';
+                            r.profitChange = 0;
+                        } else {
+                            const profitChange = old.profit - r.profit;
+                            r.profitChange = profitChange;
+                            r.oldProfit = old.profit;
+                            r.oldRoi = old.roi;
+                            r.oldCr = old.cr;
+                            if (profitChange > 0.5) r.compareStatus = 'improved';
+                            else if (profitChange < -0.5) r.compareStatus = 'declined';
+                            else r.compareStatus = 'same';
+                        }
+                    });
+                }
+            }
+            
+            const sourceData = state.aggMode === 'split' ? state.processedRaw : state.processed;
+            let finalData = [...(sourceData || [])];
 
             if (levelView === 'all' && state.hasHierarchy) {
                 const summaries = state.summaryRows.map(r => ({
@@ -1753,43 +1426,35 @@
                     ppc: r.clicks > 0 ? r.profit / r.clicks : 0,
                     score: 0, category: 'summary', action: '-', isSummary: true
                 }));
-                data = [...summaries, ...data];
+                finalData = [...summaries, ...finalData];
             }
 
-            // Filter by view - UPDATED DEFINITIONS
-            // Winners = PURE + GOLD only
-            if (view === 'winners') data = data.filter(r => ['pure', 'gold'].includes(r.category));
-            // Relevant = PURE + GOLD + POTENTIAL
-            else if (view === 'relevant') data = data.filter(r => ['pure', 'gold', 'potential'].includes(r.category));
-            // Relevant+ = PURE + GOLD + POTENTIAL + TESTING
-            else if (view === 'relevant-plus') data = data.filter(r => ['pure', 'gold', 'potential', 'testing'].includes(r.category));
-            else if (view === 'custom') data = data.filter(r => r.matchesCustom);
-            else if (view === 'compare-new') data = data.filter(r => r.compareStatus === 'new');
-            else if (view === 'compare-improved') data = data.filter(r => r.compareStatus === 'improved');
-            else if (view === 'compare-declined') data = data.filter(r => r.compareStatus === 'declined');
-            else if (view !== 'all') data = data.filter(r => r.category === view);
-
-            if (minScore > 0) data = data.filter(r => r.score >= minScore || r.isSummary);
+            if (view === 'winners') finalData = finalData.filter(r => ['pure', 'gold'].includes(r.category));
+            else if (view === 'relevant') finalData = finalData.filter(r => ['pure', 'gold', 'potential'].includes(r.category));
+            else if (view === 'relevant_plus') finalData = finalData.filter(r => ['pure', 'gold', 'potential', 'testing'].includes(r.category));
+            else if (view === 'custom') finalData = finalData.filter(r => r.matchesCustom);
+            else if (view === 'compare-new') finalData = finalData.filter(r => r.compareStatus === 'new');
+            else if (view === 'compare-improved') finalData = finalData.filter(r => r.compareStatus === 'improved');
+            else if (view === 'compare-declined') finalData = finalData.filter(r => r.compareStatus === 'declined');
+            else if (view !== 'all') finalData = finalData.filter(r => r.category === view);
             
-            // Apply search filter
-            if (state.searchQuery) {
-                data = data.filter(r => r.identifier.toLowerCase().includes(state.searchQuery));
-            }
+            if (minScore > 0) finalData = finalData.filter(r => r.score >= minScore || r.isSummary);
             
-            // Apply iCloud filter
             if (state.icloudFilter === 'hide') {
-                data = data.filter(r => !isIcloudIP(r.identifier));
+                finalData = finalData.filter(r => !isIcloudIP(r.identifier));
             } else if (state.icloudFilter === 'only') {
-                data = data.filter(r => isIcloudIP(r.identifier));
+                finalData = finalData.filter(r => isIcloudIP(r.identifier));
             }
-
-            // Apply sorting
-            state.filtered = data.sort((a, b) => {
+            
+            if (state.searchQuery) {
+                finalData = finalData.filter(r => r.identifier.toLowerCase().includes(state.searchQuery));
+            }
+            
+            state.filtered = finalData.sort((a, b) => {
                 if (a.isSummary && !b.isSummary) return -1;
                 if (!a.isSummary && b.isSummary) return 1;
                 if (a.isSummary && b.isSummary) return a.level - b.level;
                 
-                // Custom column sorting
                 if (state.sortColumn) {
                     let valA, valB;
                     switch (state.sortColumn) {
@@ -1806,34 +1471,49 @@
                         case 'ppc': valA = a.ppc; valB = b.ppc; break;
                         default: valA = a.score; valB = b.score;
                     }
-                    
-                    // String comparison for identifier/category
                     if (typeof valA === 'string') {
                         const cmp = valA.localeCompare(valB);
                         return state.sortDirection === 'asc' ? cmp : -cmp;
                     }
-                    
-                    // Numeric comparison
                     return state.sortDirection === 'asc' ? valA - valB : valB - valA;
                 }
-                
                 return b.score - a.score;
             });
             state.page = 1;
         }
         
-        // Sorting click handler
-        function sortByColumn(column) {
-            if (state.sortColumn === column) {
-                // Toggle direction
-                state.sortDirection = state.sortDirection === 'desc' ? 'asc' : 'desc';
-            } else {
-                state.sortColumn = column;
-                state.sortDirection = 'desc';
-            }
-            applyFilter();
+        function applyFilter() {
+            applyViewFilter();
+            renderKPIs();
             renderTable();
-            updateSortIndicators();
+            renderGlobalStats();
+            updateMiniDashboard();
+            updateMacroWarning();
+        }
+        
+        function updateMacroWarning() {
+            const warningEl = $('macro-warning');
+            const microCountEl = $('micro-count');
+            const macroCountEl = $('macro-count');
+            if (!warningEl) return;
+
+            const microCount = state.rawDetailRows ? state.rawDetailRows.length : 0;
+            const macroCount = state.processed ? state.processed.length : 0;
+
+            if (microCountEl) microCountEl.textContent = microCount.toLocaleString();
+            if (macroCountEl) macroCountEl.textContent = macroCount.toLocaleString();
+
+            if (state.aggMode === 'smart') {
+                warningEl.classList.remove('hidden');
+            } else {
+                warningEl.classList.add('hidden');
+            }
+        }
+        
+        function sortByColumn(column) {
+            if (state.sortColumn === column) { state.sortDirection = state.sortDirection === 'desc' ? 'asc' : 'desc'; } 
+            else { state.sortColumn = column; state.sortDirection = 'desc'; }
+            applyFilter();
         }
         
         function updateSortIndicators() {
@@ -1857,41 +1537,47 @@
             return parts.join(' | ') || 'Unknown';
         }
 
-        $('filter-view').addEventListener('change', () => { applyFilter(); renderTable(); });
-        $('level-view').addEventListener('change', () => { applyFilter(); renderTable(); });
-        $('min-score-filter').addEventListener('input', () => { applyFilter(); renderTable(); });
+        $('filter-view').addEventListener('change', () => { applyFilter(); });
+        $('level-view').addEventListener('change', () => { applyFilter(); });
+        $('min-score-filter').addEventListener('input', () => { applyFilter(); });
         
-        // iCloud Switcher Event Listeners
-        document.querySelectorAll('.switcher-btn').forEach(btn => {
+        document.querySelectorAll('.icloud-switcher .switcher-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.switcher-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.icloud-switcher .switcher-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 state.icloudFilter = btn.dataset.value;
                 applyFilter();
-                renderTable();
             });
         });
         
-        $('ip-level').addEventListener('change', () => { debounceProcess(); });
+        document.querySelectorAll('.agg-switcher .switcher-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const newMode = btn.dataset.agg;
+                if (state.aggMode === newMode) return;
+                document.querySelectorAll('.agg-switcher .switcher-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.aggMode = newMode;
+                updateMacroWarning();
+                if (newMode === 'smart') {
+                    state.processedRaw = null;
+                }
+                applyFilter();
+            });
+        });
+        
+        $('ip-level').addEventListener('change', () => { processData(); });
         $('identifier-type').addEventListener('change', () => { 
             state.identifierType = $('identifier-type').value;
             if (state.identifierType !== 'auto') {
-                // Manual selection - set traffic level accordingly
                 if (state.identifierType === 'subid') $('ip-level').value = '1';
                 else if (state.identifierType === 'zone') $('ip-level').value = '2';
                 else if (state.identifierType === 'ip') $('ip-level').value = '1';
             }
-            debounceProcess(); 
+            processData(); 
         });
-        $('col-ip').addEventListener('change', () => {
-            detectAndUpdateIdentifierType();
-            debounceProcess();
-        });
-        $('custom-enabled').addEventListener('change', () => { debounceProcess(); });
+        $('col-ip').addEventListener('change', () => { detectAndUpdateIdentifierType(); processData(); });
+        $('custom-enabled').addEventListener('change', () => { processData(); });
 
-        // ═══════════════════════════════════════════════════════════════
-        // KPI TOGGLE
-        // ═══════════════════════════════════════════════════════════════
         function toggleKpi(kpi) {
             const idx = state.visibleKpis.indexOf(kpi);
             if (idx >= 0) state.visibleKpis.splice(idx, 1);
@@ -1900,10 +1586,9 @@
             renderKPIs();
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // KPI RENDERING - Uses PPC instead of EPC
-        // ═══════════════════════════════════════════════════════════════
         function renderKPIs() {
+            const sourceData = state.aggMode === 'split' ? (state.processedRaw || []) : (state.processed || []);
+            
             const categories = [
                 { key: 'pure', name: 'PURE', icon: '💎', cls: 'kpi-pure' },
                 { key: 'gold', name: 'GOLD', icon: '🥇', cls: 'kpi-gold' },
@@ -1912,24 +1597,19 @@
                 { key: 'blacklist', name: 'BLACKLIST', icon: '🚫', cls: 'kpi-blacklist' },
                 { key: 'testing', name: state.customEnabled ? 'CUSTOM' : 'TESTING', icon: state.customEnabled ? '🎯' : '🔬', cls: 'kpi-testing' }
             ];
-
             let html = '';
             categories.forEach(cat => {
                 let rows;
-                if (cat.key === 'testing' && state.customEnabled) {
-                    rows = state.processed.filter(r => r.matchesCustom);
-                } else {
-                    rows = state.processed.filter(r => r.category === cat.key);
-                }
+                if (cat.key === 'testing' && state.customEnabled) rows = sourceData.filter(r => r.matchesCustom);
+                else rows = sourceData.filter(r => r.category === cat.key);
 
                 const s = { count: rows.length, clicks: rows.reduce((sum, r) => sum + r.clicks, 0), conv: rows.reduce((sum, r) => sum + r.conv, 0), rev: rows.reduce((sum, r) => sum + r.rev, 0), cost: rows.reduce((sum, r) => sum + r.cost, 0), profit: rows.reduce((sum, r) => sum + r.profit, 0) };
                 s.roi = s.cost > 0 ? (s.profit / s.cost * 100) : (s.profit > 0 ? 999 : 0);
                 s.cr = s.clicks > 0 ? (s.conv / s.clicks * 100) : 0;
-                s.ppc = s.clicks > 0 ? (s.profit / s.clicks) : 0;  // PPC = Profit Per Click
+                s.ppc = s.clicks > 0 ? (s.profit / s.clicks) : 0;
                 const isHidden = !state.visibleKpis.includes(cat.key);
                 const isCustomActive = cat.key === 'testing' && state.customEnabled;
-
-                html += '<div class="kpi-card ' + cat.cls + (isHidden ? ' hidden' : '') + (isCustomActive ? ' custom-active' : '') + '"><div class="flex justify-between items-center mb-1"><div class="flex items-center gap-1"><span class="text-lg">' + cat.icon + '</span><span class="text-[11px] font-black uppercase">' + cat.name + '</span></div><div class="text-xl font-black num-font text-slate-800">' + s.count.toLocaleString() + '</div></div><div class="bg-slate-100 border border-slate-200 rounded px-2 py-1 flex justify-between items-center mb-1"><div class="text-center flex-1"><div class="stat-lbl">Clicks</div><div class="stat-val text-[12px]">' + formatNum(s.clicks) + '</div></div><div class="text-center flex-1 border-e border-slate-200"><div class="stat-lbl">PPC</div><div class="stat-val text-[12px]">$' + s.ppc.toFixed(4) + '</div></div></div><div class="grid grid-cols-3 gap-0.5 text-center mb-1 border-b border-slate-100 pb-1"><div><div class="stat-lbl">Conv</div><div class="stat-val text-[12px]">' + s.conv.toLocaleString() + '</div></div><div><div class="stat-lbl">Revenue</div><div class="stat-val text-[12px] text-green-600">$' + formatNum(s.rev) + '</div></div><div><div class="stat-lbl">Cost</div><div class="stat-val text-[12px] text-slate-500">$' + formatNum(s.cost) + '</div></div></div><div class="grid grid-cols-3 gap-0.5 text-center"><div><div class="stat-lbl">Profit</div><div class="stat-val text-[12px] ' + (s.profit >= 0 ? 'text-green-600' : 'text-red-500') + '">$' + formatNum(s.profit) + '</div></div><div><div class="stat-lbl">ROI</div><div class="stat-val text-[12px] ' + (s.roi >= 0 ? 'text-green-600' : 'text-red-500') + '">' + s.roi.toFixed(0) + '%</div></div><div><div class="stat-lbl">CR</div><div class="stat-val text-[12px] text-blue-600">' + s.cr.toFixed(3) + '%</div></div></div></div>';
+                html += '<div class="kpi-card ' + cat.cls + (isHidden ? ' hidden' : '') + (isCustomActive ? ' custom-active' : '') + '"><div class="flex justify-between items-center mb-1"><div class="flex items-center gap-1"><span class="text-lg">' + cat.icon + '</span><span class="text-[11px] font-black uppercase">' + cat.name + '</span></div><div class="text-xl font-black num-font text-slate-800">' + s.count.toLocaleString() + '</div></div><div class="bg-slate-100 border border-slate-200 rounded px-2 py-1 flex justify-between items-center mb-1"><div class="text-center flex-1"><div class="stat-lbl">Clicks</div><div class="stat-val text-[12px]">' + formatNum(s.clicks) + '</div></div><div class="text-center flex-1 border-r border-slate-200"><div class="stat-lbl">PPC</div><div class="stat-val text-[12px]">$' + s.ppc.toFixed(4) + '</div></div></div><div class="grid grid-cols-3 gap-0.5 text-center mb-1 border-b border-slate-100 pb-1"><div><div class="stat-lbl">Conv</div><div class="stat-val text-[12px]">' + s.conv.toLocaleString() + '</div></div><div><div class="stat-lbl">Revenue</div><div class="stat-val text-[12px] text-green-600">$' + formatNum(s.rev) + '</div></div><div><div class="stat-lbl">Cost</div><div class="stat-val text-[12px] text-slate-500">$' + formatNum(s.cost) + '</div></div></div><div class="grid grid-cols-3 gap-0.5 text-center"><div><div class="stat-lbl">Profit</div><div class="stat-val text-[12px] ' + (s.profit >= 0 ? 'text-green-600' : 'text-red-500') + '">$' + formatNum(s.profit) + '</div></div><div><div class="stat-lbl">ROI</div><div class="stat-val text-[12px] ' + (s.roi >= 0 ? 'text-green-600' : 'text-red-500') + '">' + s.roi.toFixed(0) + '%</div></div><div><div class="stat-lbl">CR</div><div class="stat-val text-[12px] text-blue-600">' + s.cr.toFixed(3) + '%</div></div></div></div>';
             });
             $('kpi-container').innerHTML = html;
         }
@@ -1940,11 +1620,8 @@
             return n.toFixed(0);
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // GLOBAL STATS - Uses PPC instead of EPC
-        // ═══════════════════════════════════════════════════════════════
         function renderGlobalStats() {
-            const data = state.processed;
+            const data = state.aggMode === 'split' ? (state.processedRaw || []) : (state.processed || []);
             const clicks = data.reduce((s, r) => s + r.clicks, 0);
             const conv = data.reduce((s, r) => s + r.conv, 0);
             const rev = data.reduce((s, r) => s + r.rev, 0);
@@ -1952,13 +1629,13 @@
             const profit = data.reduce((s, r) => s + r.profit, 0);
             const roi = cost > 0 ? (profit / cost * 100) : 0;
             const cr = clicks > 0 ? (conv / clicks * 100) : 0;
-            const ppc = clicks > 0 ? (profit / clicks) : 0;  // PPC = Profit Per Click
+            const ppc = clicks > 0 ? (profit / clicks) : 0;
             const pill = (l, v, c) => '<div class="g-item"><span class="g-lbl">' + l + '</span><span class="g-val ' + c + '">' + v + '</span></div>';
             $('global-stats').innerHTML = pill('מזהים', data.length.toLocaleString(), '') + pill('Clicks', formatNum(clicks), 'text-blue-600') + pill('Conv', conv.toLocaleString(), '') + pill('Revenue', '$' + formatNum(rev), 'text-green-600') + pill('Cost', '$' + formatNum(cost), 'text-slate-500') + pill('Profit', '$' + formatNum(profit), profit >= 0 ? 'text-green-600' : 'text-red-500') + pill('ROI', roi.toFixed(0) + '%', roi >= 0 ? 'text-green-600' : 'text-red-500') + pill('CR', cr.toFixed(3) + '%', 'text-blue-600') + pill('PPC', '$' + ppc.toFixed(4), 'text-amber-600');
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // TABLE RENDERING - Uses PPC instead of EPC
+        // RENDER TABLE - INCLUDING SUMMARY ROW
         // ═══════════════════════════════════════════════════════════════
         function renderTable() {
             const start = (state.page - 1) * state.pageSize;
@@ -1967,6 +1644,43 @@
             const showChanges = state.compareMode && $('chk-show-changes').checked;
             const showExtraCols = state.extraColumns && state.extraColumns.length > 0;
             
+            // --- SUMMARY ROW LOGIC ---
+            // Calculate totals for currently filtered view
+            const totals = { clicks: 0, conv: 0, rev: 0, cost: 0, profit: 0 };
+            state.filtered.forEach(r => {
+                if (!r.isSummary) { // Avoid double counting summaries
+                    totals.clicks += r.clicks;
+                    totals.conv += r.conv;
+                    totals.rev += r.rev;
+                    totals.cost += r.cost;
+                    totals.profit += r.profit;
+                }
+            });
+            totals.roi = totals.cost > 0 ? (totals.profit / totals.cost * 100) : 0;
+            totals.cr = totals.clicks > 0 ? (totals.conv / totals.clicks * 100) : 0;
+            totals.ppc = totals.clicks > 0 ? (totals.profit / totals.clicks) : 0;
+
+            const extraColsPlaceholders = state.extraColumns.map(() => '<th class="summary-cell"></th>').join('');
+            
+            const summaryHTML = `
+                <th class="summary-cell text-center text-slate-400">-</th>
+                ${showLevel ? '<th class="summary-cell"></th>' : ''}
+                <th class="summary-cell text-right text-indigo-700">סה"כ (${state.filtered.length})</th>
+                ${extraColsPlaceholders}
+                <th class="summary-cell"></th>
+                <th class="summary-cell"></th>
+                <th class="summary-cell text-center text-indigo-900">${totals.clicks.toLocaleString()}</th>
+                <th class="summary-cell text-center text-indigo-900">${totals.conv.toLocaleString()}</th>
+                <th class="summary-cell text-center text-green-700">$${formatNum(totals.rev)}</th>
+                <th class="summary-cell text-center text-slate-500">$${formatNum(totals.cost)}</th>
+                <th class="summary-cell text-center ${totals.profit >= 0 ? 'text-green-700' : 'text-red-600'}">$${formatNum(totals.profit)}</th>
+                <th class="summary-cell text-center ${totals.roi >= 0 ? 'text-green-700' : 'text-red-600'}">${totals.roi.toFixed(0)}%</th>
+                <th class="summary-cell text-center text-blue-700">${totals.cr.toFixed(3)}%</th>
+                <th class="summary-cell text-center text-amber-700">$${totals.ppc.toFixed(4)}</th>
+            `;
+            $('table-summary-row').innerHTML = summaryHTML;
+            // --------------------------
+
             const catConfig = {
                 pure: { badge: 'badge-pure', row: 'row-pure', label: '💎 PURE' },
                 gold: { badge: 'badge-gold', row: 'row-gold', label: '🥇 GOLD' },
@@ -1977,17 +1691,14 @@
                 custom: { badge: 'badge-custom', row: 'row-custom', label: '🎯 CUSTOM' },
                 summary: { badge: 'badge-summary', row: 'row-summary', label: '📊 SUMMARY' }
             };
-            
             const compareBadges = {
-                'new': '<span class="compare-badge badge-new ms-1">✨</span>',
-                'improved': '<span class="compare-badge badge-improved ms-1">📈</span>',
-                'declined': '<span class="compare-badge badge-declined ms-1">📉</span>'
+                'new': '<span class="compare-badge badge-new ml-1">✨</span>',
+                'improved': '<span class="compare-badge badge-improved ml-1">📈</span>',
+                'declined': '<span class="compare-badge badge-declined ml-1">📉</span>'
             };
-            
-            // Helper function to create delta display
             function makeDelta(current, old, prefix, suffix, decimals) {
                 if (!showChanges || old === undefined) return '';
-                const delta = current - old;  // Fixed: shows change from old to current
+                const delta = current - old;
                 if (Math.abs(delta) < 0.01) return '';
                 const cls = delta >= 0 ? 'delta-positive' : 'delta-negative';
                 const sign = delta >= 0 ? '+' : '';
@@ -2000,38 +1711,23 @@
                 const scoreCls = r.score > 5 ? 'score-high' : r.score > 1 ? 'score-mid' : 'score-low';
                 const levelCls = r.level === 1 ? 'level-1' : r.level === 2 ? 'level-2' : 'level-3';
                 
-                // Highlight search matches (escape first for XSS protection)
-                let displayId = escapeHtml(r.identifier);
-                if (state.searchQuery && r.identifier.toLowerCase().includes(state.searchQuery)) {
-                    // Regex on escaped text, using raw query escaped for regex only
-                    const safeQuery = state.searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    const regex = new RegExp('(' + safeQuery + ')', 'gi');
-                    displayId = displayId.replace(regex, '<mark class="search-highlight">$1</mark>');
-                }
-                
-                // Add compare badge
+                const displayId = highlightSafe(r.identifier, state.searchQuery);
                 const cmpBadge = state.compareMode && r.compareStatus ? (compareBadges[r.compareStatus] || '') : '';
-                
-                // Add iCloud badge if applicable
                 const icloudBadge = isIcloudIP(r.identifier) ? '<span class="icloud-badge" title="iCloud Private Relay">☁️</span>' : '';
-                
-                // Create delta displays for Profit, ROI, CR
                 const profitDelta = r.compareStatus !== 'new' ? makeDelta(r.profit, r.oldProfit, '$', '', 2) : '';
                 const roiDelta = r.compareStatus !== 'new' ? makeDelta(r.roi, r.oldRoi, '', '%', 0) : '';
                 const crDelta = r.compareStatus !== 'new' ? makeDelta(r.cr * 100, r.oldCr * 100, '', '%', 2) : '';
-                
-                // Extra columns (OS, ISP, etc.) - escape for XSS protection
                 let extraCells = '';
                 if (showExtraCols) {
                     state.extraColumns.forEach(col => {
-                        extraCells += '<td class="text-center text-[11px] text-slate-600">' + escapeHtml(r.extraData && r.extraData[col] || '-') + '</td>';
+                        extraCells += '<td class="text-center text-[11px] text-slate-600">' + escapeHtml((r.extraData && r.extraData[col]) || '-') + '</td>';
                     });
                 }
                 
                 html += '<tr class="' + cfg.row + '">' +
                     '<td class="text-center num-font text-slate-400">' + (start + i + 1) + '</td>' +
                     (showLevel ? '<td class="text-center"><span class="level-badge ' + levelCls + '">' + r.level + '</span></td>' : '') +
-                    '<td class="text-right font-bold text-slate-700 sticky-col ' + (r.isSummary ? 'text-indigo-700' : '') + '">' + icloudBadge + displayId + cmpBadge + '</td>' +
+                    '<td class="text-right font-bold text-slate-700 ' + (r.isSummary ? 'text-indigo-700' : '') + '">' + icloudBadge + displayId + cmpBadge + '</td>' +
                     extraCells +
                     '<td class="text-center"><span class="cat-badge ' + cfg.badge + '">' + cfg.label + '</span></td>' +
                     '<td class="text-center"><span class="score-pill ' + scoreCls + '">' + r.score.toFixed(2) + '</span></td>' +
@@ -2045,23 +1741,20 @@
                     '<td class="text-center num-font">$' + r.ppc.toFixed(4) + '</td>' +
                     '</tr>';
             });
-            $('table-body').innerHTML = html || '<tr><td colspan="' + (13 + (showExtraCols ? state.extraColumns.length : 0)) + '" class="text-center text-slate-400 py-8">אין נתונים</td></tr>';
+            const baseCols = showLevel ? 13 : 12;
+            const colspan = baseCols + (showExtraCols ? state.extraColumns.length : 0);
+            $('table-body').innerHTML = html || '<tr><td colspan="' + colspan + '" class="text-center text-slate-400 py-8">אין נתונים</td></tr>';
             const maxPage = Math.ceil(state.filtered.length / state.pageSize) || 1;
             $('disp-count').textContent = state.filtered.length.toLocaleString();
             $('page-num').textContent = state.page + ' / ' + maxPage;
-            
-            // Update extra column headers
             updateExtraColumnHeaders();
-            
-            // Update view KPI bar
-            updateViewKpiBar();
+            updateSortIndicators();
         }
         
         function updateExtraColumnHeaders() {
             const headerRow = document.querySelector('thead tr');
             const existingExtraTh = document.querySelectorAll('.extra-col-th');
             existingExtraTh.forEach(th => th.remove());
-            
             if (state.extraColumns && state.extraColumns.length > 0) {
                 const categoryTh = document.querySelector('th:nth-child(' + (state.hasHierarchy ? 4 : 3) + ')');
                 state.extraColumns.forEach(col => {
@@ -2072,277 +1765,85 @@
                 });
             }
         }
-        
-        // ═══════════════════════════════════════════════════════════════
-        // VIEW KPI BAR - Shows aggregated KPIs for current filtered view
-        // ═══════════════════════════════════════════════════════════════
-        function updateViewKpiBar() {
-            const bar = $('view-kpi-bar');
-            if (!state.filtered || state.filtered.length === 0) {
-                bar.classList.add('hidden');
-                return;
-            }
-            
-            // Get current view name
-            const viewSelect = $('filter-view');
-            const viewName = viewSelect.options[viewSelect.selectedIndex].text;
-            
-            // Calculate KPIs from filtered data (excluding summaries)
-            const data = state.filtered.filter(r => !r.isSummary);
-            if (data.length === 0) {
-                bar.classList.add('hidden');
-                return;
-            }
-            
-            const clicks = data.reduce((s, r) => s + r.clicks, 0);
-            const conv = data.reduce((s, r) => s + r.conv, 0);
-            const revenue = data.reduce((s, r) => s + r.rev, 0);
-            const cost = data.reduce((s, r) => s + r.cost, 0);
-            const profit = data.reduce((s, r) => s + r.profit, 0);
-            const roi = cost > 0 ? (profit / cost * 100) : 0;
-            const cr = clicks > 0 ? (conv / clicks * 100) : 0;
-            const ppc = clicks > 0 ? (profit / clicks) : 0;
-            
-            // Update display
-            $('view-kpi-name').textContent = viewName + ' (' + data.length + ')';
-            $('view-kpi-clicks').textContent = clicks.toLocaleString();
-            $('view-kpi-conv').textContent = conv.toLocaleString();
-            $('view-kpi-revenue').textContent = '$' + formatNum(revenue);
-            $('view-kpi-cost').textContent = '$' + formatNum(cost);
-            $('view-kpi-profit').textContent = '$' + formatNum(profit);
-            $('view-kpi-profit').className = profit >= 0 ? 'text-green-600' : 'text-red-500';
-            $('view-kpi-roi').textContent = roi.toFixed(0) + '%';
-            $('view-kpi-roi').className = roi >= 0 ? 'text-green-600' : 'text-red-500';
-            $('view-kpi-cr').textContent = cr.toFixed(3) + '%';
-            $('view-kpi-ppc').textContent = '$' + ppc.toFixed(4);
-            $('view-kpi-ppc').className = ppc >= 0 ? 'text-amber-600' : 'text-red-500';
-            
-            bar.classList.remove('hidden');
-        }
 
         function changePage(d) {
             const max = Math.ceil(state.filtered.length / state.pageSize) || 1;
             if (state.page + d > 0 && state.page + d <= max) { state.page += d; renderTable(); }
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // COPY DROPDOWN & FUNCTIONS - Updated categories
-        // Winners = PURE + GOLD only
-        // Relevant = PURE + GOLD + POTENTIAL
-        // Relevant+ = PURE + GOLD + POTENTIAL + TESTING
-        // ═══════════════════════════════════════════════════════════════
-        function toggleCopyDropdown() {
-            const dropdown = $('copy-dropdown-content');
-            dropdown.classList.toggle('show');
-        }
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            // Close copy dropdown
-            if (!e.target.closest('.copy-dropdown')) {
-                const dropdown = $('copy-dropdown-content');
-                if (dropdown) dropdown.classList.remove('show');
-            }
-            // Close filter popups
-            if (!e.target.closest('.filter-item')) {
-                document.querySelectorAll('.filter-popup').forEach(p => p.classList.remove('show'));
-            }
-        });
-        
-        function copyByCategory(category) {
-            const useCidr = $('chk-copy-cidr').checked;
-            let dataToCopy = [];
-            
-            switch(category) {
-                case 'current':
-                    // Copy current filtered view
-                    dataToCopy = state.filtered.filter(r => !r.isSummary);
-                    break;
-                case 'winners':
-                    // Winners = PURE + GOLD only
-                    dataToCopy = state.processed.filter(r => ['pure', 'gold'].includes(r.category));
-                    break;
-                case 'relevant':
-                    // Relevant = PURE + GOLD + POTENTIAL
-                    dataToCopy = state.processed.filter(r => ['pure', 'gold', 'potential'].includes(r.category));
-                    break;
-                case 'relevant-plus':
-                    // Relevant+ = PURE + GOLD + POTENTIAL + TESTING
-                    dataToCopy = state.processed.filter(r => ['pure', 'gold', 'potential', 'testing'].includes(r.category));
-                    break;
-                case 'blacklist':
-                    dataToCopy = state.processed.filter(r => r.category === 'blacklist');
-                    break;
-                default:
-                    dataToCopy = state.filtered.filter(r => !r.isSummary);
-            }
-            
-            if (!dataToCopy.length) {
-                alert('אין נתונים להעתקה');
-                return;
-            }
-            
-            const text = dataToCopy.map(r => useCidr ? toCIDR(r.identifier) : r.identifier).join('\n');
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = $('btn-copy');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> ' + dataToCopy.length + ' הועתקו!';
-                lucide.createIcons();
-                setTimeout(() => { 
-                    btn.innerHTML = originalText; 
-                    lucide.createIcons(); 
-                }, 2000);
-            });
-            
-            // Close dropdown
-            $('copy-dropdown-content').classList.remove('show');
-        }
-        
-        // Legacy copy function (for backwards compatibility)
-        function copyIPs() {
-            copyByCategory('current');
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // EXPORT - Uses PPC instead of EPC
-        // ═══════════════════════════════════════════════════════════════
         function exportData() {
             const wb = XLSX.utils.book_new();
             const useCidr = $('chk-cidr').checked;
+
+            const source = state.aggMode === 'split' ? (state.processedRaw || []) : (state.processed || []);
+
             const exports = [
-                { id: 'chk-pure', name: 'Pure', cat: 'pure' },
-                { id: 'chk-gold', name: 'Gold', cat: 'gold' },
-                { id: 'chk-potential', name: 'Potential', cat: 'potential' },
-                { id: 'chk-bl', name: 'Blacklist', cat: 'blacklist' },
-                { id: 'chk-custom', name: 'Custom', cat: 'custom' }
+                { id: 'chk-pure', name: 'Pure', pick: r => r.category === 'pure' },
+                { id: 'chk-gold', name: 'Gold', pick: r => r.category === 'gold' },
+                { id: 'chk-potential', name: 'Potential', pick: r => r.category === 'potential' },
+                { id: 'chk-bl', name: 'Blacklist', pick: r => r.category === 'blacklist' },
+                { id: 'chk-custom', name: 'Custom', pick: r => r.matchesCustom || r.category === 'custom' }
             ];
             let count = 0;
             exports.forEach(exp => {
                 if ($(exp.id).checked) {
-                    let rows;
-                    if (exp.cat === 'custom') {
-                        rows = state.processed.filter(r => r.matchesCustom);
-                    } else {
-                        rows = state.processed.filter(r => r.category === exp.cat);
-                    }
+                    const rows = source.filter(r => !r.isSummary && exp.pick(r));
+
                     if (rows.length) {
-                        const data = rows.map(r => ({ 
-                            Identifier: useCidr ? toCIDR(r.identifier) : r.identifier, 
-                            Score: r.score.toFixed(2), 
-                            Clicks: r.clicks, 
-                            Conv: r.conv, 
-                            Revenue: r.rev.toFixed(2), 
-                            Cost: r.cost.toFixed(2), 
-                            Profit: r.profit.toFixed(2), 
-                            'ROI%': r.roi.toFixed(0), 
-                            'CR%': (r.cr * 100).toFixed(3), 
-                            PPC: r.ppc.toFixed(4),  // PPC instead of EPC
-                            Action: r.action 
+                        const data = rows.map(r => ({
+                            Identifier: useCidr ? toCIDR(r.identifier) : r.identifier,
+                            Score: r.score.toFixed(2),
+                            Clicks: r.clicks,
+                            Conv: r.conv,
+                            Revenue: r.rev.toFixed(2),
+                            Cost: r.cost.toFixed(2),
+                            Profit: r.profit.toFixed(2),
+                            'ROI%': r.roi.toFixed(0),
+                            'CR%': (r.cr * 100).toFixed(3),
+                            PPC: r.ppc.toFixed(4),
+                            Action: r.action
                         }));
                         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), exp.name);
                         count++;
                     }
                 }
             });
-            if (count) XLSX.writeFile(wb, 'ListLab_V41_Export.xlsx');
+            if (count) XLSX.writeFile(wb, 'ListLab_V47_Export.xlsx');
             else alert('בחר לפחות רשימה אחת');
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // SYNC CONTROLS - with debounce for better performance
-        // ═══════════════════════════════════════════════════════════════
+        function copyIPs() {
+            if (!state.filtered.length) return alert('אין נתונים');
+            const useCidr = $('chk-copy-cidr').checked;
+
+            const allIds = state.filtered.filter(r => !r.isSummary).map(r => useCidr ? toCIDR(r.identifier) : r.identifier);
+            const uniqueIds = [...new Set(allIds)];
+            const text = uniqueIds.join('\n');
+
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = $('btn-copy');
+                btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> הועתק!';
+                lucide.createIcons();
+                setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="w-3 h-3"></i> העתק'; lucide.createIcons(); }, 1500);
+            });
+        }
+
+        function debounce(fn, ms = 150) {
+            let t;
+            return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+        }
+        
+        const debouncedProcess = debounce(processData, 200);
+        
         function syncControls(rangeId, numId) {
             const range = $(rangeId);
             const num = $(numId);
-            range.addEventListener('input', () => { num.value = range.value; debounceProcess(); });
-            num.addEventListener('input', () => { range.value = num.value; debounceProcess(); });
+            range.addEventListener('input', () => { num.value = range.value; debouncedProcess(); });
+            num.addEventListener('input', () => { range.value = num.value; debouncedProcess(); });
         }
-
         syncControls('pure-pct', 'pure-pct-num');
         syncControls('gold-pct', 'gold-pct-num');
         
-        // ═══════════════════════════════════════════════════════════════
-        // V41: SCORE WEIGHTING CONTROLS
-        // ═══════════════════════════════════════════════════════════════
-        function syncWeightControl(metric) {
-            const range = $('weight-' + metric);
-            const num = $('weight-' + metric + '-num');
-            
-            range.addEventListener('input', () => {
-                num.value = range.value;
-                state.scoreWeights[metric] = parseInt(range.value) || 0;
-                updateWeightsDisplay();
-                debounceProcess();
-            });
-            
-            num.addEventListener('input', () => {
-                const val = Math.max(0, Math.min(100, parseInt(num.value) || 0));
-                num.value = val;
-                range.value = val;
-                state.scoreWeights[metric] = val;
-                updateWeightsDisplay();
-                debounceProcess();
-            });
-        }
-        
-        syncWeightControl('ppc');
-        syncWeightControl('roi');
-        syncWeightControl('cr');
-        
-        function updateWeightsDisplay() {
-            const total = state.scoreWeights.ppc + state.scoreWeights.roi + state.scoreWeights.cr;
-            const totalEl = $('weights-total');
-            const badgeEl = $('weights-badge');
-            
-            totalEl.textContent = total + '%';
-            
-            // Color coding for total
-            if (total === 100) {
-                totalEl.className = 'text-[11px] font-bold text-green-600';
-            } else if (total > 100) {
-                totalEl.className = 'text-[11px] font-bold text-red-500';
-            } else {
-                totalEl.className = 'text-[11px] font-bold text-amber-500';
-            }
-            
-            // Update badge
-            badgeEl.textContent = state.scoreWeights.ppc + '/' + state.scoreWeights.roi + '/' + state.scoreWeights.cr;
-            
-            // Highlight badge if not default
-            if (state.scoreWeights.ppc === 50 && state.scoreWeights.roi === 30 && state.scoreWeights.cr === 20) {
-                badgeEl.className = 'text-[9px] bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded-full';
-            } else {
-                badgeEl.className = 'text-[9px] bg-indigo-600 text-white px-1.5 py-0.5 rounded-full';
-            }
-        }
-        
-        function setWeightPreset(preset) {
-            const presets = {
-                'balanced': { ppc: 50, roi: 30, cr: 20 },  // Default - balanced approach
-                'roi': { ppc: 20, roi: 60, cr: 20 },       // Focus on ROI for high-AP campaigns
-                'scale': { ppc: 30, roi: 20, cr: 50 }      // Focus on CR for scaling campaigns
-            };
-            
-            const p = presets[preset];
-            if (!p) return;
-            
-            state.scoreWeights = { ...p };
-            
-            // Update UI
-            $('weight-ppc').value = p.ppc;
-            $('weight-ppc-num').value = p.ppc;
-            $('weight-roi').value = p.roi;
-            $('weight-roi-num').value = p.roi;
-            $('weight-cr').value = p.cr;
-            $('weight-cr-num').value = p.cr;
-            
-            updateWeightsDisplay();
-            debounceProcess();
-        }
-        
-        // ═══════════════════════════════════════════════════════════════
-        // MINI DASHBOARD - Uses PPC instead of EPC
-        // ═══════════════════════════════════════════════════════════════
         function toggleDashboard() {
             const content = $('dashboard-content');
             const icon = $('dash-toggle-icon');
@@ -2363,144 +1864,77 @@
         }
         
         function updateMiniDashboard() {
-            if (!state.processed.length) {
-                $('mini-dashboard').classList.add('hidden');
-                return;
-            }
+            const sourceData = state.aggMode === 'split' ? (state.processedRaw || []) : (state.processed || []);
+            if (!sourceData.length) { $('mini-dashboard').classList.add('hidden'); return; }
             $('mini-dashboard').classList.remove('hidden');
-            
-            // Sort by profit for top/bottom performers
-            const byProfit = [...state.processed].sort((a, b) => b.profit - a.profit);
+            const byProfit = [...sourceData].sort((a, b) => b.profit - a.profit);
             const testedOnly = byProfit.filter(r => r.clicks >= state.clickThreshold);
             
-            // TOP 5 Performers - FULL identifier
             const top5 = testedOnly.filter(r => r.profit > 0).slice(0, 5);
-            $('top-performers').innerHTML = top5.length ? top5.map(r => 
-                '<div class="performer-item"><span class="performer-id" title="' + r.identifier + '">' + r.identifier + '</span>' + getCategoryMini(r.category) + '<span class="performer-val text-green-600">+$' + r.profit.toFixed(2) + '</span></div>'
-            ).join('') : '<div class="text-slate-400 text-[10px]">אין נתונים</div>';
+            $('top-performers').innerHTML = top5.length ? top5.map(r => '<div class="performer-item"><span class="performer-id" title="' + escapeHtml(r.identifier) + '">' + escapeHtml(r.identifier) + '</span>' + getCategoryMini(r.category) + '<span class="performer-val text-green-600">+$' + r.profit.toFixed(2) + '</span></div>').join('') : '<div class="text-slate-400 text-[10px]">אין נתונים</div>';
             
-            // TOP 5 Losers - FULL identifier
             const bottom5 = testedOnly.filter(r => r.profit < 0).sort((a, b) => a.profit - b.profit).slice(0, 5);
-            $('top-losers').innerHTML = bottom5.length ? bottom5.map(r => 
-                '<div class="performer-item"><span class="performer-id" title="' + r.identifier + '">' + r.identifier + '</span>' + getCategoryMini(r.category) + '<span class="performer-val text-red-500">$' + r.profit.toFixed(2) + '</span></div>'
-            ).join('') : '<div class="text-slate-400 text-[10px]">אין נתונים</div>';
-            
-            // ═══════════════════════════════════════════════════════════
-            // SMART BREAK-EVEN CALCULATOR
-            // Using MEDIAN payout (not average) for realistic calculation
-            // ═══════════════════════════════════════════════════════════
-            const totalClicks = state.processed.reduce((s, r) => s + r.clicks, 0);
-            const totalCost = state.processed.reduce((s, r) => s + r.cost, 0);
-            
-            // Average CPC = Cost / Clicks
+            $('top-losers').innerHTML = bottom5.length ? bottom5.map(r => '<div class="performer-item"><span class="performer-id" title="' + escapeHtml(r.identifier) + '">' + escapeHtml(r.identifier) + '</span>' + getCategoryMini(r.category) + '<span class="performer-val text-red-500">$' + r.profit.toFixed(2) + '</span></div>').join('') : '<div class="text-slate-400 text-[10px]">אין נתונים</div>';
+
+            const totalClicks = sourceData.reduce((s, r) => s + r.clicks, 0);
+            const totalCost = sourceData.reduce((s, r) => s + r.cost, 0);
             const avgCPC = totalClicks > 0 ? totalCost / totalClicks : 0.001;
             
-            // Calculate MEDIAN payout per conversion (not average!)
-            // This gives realistic expectation, not skewed by high payouts
             const payoutsPerConv = [];
-            state.processed.forEach(r => {
-                if (r.conv > 0 && r.rev > 0) {
-                    payoutsPerConv.push(r.rev / r.conv);
-                }
-            });
+            sourceData.forEach(r => { if (r.conv > 0 && r.rev > 0) payoutsPerConv.push(r.rev / r.conv); });
             payoutsPerConv.sort((a, b) => a - b);
-            const medianPayout = payoutsPerConv.length > 0 
-                ? payoutsPerConv[Math.floor(payoutsPerConv.length / 2)] 
-                : 0;
-            
-            // MAX CLICKS until loss (using median payout):
-            // If Zone reaches this many clicks with 1 conversion, profit = 0
-            // Formula: Max Clicks = Median Payout / CPC
+            const medianPayout = payoutsPerConv.length > 0 ? payoutsPerConv[Math.floor(payoutsPerConv.length / 2)] : 0;
             const maxClicksUntilLoss = avgCPC > 0 ? medianPayout / avgCPC : 0;
-            
-            // MIN CR to stay profitable:
-            // Formula: Min CR = CPC / Median Payout
-            // Below this CR, even with conversions, we lose money
             const minCRtoProfit = medianPayout > 0 ? avgCPC / medianPayout : 0;
             
             $('be-max-clicks').textContent = maxClicksUntilLoss.toLocaleString(undefined, {maximumFractionDigits: 0});
             $('be-clicks-formula').textContent = 'Median AP $' + medianPayout.toFixed(2) + ' ÷ CPC $' + avgCPC.toFixed(4);
-            
             $('be-min-cr').textContent = (minCRtoProfit * 100).toFixed(3) + '%';
             $('be-cr-formula').textContent = 'CPC $' + avgCPC.toFixed(4) + ' ÷ Median AP $' + medianPayout.toFixed(2);
-            
-            // ═══════════════════════════════════════════════════════════
-            // OUTSTANDING PERFORMERS - Worthy of separate campaign
-            // Criteria: CR > median, ROI x2 AND > 750%, profitable, 2+ conv
-            // ═══════════════════════════════════════════════════════════
+
             const avgROI = testedOnly.length > 0 ? testedOnly.reduce((s, r) => s + r.roi, 0) / testedOnly.length : 0;
-            
-            // Calculate median CR
             const crValues = testedOnly.filter(r => r.conv > 0).map(r => r.cr).sort((a, b) => a - b);
             const medianCR = crValues.length > 0 ? crValues[Math.floor(crValues.length / 2)] : 0;
             
             const outstanding = testedOnly.filter(r => {
-                // Must be profitable
                 if (r.profit <= 0) return false;
-                // Must have at least 2 conversions
                 if (r.conv < 2) return false;
-                // CR must be ABOVE median (good performers)
                 if (r.cr < medianCR) return false;
-                // ROI at least 2x average AND ROI > 750%
                 const roiRatio = avgROI > 0 ? r.roi / avgROI : 0;
                 return roiRatio >= 2 && r.roi > 750;
             }).sort((a, b) => b.roi - a.roi).slice(0, 5);
             
             $('outstanding-list').innerHTML = outstanding.length ? outstanding.map(r => {
                 const multiplier = avgROI > 0 ? (r.roi / avgROI).toFixed(1) : '∞';
-                return '<div class="performer-item"><span class="performer-id" title="' + r.identifier + '">' + r.identifier + '</span>' + getCategoryMini(r.category) + '<span class="performer-val text-purple-600">x' + multiplier + '</span></div>';
+                return '<div class="performer-item"><span class="performer-id" title="' + escapeHtml(r.identifier) + '">' + escapeHtml(r.identifier) + '</span>' + getCategoryMini(r.category) + '<span class="performer-val text-purple-600">x' + multiplier + '</span></div>';
             }).join('') : '<div class="text-slate-400 text-[10px]">אין מצטיינים בולטים</div>';
         }
         
-        // ═══════════════════════════════════════════════════════════════
-        // SEARCH FUNCTIONALITY
-        // ═══════════════════════════════════════════════════════════════
         function searchIdentifier(query) {
             state.searchQuery = query.trim().toLowerCase();
             applyFilter();
-            renderTable();
         }
-        
-        $('search-input').addEventListener('input', (e) => {
-            searchIdentifier(e.target.value);
-        });
-        
-        // ═══════════════════════════════════════════════════════════════
-        // COMPARE FILES FUNCTIONALITY
-        // ═══════════════════════════════════════════════════════════════
-        function enableCompareButton() {
-            $('btn-compare').disabled = !state.processed.length;
-        }
-        
-        $('btn-compare').addEventListener('click', () => {
-            $('compare-input').click();
-        });
-        
+        $('search-input').addEventListener('input', (e) => { searchIdentifier(e.target.value); });
+
+        function enableCompareButton() { $('btn-compare').disabled = !state.processed.length; }
+        $('btn-compare').addEventListener('click', () => { $('compare-input').click(); });
         $('btn-clear-compare').addEventListener('click', () => {
             state.compareMode = false;
             state.compareData = null;
             state.compareResults = { new: [], improved: [], declined: [], gone: [] };
-            // Clear compare status from processed data
-            state.processed.forEach(r => {
-                r.compareStatus = null;
-                r.profitChange = undefined;
-                r.oldProfit = undefined;
-            });
+            state.processed.forEach(r => { r.compareStatus = null; r.profitChange = undefined; r.oldProfit = undefined; r.oldRoi = undefined; r.oldCr = undefined; });
+            if (state.processedRaw) {
+                state.processedRaw.forEach(r => { r.compareStatus = null; r.profitChange = undefined; r.oldProfit = undefined; r.oldRoi = undefined; r.oldCr = undefined; });
+            }
             $('compare-panel').classList.add('hidden');
             $('btn-clear-compare').classList.add('hidden');
             $('show-changes-box').classList.add('hidden');
             applyFilter();
-            renderTable();
         });
-        
-        $('chk-show-changes').addEventListener('change', () => {
-            renderTable();
-        });
-        
+        $('chk-show-changes').addEventListener('change', () => { renderTable(); });
         $('compare-input').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
-            
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
@@ -2508,13 +1942,8 @@
                     const workbook = XLSX.read(data, { type: 'array' });
                     const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     const json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+                    if (json.length < 2) { alert('קובץ ההשוואה ריק'); return; }
                     
-                    if (json.length < 2) {
-                        alert('קובץ ההשוואה ריק');
-                        return;
-                    }
-                    
-                    // Parse compare file with same column mapping
                     const ipIdx = +$('col-ip').value;
                     const clicksIdx = +$('col-clicks').value;
                     const convIdx = +$('col-conv').value;
@@ -2526,7 +1955,6 @@
                         const row = json[i];
                         const id = String(row[ipIdx] || '').trim();
                         if (!id || isInvalidIdentifier(id)) continue;
-                        
                         const clicks = parseFloat(row[clicksIdx]) || 0;
                         const conv = parseFloat(row[convIdx]) || 0;
                         const rev = parseFloat(row[revIdx]) || 0;
@@ -2534,54 +1962,54 @@
                         const profit = rev - cost;
                         const roi = cost > 0 ? ((rev - cost) / cost) * 100 : 0;
                         const cr = clicks > 0 ? conv / clicks : 0;
-                        
                         compareMap.set(id, { clicks, conv, rev, cost, profit, roi, cr });
                     }
                     
                     state.compareData = compareMap;
                     state.compareMode = true;
                     
-                    // Calculate comparison results
                     const results = { new: [], improved: [], declined: [], gone: [] };
                     const currentIds = new Set(state.processed.map(r => r.identifier));
                     
-                    // Check current data against compare data
-                    state.processed.forEach(r => {
+                    function applyCompareToRow(r) {
                         const old = compareMap.get(r.identifier);
                         if (!old) {
-                            results.new.push(r.identifier);
                             r.compareStatus = 'new';
                             r.profitChange = 0;
+                            return 'new';
                         } else {
-                            // profitChange = second_file - first_file (old = second file, r = first file)
                             const profitChange = old.profit - r.profit;
                             r.profitChange = profitChange;
                             r.oldProfit = old.profit;
                             r.oldRoi = old.roi;
                             r.oldCr = old.cr;
-                            
                             if (profitChange > 0.5) {
-                                results.improved.push(r.identifier);
                                 r.compareStatus = 'improved';
+                                return 'improved';
                             } else if (profitChange < -0.5) {
-                                results.declined.push(r.identifier);
                                 r.compareStatus = 'declined';
+                                return 'declined';
                             } else {
                                 r.compareStatus = 'same';
+                                return 'same';
                             }
                         }
+                    }
+                    
+                    state.processed.forEach(r => {
+                        const status = applyCompareToRow(r);
+                        if (status === 'new') results.new.push(r.identifier);
+                        else if (status === 'improved') results.improved.push(r.identifier);
+                        else if (status === 'declined') results.declined.push(r.identifier);
                     });
                     
-                    // Check for gone items
-                    compareMap.forEach((_, id) => {
-                        if (!currentIds.has(id)) {
-                            results.gone.push(id);
-                        }
-                    });
+                    if (state.processedRaw) {
+                        state.processedRaw.forEach(r => applyCompareToRow(r));
+                    }
                     
+                    compareMap.forEach((_, id) => { if (!currentIds.has(id)) results.gone.push(id); });
                     state.compareResults = results;
                     
-                    // Update UI
                     $('compare-panel').classList.remove('hidden');
                     $('btn-clear-compare').classList.remove('hidden');
                     $('show-changes-box').classList.remove('hidden');
@@ -2591,16 +2019,14 @@
                     $('cmp-declined').textContent = results.declined.length;
                     $('cmp-gone').textContent = results.gone.length;
                     
-                    applyFilter();
-                    renderTable();
-                    
+                    applyFilter(); 
                 } catch (err) {
                     console.error('Compare file error:', err);
                     alert('שגיאה בקריאת קובץ ההשוואה');
                 }
             };
             reader.readAsArrayBuffer(file);
-            e.target.value = ''; // Reset input
+            e.target.value = '';
         });
     </script>
 </body>
