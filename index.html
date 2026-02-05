@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ListLab V47 - Summary Edition</title>
+    <title>ListLab V48 - Summary Edition</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -11,87 +11,111 @@
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Assistant', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); height: 100vh; overflow: hidden; color: #1e293b; font-size: 15.4px; }
+        /* ═══════════════════════════════════════════════════
+           LISTLAB V48 - REDESIGN by Nir & Yael
+           Design System: Neutral-forward, data-first
+           ═══════════════════════════════════════════════════ */
+        
+        /* === FOUNDATIONS === */
+        body { font-family: 'Assistant', sans-serif; background: #eef0f4; height: 100vh; overflow: hidden; color: #1e293b; font-size: 14px; }
         .num-font { font-family: 'Inter', sans-serif; }
-        .main-wrapper { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 0.5rem; }
-        .glass-header { background: white; border-radius: 10px; padding: 0 1.5rem; margin-bottom: 0.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; height: 68px; }
-        .dash-container { flex: 1; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05); display: flex; overflow: hidden; border: 1px solid #e2e8f0; }
-        .dash-sidebar { width: 380px; background: #ffffff; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow-y: auto; padding: 1rem; }
-        .dash-content { flex: 1; background: #f8fafc; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* === LAYOUT === */
+        .main-wrapper { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 6px; gap: 5px; }
+        .glass-header { background: white; border-radius: 10px; padding: 0 1.2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; height: 50px; border: 1px solid #e5e7eb; }
+        .dash-container { flex: 1; background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); display: flex; overflow: hidden; border: 1px solid #e0e3e8; }
+        
+        /* === SIDEBAR === */
+        .dash-sidebar { width: 310px; background: #f6f7f9; border-left: 1px solid #e0e3e8; display: flex; flex-direction: column; overflow-y: auto; padding: 10px; gap: 6px; }
+        .dash-content { flex: 1; background: #fafbfc; display: flex; flex-direction: column; overflow: hidden; }
 
-        .control-box { border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid; }
-        .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        /* === CONTROL BOXES - Unified white cards with accent strips === */
+        .control-box { border-radius: 8px; padding: 10px; border: 1px solid #e5e7eb; background: white !important; position: relative; transition: box-shadow 0.15s; }
+        .control-box:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .control-box.border-blue-200 { border-right: 3px solid #3b82f6; }
+        .control-box.border-slate-300 { border-right: 3px solid #94a3b8; }
+        .control-box.border-amber-200 { border-right: 3px solid #f59e0b; }
+        .control-box.border-purple-200 { border-right: 3px solid #8b5cf6; }
+        .control-box.border-slate-200 { border-right: 3px solid #64748b; }
+        
+        .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         .control-item { display: flex; flex-direction: column; }
         .lbl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
-        .lbl-sm { font-size: 12px; font-weight: 700; color: #64748b; }
+        .lbl-sm { font-size: 11px; font-weight: 700; color: #64748b; }
         
-        input[type=range] { height: 5px; border-radius: 2px; background: rgba(0,0,0,0.1); outline: none; appearance: none; cursor: pointer; width: 100%; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: currentColor; border: 2px solid white; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-        .dash-input { width: 55px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 12px; text-align: center; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px; background: white; height: 26px; }
+        /* === INPUTS === */
+        input[type=range] { height: 4px; border-radius: 2px; background: #e2e8f0; outline: none; appearance: none; cursor: pointer; width: 100%; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: currentColor; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .dash-input { width: 46px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 11px; text-align: center; border: 1px solid #ddd; border-radius: 5px; padding: 2px; background: #fafbfc; height: 24px; transition: border-color 0.15s; }
+        .dash-input:focus { border-color: #3b82f6; outline: none; }
 
-        .collapsible-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 6px 0; }
+        /* === COLLAPSIBLES === */
+        .collapsible-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 2px 0; }
         .collapsible-content { display: none; }
         .collapsible-content.open { display: block; }
         .collapse-icon { transition: transform 0.2s; }
         .collapse-icon.open { transform: rotate(180deg); }
 
-        .kpi-container { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-        .kpi-card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; transition: transform 0.2s; display: flex; flex-direction: column; padding: 0.6rem; flex: 1 1 auto; min-width: 180px; max-width: 280px; }
-        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -4px rgba(0,0,0,0.1); }
+        /* === KPI CARDS === */
+        .kpi-container { display: flex; flex-wrap: wrap; gap: 6px; }
+        .kpi-card { background: white; border: 1px solid #e8eaed; border-radius: 8px; transition: box-shadow 0.15s; display: flex; flex-direction: column; padding: 8px 10px; flex: 1 1 auto; min-width: 165px; max-width: 260px; }
+        .kpi-card:hover { box-shadow: 0 3px 12px -2px rgba(0,0,0,0.08); }
         .kpi-card.hidden { display: none !important; }
-        .kpi-card.custom-active { border: 2px solid #8b5cf6; box-shadow: 0 0 15px rgba(139, 92, 246, 0.3); }
+        .kpi-card.custom-active { border: 2px solid #8b5cf6; box-shadow: 0 0 12px rgba(139, 92, 246, 0.2); }
         
-        .kpi-pure { border-top: 4px solid #fbbf24; }
-        .kpi-gold { border-top: 4px solid #f59e0b; }
-        .kpi-potential { border-top: 4px solid #10b981; }
-        .kpi-ignore { border-top: 4px solid #6b7280; }
-        .kpi-blacklist { border-top: 4px solid #ef4444; }
-        .kpi-testing { border-top: 4px solid #3b82f6; }
+        .kpi-pure { border-right: 4px solid #eab308; }
+        .kpi-gold { border-right: 4px solid #f59e0b; }
+        .kpi-potential { border-right: 4px solid #10b981; }
+        .kpi-ignore { border-right: 4px solid #9ca3af; }
+        .kpi-blacklist { border-right: 4px solid #ef4444; }
+        .kpi-testing { border-right: 4px solid #3b82f6; }
 
-        .stat-lbl { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
-        .stat-val { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13px; color: #334155; }
+        .stat-lbl { font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.03em; }
+        .stat-val { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13px; color: #1e293b; }
         
-        .g-item { text-align: center; border-left: 1px solid #f1f5f9; flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 6px; }
+        .g-item { text-align: center; border-left: 1px solid #f3f4f6; flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 5px; }
         .g-item:last-child { border: none; }
-        .g-lbl { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
-        .g-val { font-size: 14px; font-weight: 700; color: #334155; font-family: 'Inter', sans-serif; }
+        .g-lbl { font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; }
+        .g-val { font-size: 13px; font-weight: 800; color: #1e293b; font-family: 'Inter', sans-serif; }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        /* === SCROLLBAR === */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        .chk-input { width: 15px; height: 15px; accent-color: #1e293b; cursor: pointer; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        .chk-input { width: 13px; height: 13px; accent-color: #4f46e5; cursor: pointer; }
         
-        /* Sticky Headers & Summary Row */
-        th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; color: #64748b; font-weight: 700; background: #f8fafc; position: sticky; top: 0; z-index: 20; padding: 9px 10px; cursor: pointer; border-bottom: 1px solid #e2e8f0; }
-        th:hover { background: #f1f5f9; }
+        /* === TABLE === */
+        th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; font-weight: 800; background: #f3f4f6; position: sticky; top: 0; z-index: 20; padding: 8px 10px; cursor: pointer; border-bottom: 2px solid #e5e7eb; }
+        th:hover { background: #e8eaed; color: #374151; }
         
-        /* New Summary Row Style */
         .summary-cell {
-            background-color: #eef2ff; /* Indigo-50 */
-            color: #312e81; /* Indigo-900 */
+            background: #f0f0ff;
+            color: #312e81;
             font-weight: 800;
             font-family: 'Inter', sans-serif;
             font-size: 11px;
-            padding: 8px 10px;
+            padding: 7px 10px;
             position: sticky;
-            top: 36px; /* Offset to stick below the main header */
+            top: 34px;
             z-index: 19;
             border-bottom: 2px solid #c7d2fe;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
 
-        td { font-size: 12px; border-bottom: 1px solid #f1f5f9; padding: 7px 10px; }
-        tr:hover td { background-color: #f8fafc; }
+        td { font-size: 12px; border-bottom: 1px solid #f3f4f6; padding: 6px 10px; }
+        tr:hover td { background-color: #f8f9fb; }
         
-        .row-pure { background: linear-gradient(90deg, #fef3c7 0%, #fffbeb 100%); }
-        .row-gold { background: linear-gradient(90deg, #fef3c7 0%, white 100%); }
-        .row-potential { background: linear-gradient(90deg, #d1fae5 0%, white 100%); }
-        .row-blacklist { background: linear-gradient(90deg, #fee2e2 0%, white 100%); }
-        .row-testing { background: linear-gradient(90deg, #dbeafe 0%, white 100%); }
-        .row-custom { background: linear-gradient(90deg, #ede9fe 0%, #f5f3ff 100%); }
-        .row-summary { background: linear-gradient(90deg, #e0e7ff 0%, #f5f3ff 100%); font-weight: 700; }
+        /* Row tints - SUBTLE, not gradient soup */
+        .row-pure { background: rgba(253, 224, 71, 0.08); }
+        .row-gold { background: rgba(245, 158, 11, 0.06); }
+        .row-potential { background: rgba(16, 185, 129, 0.06); }
+        .row-blacklist { background: rgba(239, 68, 68, 0.06); }
+        .row-testing { background: rgba(59, 130, 246, 0.05); }
+        .row-custom { background: rgba(139, 92, 246, 0.06); }
+        .row-summary { background: #f0f0ff; font-weight: 700; }
 
-        .cat-badge { font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 4px; white-space: nowrap; }
+        /* === BADGES === */
+        .cat-badge { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px; white-space: nowrap; letter-spacing: 0.02em; }
         .badge-pure { background: #fef3c7; color: #92400e; }
         .badge-gold { background: #fde68a; color: #92400e; }
         .badge-potential { background: #d1fae5; color: #065f46; }
@@ -104,115 +128,115 @@
         .score-pill { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 10px; }
         .score-high { background: #fbbf24; color: #78350f; }
         .score-mid { background: #10b981; color: white; }
-        .score-low { background: #e2e8f0; color: #64748b; }
+        .score-low { background: #e8eaed; color: #6b7280; }
 
-        .btn-upload { background: #e0e7ff; color: #4338ca; border: 1px dashed #a5b4fc; padding: 0.75rem; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.2s; }
-        .btn-upload:hover { background: #c7d2fe; border-color: #6366f1; }
+        /* === UPLOAD & BUTTONS === */
+        .btn-upload { background: white; color: #4338ca; border: 1.5px dashed #a5b4fc; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .btn-upload:hover { background: #eef2ff; border-color: #6366f1; }
 
-        .kpi-toggle { display: flex; flex-wrap: wrap; gap: 4px; }
-        .kpi-toggle-btn { font-size: 10px; padding: 4px 8px; border-radius: 4px; cursor: pointer; border: 1px solid #e2e8f0; background: white; font-weight: 700; transition: all 0.15s; }
-        .kpi-toggle-btn.active { background: #1e293b; color: white; border-color: #1e293b; }
-        .kpi-toggle-btn:hover:not(.active) { background: #f1f5f9; }
-
-        .filter-item { margin-bottom: 8px; position: relative; }
-        .filter-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 2px; }
-        .filter-btn { width: 100%; text-align: right; background: #f8fafc; border: 1px solid #cbd5e1; padding: 7px 11px; border-radius: 6px; font-size: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .filter-btn:hover { border-color: #94a3b8; }
-        .filter-popup { position: absolute; top: 100%; left: 0; width: 260px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 50; display: none; flex-direction: column; padding: 8px; margin-top: 4px; }
+        /* === FILTERS === */
+        .filter-item { margin-bottom: 6px; position: relative; }
+        .filter-header { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 2px; }
+        .filter-btn { width: 100%; text-align: right; background: #fafbfc; border: 1px solid #ddd; padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: border-color 0.15s; }
+        .filter-btn:hover { border-color: #3b82f6; }
+        .filter-popup { position: absolute; top: 100%; left: 0; width: 240px; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 12px 28px rgba(0,0,0,0.12); z-index: 50; display: none; flex-direction: column; padding: 8px; margin-top: 4px; }
         .filter-popup.show { display: flex; }
-        .filter-search { width: 100%; padding: 5px 9px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; margin-bottom: 6px; }
-        .filter-list { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; border: 1px solid #f1f5f9; padding: 4px; border-radius: 4px; margin-bottom: 6px; }
-        .filter-opt { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #334155; cursor: pointer; user-select: none; padding: 3px 5px; border-radius: 3px; }
-        .filter-opt:hover { background: #f8fafc; }
-        .btn-tiny { font-size: 11px; padding: 3px 10px; border-radius: 3px; cursor: pointer; font-weight: 600; }
-        .btn-apply { background: #3b82f6; color: white; }
-        .btn-cancel { background: #f1f5f9; color: #64748b; }
+        .filter-search { width: 100%; padding: 5px 9px; border: 1px solid #e5e7eb; border-radius: 5px; font-size: 11px; margin-bottom: 6px; }
+        .filter-list { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; border: 1px solid #f3f4f6; padding: 4px; border-radius: 5px; margin-bottom: 6px; }
+        .filter-opt { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #334155; cursor: pointer; user-select: none; padding: 3px 5px; border-radius: 4px; }
+        .filter-opt:hover { background: #f3f4f6; }
+        .btn-tiny { font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .btn-apply { background: #4f46e5; color: white; }
+        .btn-cancel { background: #f3f4f6; color: #64748b; }
 
+        /* === LEVEL BADGES === */
         .level-badge { font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; }
         .level-1 { background: #fee2e2; color: #991b1b; }
         .level-2 { background: #fef3c7; color: #92400e; }
         .level-3 { background: #d1fae5; color: #065f46; }
 
-        .mapping-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-        .mapping-row label { font-size: 11px; font-weight: 700; color: #475569; min-width: 55px; }
-        .mapping-row select { flex: 1; font-size: 11px; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; }
+        /* === MAPPING === */
+        .mapping-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+        .mapping-row label { font-size: 10px; font-weight: 700; color: #6b7280; min-width: 48px; }
+        .mapping-row select { flex: 1; font-size: 10px; padding: 3px 5px; border: 1px solid #ddd; border-radius: 5px; }
 
-        .threshold-info { font-size: 10px; color: #64748b; background: #f8fafc; padding: 4px 8px; border-radius: 4px; margin-top: 4px; }
-        .threshold-val { font-weight: 800; color: #3b82f6; }
+        /* === THRESHOLD === */
+        .threshold-info { font-size: 10px; color: #6b7280; background: #f6f7f9; padding: 4px 8px; border-radius: 5px; margin-top: 4px; border: 1px solid #eee; }
+        .threshold-val { font-weight: 800; color: #4f46e5; }
         
-        /* Mini Dashboard */
-        .mini-dashboard { display: flex; gap: 12px; padding: 12px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-bottom: 1px solid #e2e8f0; }
-        .dash-chart { background: white; border-radius: 10px; padding: 12px; border: 1px solid #e2e8f0; flex: 1; min-width: 200px; }
-        .dash-chart-title { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px; }
+        /* === MINI DASHBOARD === */
+        .mini-dashboard { display: flex; gap: 10px; padding: 10px; background: #f6f7f9; border-bottom: 1px solid #e5e7eb; }
+        .dash-chart { background: white; border-radius: 8px; padding: 10px; border: 1px solid #e5e7eb; flex: 1; min-width: 200px; }
+        .dash-chart-title { font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
         
-        /* Search Box */
+        /* === SEARCH & TOOLBAR === */
         .search-box { position: relative; }
-        .search-box input { width: 160px; padding: 6px 10px 6px 28px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; background: white; }
-        .search-box input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
-        .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
+        .search-box input { width: 150px; padding: 5px 10px 5px 28px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; background: #fafbfc; transition: all 0.15s; }
+        .search-box input:focus { outline: none; border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.08); background: white; }
+        .search-box i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none; }
         .search-highlight { background: #fef08a !important; padding: 0 2px; border-radius: 2px; }
         .icloud-badge { font-size: 10px; margin-left: 4px; opacity: 0.7; cursor: help; color: #3b82f6; }
         
-        /* iCloud Switcher */
-        .icloud-switcher { display: flex; align-items: center; gap: 4px; padding: 2px 6px; background: #eff6ff; border-radius: 6px; border: 1px solid #bfdbfe; }
-        .switcher-options { display: flex; gap: 2px; }
-        .switcher-btn { padding: 2px 6px; font-size: 10px; border: none; background: transparent; border-radius: 4px; cursor: pointer; opacity: 0.5; transition: all 0.15s; }
-        .icloud-switcher .switcher-btn:hover { opacity: 0.8; background: #dbeafe; }
-        .icloud-switcher .switcher-btn.active { opacity: 1; background: #3b82f6; color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        /* === SWITCHERS (unified look) === */
+        .icloud-switcher, .agg-switcher { display: flex; align-items: center; gap: 3px; padding: 2px 4px; background: #f3f4f6; border-radius: 6px; border: 1px solid #e5e7eb; }
+        .switcher-options { display: flex; gap: 1px; }
+        .switcher-btn { padding: 2px 6px; font-size: 10px; border: none; background: transparent; border-radius: 4px; cursor: pointer; opacity: 0.45; transition: all 0.15s; font-weight: 600; }
+        .icloud-switcher .switcher-btn:hover, .agg-switcher .switcher-btn:hover { opacity: 0.75; background: #e5e7eb; }
+        .icloud-switcher .switcher-btn.active { opacity: 1; background: #4f46e5; color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .agg-switcher .switcher-btn.active { opacity: 1; background: #059669; color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         
-        /* Aggregation Mode Switcher */
-        .agg-switcher { display: flex; align-items: center; gap: 4px; padding: 2px 6px; background: #f0fdf4; border-radius: 6px; border: 1px solid #bbf7d0; }
-        .agg-switcher .switcher-btn:hover { opacity: 0.8; background: #dcfce7; }
-        .agg-switcher .switcher-btn.active { opacity: 1; background: #16a34a; color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        
-        /* Sortable Headers */
+        /* === SORT === */
         .sortable-th { cursor: pointer; user-select: none; transition: background 0.15s; }
-        .sortable-th:hover { background: #e2e8f0; }
-        .sortable-th .sort-icon { font-size: 10px; opacity: 0.4; margin-right: 2px; }
-        .sortable-th.sort-asc .sort-icon { opacity: 1; }
-        .sortable-th.sort-asc .sort-icon::after { content: '↑'; }
-        .sortable-th.sort-asc .sort-icon { font-size: 0; }
-        .sortable-th.sort-asc .sort-icon::after { font-size: 10px; }
-        .sortable-th.sort-desc .sort-icon { opacity: 1; }
-        .sortable-th.sort-desc .sort-icon::after { content: '↓'; }
-        .sortable-th.sort-desc .sort-icon { font-size: 0; }
-        .sortable-th.sort-desc .sort-icon::after { font-size: 10px; }
+        .sortable-th:hover { background: #e8eaed; }
+        .sortable-th .sort-icon { font-size: 10px; opacity: 0.35; margin-right: 2px; }
+        .sortable-th.sort-asc .sort-icon { opacity: 1; font-size: 0; }
+        .sortable-th.sort-asc .sort-icon::after { content: '↑'; font-size: 10px; }
+        .sortable-th.sort-desc .sort-icon { opacity: 1; font-size: 0; }
+        .sortable-th.sort-desc .sort-icon::after { content: '↓'; font-size: 10px; }
         
-        /* Compare Mode */
+        /* === COMPARE === */
         .compare-badge { font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: 700; }
         .badge-new { background: #d1fae5; color: #065f46; }
         .badge-improved { background: #dbeafe; color: #1e40af; }
         .badge-declined { background: #fee2e2; color: #991b1b; }
         .badge-gone { background: #f3f4f6; color: #6b7280; }
         
-        .compare-panel { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #93c5fd; border-radius: 8px; padding: 10px; margin-bottom: 12px; }
-        .compare-stats { display: flex; gap: 12px; flex-wrap: wrap; }
-        .compare-stat { text-align: center; padding: 6px 12px; background: white; border-radius: 6px; }
-        .compare-stat-val { font-size: 18px; font-weight: 800; font-family: 'Inter', sans-serif; }
-        .compare-stat-lbl { font-size: 10px; color: #64748b; }
+        .compare-panel { background: white; border: 1px solid #93c5fd; border-right: 3px solid #3b82f6; border-radius: 8px; padding: 8px; }
+        .compare-stats { display: flex; gap: 8px; flex-wrap: wrap; }
+        .compare-stat { text-align: center; padding: 5px 10px; background: #f8f9fb; border-radius: 6px; border: 1px solid #e5e7eb; }
+        .compare-stat-val { font-size: 16px; font-weight: 800; font-family: 'Inter', sans-serif; }
+        .compare-stat-lbl { font-size: 9px; color: #6b7280; font-weight: 600; }
         
-        /* Change Delta Display */
         .change-delta { font-size: 9px; font-weight: 700; padding: 1px 3px; border-radius: 3px; font-family: 'Inter', sans-serif; display: inline-block; margin-bottom: 1px; }
         .delta-positive { background: #d1fae5; color: #059669; }
         .delta-negative { background: #fee2e2; color: #dc2626; }
         
-        /* Top Performer Item */
-        .performer-item { display: flex; justify-content: space-between; align-items: center; gap: 2px; padding: 2px 0; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; }
+        /* === PERFORMERS === */
+        .performer-item { display: flex; justify-content: space-between; align-items: center; gap: 2px; padding: 2px 0; border-bottom: 1px solid #f3f4f6; flex-wrap: wrap; }
         .performer-item:last-child { border: none; }
-        .performer-id { font-weight: 600; color: #334155; font-size: 11px; word-break: break-all; }
+        .performer-id { font-weight: 600; color: #374151; font-size: 11px; word-break: break-all; }
         .performer-val { font-weight: 700; font-family: 'Inter', sans-serif; white-space: nowrap; font-size: 11px; }
+
+        /* === BL MODE SWITCHER === */
+        .bl-mode-switcher { display: inline-flex; gap: 1px; background: #fee2e2; border-radius: 5px; padding: 2px; margin-right: 6px; }
+        .bl-mode-btn { font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 3px; cursor: pointer; border: none; background: transparent; color: #991b1b; opacity: 0.5; transition: all 0.15s; white-space: nowrap; }
+        .bl-mode-btn.active { opacity: 1; background: #dc2626; color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
+        .bl-mode-btn:hover:not(.active) { opacity: 0.8; background: #fca5a5; }
+        
+        /* === SIDEBAR TYPOGRAPHY === */
+        .dash-sidebar select { font-size: 11px; border: 1px solid #ddd; border-radius: 5px; background: #fafbfc; transition: border-color 0.15s; }
+        .dash-sidebar select:focus { border-color: #4f46e5; outline: none; }
     </style>
 </head>
 <body>
     <div class="main-wrapper">
         <div class="glass-header">
-            <div class="flex items-center gap-3 shrink-0">
-                <div class="bg-gradient-to-br from-amber-400 to-orange-500 text-white p-2 rounded-lg shadow-md">
-                    <i data-lucide="trophy" class="w-5 h-5"></i>
+            <div class="flex items-center gap-2.5 shrink-0">
+                <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-1.5 rounded-lg">
+                    <i data-lucide="activity" class="w-4 h-4"></i>
                 </div>
                 <div>
-                    <h1 class="text-base font-bold text-slate-800">ListLab</h1>
-                    <div class="text-[11px] text-amber-600 font-bold">V47 Summary Edition</div>
+                    <h1 class="text-sm font-extrabold text-slate-800 leading-none">ListLab <span class="text-indigo-500 font-black">V48</span></h1>
                 </div>
             </div>
             
@@ -220,7 +244,7 @@
                 <span class="text-sm text-slate-400">טען קובץ להתחלה...</span>
             </div>
             
-            <div id="medians-box" class="hidden shrink-0 text-[11px] bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+            <div id="medians-box" class="hidden shrink-0 text-[11px] bg-gray-50 px-3 py-1 rounded-lg border border-gray-200">
                 <span class="text-slate-500">Median PPC:</span> <strong id="med-ppc" class="text-amber-600 num-font">$0</strong>
                 <span class="mx-2 text-slate-300">|</span>
                 <span class="text-slate-500">Median CR:</span> <strong id="med-cr" class="text-blue-600 num-font">0%</strong>
@@ -231,17 +255,17 @@
 
         <div class="dash-container">
             <aside class="dash-sidebar custom-scrollbar">
-                <div class="btn-upload mb-2" id="drop-zone">
+                <div class="btn-upload" id="drop-zone">
                     <input type="file" id="file-input" class="hidden" accept=".xlsx,.csv">
-                    <div class="flex items-center justify-center gap-2 mb-1 text-indigo-700">
-                        <i data-lucide="upload-cloud" class="w-4 h-4"></i>
-                        <span class="text-sm font-bold">טען קובץ CSV / Excel</span>
+                    <div class="flex items-center justify-center gap-2 text-indigo-600">
+                        <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i>
+                        <span class="text-xs font-bold">טען קובץ CSV / Excel</span>
                     </div>
-                    <div id="filename" class="text-[10px] text-indigo-400 truncate"></div>
+                    <div id="filename" class="text-[10px] text-indigo-400 truncate mt-0.5"></div>
                 </div>
                 
-                <div class="flex gap-2 mb-3">
-                    <button id="btn-compare" class="flex-1 flex items-center justify-center gap-1 bg-blue-50 border border-blue-200 text-blue-700 py-1.5 rounded text-[11px] font-bold hover:bg-blue-100 disabled:opacity-50" disabled>
+                <div class="flex gap-1.5">
+                    <button id="btn-compare" class="flex-1 flex items-center justify-center gap-1 bg-white border border-gray-200 text-gray-600 py-1 rounded-md text-[10px] font-bold hover:bg-gray-50 hover:border-indigo-300 hover:text-indigo-600 disabled:opacity-40 transition-colors" disabled>
                         <i data-lucide="git-compare" class="w-3 h-3"></i> השווה קבצים
                     </button>
                     <input type="file" id="compare-input" class="hidden" accept=".xlsx,.csv">
@@ -252,30 +276,30 @@
                 
                 <div id="compare-panel" class="compare-panel hidden">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold text-blue-700">📊 תוצאות השוואה</span>
+                        <span class="text-[11px] font-bold text-indigo-700">תוצאות השוואה</span>
                         <span id="compare-file-name" class="text-[10px] text-blue-500 truncate max-w-[150px]"></span>
                     </div>
                     <div class="compare-stats">
                         <div class="compare-stat">
                             <div class="compare-stat-val text-green-600" id="cmp-new">0</div>
-                            <div class="compare-stat-lbl">חדשים ✨</div>
+                            <div class="compare-stat-lbl">חדשים</div>
                         </div>
                         <div class="compare-stat">
                             <div class="compare-stat-val text-blue-600" id="cmp-improved">0</div>
-                            <div class="compare-stat-lbl">השתפרו 📈</div>
+                            <div class="compare-stat-lbl">השתפרו</div>
                         </div>
                         <div class="compare-stat">
                             <div class="compare-stat-val text-red-600" id="cmp-declined">0</div>
-                            <div class="compare-stat-lbl">ירדו 📉</div>
+                            <div class="compare-stat-lbl">ירדו</div>
                         </div>
                         <div class="compare-stat">
                             <div class="compare-stat-val text-slate-500" id="cmp-gone">0</div>
-                            <div class="compare-stat-lbl">נעלמו ❌</div>
+                            <div class="compare-stat-lbl">נעלמו</div>
                         </div>
                     </div>
                 </div>
 
-                <div id="hierarchy-box" class="hidden bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-2 mb-3">
+                <div id="hierarchy-box" class="hidden bg-white border border-amber-200 border-r-4 rounded-lg p-2">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2 text-amber-700 text-[11px] font-bold">
                             <i data-lucide="git-branch" class="w-3 h-3"></i>
@@ -285,19 +309,19 @@
                     </div>
                 </div>
 
-                <div class="control-box border-blue-200 bg-blue-50 mb-3">
-                    <div class="text-xs font-bold text-blue-700 mb-2 flex items-center gap-1">
-                        <i data-lucide="layers" class="w-3 h-3"></i> סוג מזהה וסף קליקים
+                <div class="control-box border-blue-200">
+                    <div class="text-[11px] font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                        <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-500"></i> סוג מזהה וסף קליקים
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-2 mb-2">
+                    <div class="grid grid-cols-2 gap-1.5 mb-1.5">
                         <div>
                             <label class="text-[10px] text-slate-500 mb-1 block">עמודת מזהה:</label>
-                            <select id="col-ip" class="w-full text-[11px] border border-blue-300 rounded p-1.5 font-medium"></select>
+                            <select id="col-ip" class="w-full text-[11px] border border-gray-200 rounded p-1.5 font-medium"></select>
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-500 mb-1 block">סוג:</label>
-                            <select id="identifier-type" class="w-full text-[11px] border border-blue-300 rounded p-1.5 font-medium">
+                            <select id="identifier-type" class="w-full text-[11px] border border-gray-200 rounded p-1.5 font-medium">
                                 <option value="auto">🔍 אוטומטי</option>
                                 <option value="subid">🎯 SubID</option>
                                 <option value="zone">📍 Zone</option>
@@ -306,14 +330,14 @@
                         </div>
                     </div>
                     
-                    <div id="detected-type" class="text-[10px] text-green-600 font-bold mb-2 hidden"></div>
+                    <div id="detected-type" class="text-[10px] text-green-600 font-bold mb-1.5 hidden"></div>
                     
-                    <div class="mb-2">
-                        <label class="text-[10px] text-slate-500 mb-1 block">רמת טראפיק:</label>
-                        <select id="ip-level" class="w-full text-sm border border-blue-300 rounded p-1.5 font-medium">
-                            <option value="1" selected>רמה 1 - SubID/IP32 (1.5×, 1K-3K)</option>
-                            <option value="2">רמה 2 - Zone/IP24 (3×, 3K-10K)</option>
-                            <option value="3">רמה 3 - IP16 (5×, 5K-15K)</option>
+                    <div class="mb-1.5">
+                        <label class="text-[10px] text-slate-500 mb-0.5 block">רמת טראפיק:</label>
+                        <select id="ip-level" class="w-full text-[11px] border border-gray-200 rounded p-1 font-medium">
+                            <option value="1" selected>רמה 1 - SubID/IP32 (1.5×)</option>
+                            <option value="2">רמה 2 - Zone/IP24 (3×)</option>
+                            <option value="3">רמה 3 - IP16 (5×)</option>
                         </select>
                     </div>
                     
@@ -323,26 +347,10 @@
                     </div>
                 </div>
 
-                <div id="mapping-box" class="hidden control-box border-slate-200 bg-slate-50">
-                    <div class="collapsible-header" onclick="toggleSection('mapping')">
-                        <div class="text-xs font-bold text-slate-700 flex items-center gap-1">
-                            <i data-lucide="columns" class="w-3 h-3"></i> מיפוי עמודות
-                        </div>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-600 collapse-icon" id="mapping-icon"></i>
-                    </div>
-                    <div class="collapsible-content" id="mapping-content">
-                        <div class="mapping-row"><label>קליקים</label><select id="col-clicks"></select></div>
-                        <div class="mapping-row"><label>המרות</label><select id="col-conv"></select></div>
-                        <div class="mapping-row"><label>הכנסה</label><select id="col-rev"></select></div>
-                        <div class="mapping-row"><label>עלות</label><select id="col-cost"></select></div>
-                        <button onclick="processData()" class="w-full mt-2 bg-slate-700 text-white py-1.5 rounded text-xs font-bold hover:bg-slate-800">🔄 עדכן</button>
-                    </div>
-                </div>
-
-                <div class="control-box border-slate-300 bg-slate-50">
+                <div class="control-box border-slate-300">
                     <div class="collapsible-header" onclick="toggleSection('filters')">
-                        <div class="text-xs font-bold text-slate-700 flex items-center gap-1">
-                            <i data-lucide="filter" class="w-3 h-3"></i> סינון מתקדם
+                        <div class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                            <i data-lucide="filter" class="w-3.5 h-3.5 text-slate-400"></i> סינון מתקדם
                         </div>
                         <i data-lucide="chevron-down" class="w-4 h-4 text-slate-600 collapse-icon open" id="filters-icon"></i>
                     </div>
@@ -358,9 +366,9 @@
                     </div>
                 </div>
 
-                <div class="control-box border-amber-200 bg-amber-50">
-                    <div class="text-xs font-bold text-amber-700 mb-2 flex items-center gap-1">
-                        <i data-lucide="sliders" class="w-3 h-3"></i> TOP % Thresholds
+                <div class="control-box border-amber-200">
+                    <div class="text-[11px] font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                        <i data-lucide="sliders" class="w-3.5 h-3.5 text-amber-500"></i> TOP % Thresholds
                     </div>
                     <div class="control-grid">
                         <div class="control-item">
@@ -374,121 +382,102 @@
                     </div>
                 </div>
 
-                <div class="control-box border-purple-200 bg-purple-50">
+                <div class="control-box border-purple-200">
                     <div class="collapsible-header" onclick="toggleSection('custom')">
-                        <div class="text-xs font-bold text-purple-700 flex items-center gap-1">
-                            <i data-lucide="list-filter" class="w-3 h-3"></i> Custom List
+                        <div class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                            <i data-lucide="list-filter" class="w-3.5 h-3.5 text-purple-500"></i> Custom List
                             <span id="custom-badge" class="hidden text-[9px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full">פעיל</span>
                         </div>
                         <i data-lucide="chevron-down" class="w-4 h-4 text-purple-600 collapse-icon" id="custom-icon"></i>
                     </div>
                     <div class="collapsible-content" id="custom-content">
-                        <div class="flex items-center gap-2 mb-3 mt-2">
+                        <div class="flex items-center gap-2 mb-2 mt-1.5">
                             <input type="checkbox" id="custom-enabled" class="chk-input">
-                            <label for="custom-enabled" class="text-[11px] font-bold text-purple-700">הפעל Custom List</label>
+                            <label for="custom-enabled" class="text-[11px] font-bold text-gray-700">הפעל Custom List</label>
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-2 mb-2">
-                            <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">Conv</div>
+                        <div class="grid grid-cols-2 gap-1.5 mb-1.5">
+                            <div class="bg-gray-50 rounded-md p-1.5 border border-gray-200">
+                                <div class="text-[10px] font-bold text-gray-600 mb-1">Conv</div>
                                 <div class="flex gap-1">
-                                    <div class="flex-1">
-                                        <input type="number" id="cust-conv-min" value="1" min="0" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
-                                    </div>
+                                    <div class="flex-1"><input type="number" id="cust-conv-min" value="1" min="0" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min"></div>
                                     <span class="text-slate-300 self-center">-</span>
-                                    <div class="flex-1">
-                                        <input type="number" id="cust-conv-max" value="" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞">
-                                    </div>
+                                    <div class="flex-1"><input type="number" id="cust-conv-max" value="" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞"></div>
                                 </div>
                             </div>
-                            <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">Score</div>
+                            <div class="bg-gray-50 rounded-md p-1.5 border border-gray-200">
+                                <div class="text-[10px] font-bold text-gray-600 mb-1">Score</div>
                                 <div class="flex gap-1">
-                                    <div class="flex-1">
-                                        <input type="number" id="cust-score-min" value="0" step="0.1" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
-                                    </div>
+                                    <div class="flex-1"><input type="number" id="cust-score-min" value="0" step="0.1" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min"></div>
                                     <span class="text-slate-300 self-center">-</span>
-                                    <div class="flex-1">
-                                        <input type="number" id="cust-score-max" value="" step="0.1" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞">
-                                    </div>
+                                    <div class="flex-1"><input type="number" id="cust-score-max" value="" step="0.1" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞"></div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-2 mb-2">
-                            <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">Clicks</div>
+                        <div class="grid grid-cols-2 gap-1.5 mb-1.5">
+                            <div class="bg-gray-50 rounded-md p-1.5 border border-gray-200">
+                                <div class="text-[10px] font-bold text-gray-600 mb-1">Clicks</div>
                                 <div class="flex gap-1">
-                                    <div class="flex-1">
-                                        <input type="number" id="cust-clicks-min" value="0" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
-                                    </div>
+                                    <div class="flex-1"><input type="number" id="cust-clicks-min" value="0" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min"></div>
                                     <span class="text-slate-300 self-center">-</span>
-                                    <div class="flex-1">
-                                        <input type="number" id="cust-clicks-max" value="" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞">
-                                    </div>
+                                    <div class="flex-1"><input type="number" id="cust-clicks-max" value="" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞"></div>
                                 </div>
                             </div>
-                            <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">ROI%</div>
+                            <div class="bg-gray-50 rounded-md p-1.5 border border-gray-200">
+                                <div class="text-[10px] font-bold text-gray-600 mb-1">ROI%</div>
                                 <div class="flex gap-1">
-                                    <div class="flex-1">
-                                        <input type="number" id="cust-roi-min" value="-100" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
-                                    </div>
+                                    <div class="flex-1"><input type="number" id="cust-roi-min" value="-100" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min"></div>
                                     <span class="text-slate-300 self-center">-</span>
-                                    <div class="flex-1">
-                                        <input type="number" id="cust-roi-max" value="" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞">
-                                    </div>
+                                    <div class="flex-1"><input type="number" id="cust-roi-max" value="" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞"></div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-2 mb-2">
-                            <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">CR%</div>
+                        <div class="grid grid-cols-2 gap-1.5 mb-1.5">
+                            <div class="bg-gray-50 rounded-md p-1.5 border border-gray-200">
+                                <div class="text-[10px] font-bold text-gray-600 mb-1">CR%</div>
                                 <div class="flex gap-1">
-                                    <div class="flex-1">
-                                        <input type="number" id="cust-cr-min" value="0" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
-                                    </div>
+                                    <div class="flex-1"><input type="number" id="cust-cr-min" value="0" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min"></div>
                                     <span class="text-slate-300 self-center">-</span>
-                                    <div class="flex-1">
-                                        <input type="number" id="cust-cr-max" value="" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞">
-                                    </div>
+                                    <div class="flex-1"><input type="number" id="cust-cr-max" value="" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞"></div>
                                 </div>
                             </div>
-                            <div class="bg-white rounded-lg p-2 border border-purple-100">
-                                <div class="text-[10px] font-bold text-purple-600 mb-1.5">PPC (Profit/Click)</div>
+                            <div class="bg-gray-50 rounded-md p-1.5 border border-gray-200">
+                                <div class="text-[10px] font-bold text-gray-600 mb-1">PPC (Profit/Click)</div>
                                 <div class="flex gap-1">
-                                    <div class="flex-1">
-                                        <input type="number" id="cust-ppc-min" value="-1" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min">
-                                    </div>
+                                    <div class="flex-1"><input type="number" id="cust-ppc-min" value="-1" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="Min"></div>
                                     <span class="text-slate-300 self-center">-</span>
-                                    <div class="flex-1">
-                                        <input type="number" id="cust-ppc-max" value="" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞">
-                                    </div>
+                                    <div class="flex-1"><input type="number" id="cust-ppc-max" value="" step="0.001" class="w-full text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center" placeholder="∞"></div>
                                 </div>
                             </div>
                         </div>
                         
-                        <button onclick="processData()" class="w-full mt-1 bg-purple-600 text-white py-1.5 rounded text-xs font-bold hover:bg-purple-700 flex items-center justify-center gap-1">
+                        <button onclick="processData()" class="w-full mt-1 bg-indigo-600 text-white py-1.5 rounded-md text-xs font-bold hover:bg-indigo-700 flex items-center justify-center gap-1 transition-colors">
                             <i data-lucide="check" class="w-3 h-3"></i> החל פילטר
                         </button>
                     </div>
                 </div>
 
-                <div class="control-box border-slate-200 bg-slate-50">
-                    <div class="text-xs font-bold text-slate-700 mb-2">הצג KPIs</div>
-                    <div class="kpi-toggle">
-                        <button class="kpi-toggle-btn active" data-kpi="pure" onclick="toggleKpi('pure')">💎 Pure</button>
-                        <button class="kpi-toggle-btn active" data-kpi="gold" onclick="toggleKpi('gold')">🥇 Gold</button>
-                        <button class="kpi-toggle-btn active" data-kpi="potential" onclick="toggleKpi('potential')">🌱 Potential</button>
-                        <button class="kpi-toggle-btn active" data-kpi="ignore" onclick="toggleKpi('ignore')">😐 Ignore</button>
-                        <button class="kpi-toggle-btn active" data-kpi="blacklist" onclick="toggleKpi('blacklist')">🚫 Blacklist</button>
-                        <button class="kpi-toggle-btn active" data-kpi="testing" onclick="toggleKpi('testing')">🔬 Testing</button>
+                <!-- Mapping moved here (was higher up) -->
+                <div id="mapping-box" class="hidden control-box border-slate-200">
+                    <div class="collapsible-header" onclick="toggleSection('mapping')">
+                        <div class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                            <i data-lucide="columns" class="w-3.5 h-3.5 text-slate-400"></i> מיפוי עמודות
+                        </div>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-600 collapse-icon" id="mapping-icon"></i>
+                    </div>
+                    <div class="collapsible-content" id="mapping-content">
+                        <div class="mapping-row"><label>קליקים</label><select id="col-clicks"></select></div>
+                        <div class="mapping-row"><label>המרות</label><select id="col-conv"></select></div>
+                        <div class="mapping-row"><label>הכנסה</label><select id="col-rev"></select></div>
+                        <div class="mapping-row"><label>עלות</label><select id="col-cost"></select></div>
+                        <button onclick="processData()" class="w-full mt-2 bg-gray-700 text-white py-1.5 rounded-md text-xs font-bold hover:bg-gray-800 transition-colors">עדכן מיפוי</button>
                     </div>
                 </div>
 
-                <div class="mt-auto border-t pt-3">
-                    <div class="grid grid-cols-3 gap-2 mb-2 text-[11px] font-medium text-slate-600">
+                <div class="mt-auto border-t border-gray-200 pt-2">
+                    <div class="grid grid-cols-3 gap-1.5 mb-2 text-[10px] font-medium text-slate-500">
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-pure" checked class="chk-input"> Pure</label>
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-gold" checked class="chk-input"> Gold</label>
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-potential" checked class="chk-input"> Potential</label>
@@ -496,49 +485,45 @@
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-custom" class="chk-input"> Custom</label>
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-cidr" class="chk-input"> CIDR</label>
                     </div>
-                    <button onclick="exportData()" class="w-full bg-slate-900 text-white py-2 rounded-md text-sm font-bold hover:bg-slate-800 flex items-center justify-center gap-2">
-                        <i data-lucide="download" class="w-4 h-4"></i> ייצוא Excel
+                    <button onclick="exportData()" class="w-full bg-indigo-600 text-white py-1.5 rounded-lg text-xs font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 transition-colors shadow-sm">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i> ייצוא Excel
                     </button>
                 </div>
             </aside>
 
             <main class="dash-content">
-                <div class="p-3 bg-white border-b border-slate-100 shrink-0">
+                <div class="p-2.5 bg-white border-b border-gray-100 shrink-0">
                     <div id="kpi-container" class="kpi-container"></div>
                 </div>
                 
                 <div id="mini-dashboard" class="hidden border-b border-slate-200">
-                    <div class="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-slate-50 to-slate-100 cursor-pointer" onclick="toggleDashboard()">
-                        <div class="flex items-center gap-2 text-xs font-bold text-slate-600">
+                    <div class="flex items-center justify-between px-3 py-1.5 bg-gray-50 cursor-pointer border-b border-gray-100" onclick="toggleDashboard()">
+                        <div class="flex items-center gap-2 text-[11px] font-bold text-gray-500">
                             <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
                             <span>Dashboard מהיר</span>
                         </div>
                         <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform" id="dash-toggle-icon"></i>
                     </div>
-                    <div id="dashboard-content" class="hidden px-3 py-2 bg-gradient-to-br from-slate-50 to-white">
+                    <div id="dashboard-content" class="hidden px-3 py-2 bg-gray-50">
                         <div class="grid grid-cols-4 gap-2">
-                            
                             <div class="bg-white rounded-lg p-2 border border-green-200 shadow-sm">
                                 <div class="text-[11px] font-bold text-green-600 mb-1 flex items-center gap-1">
                                     <i data-lucide="trophy" class="w-3 h-3"></i> TOP 5 רווחיים
                                 </div>
                                 <div id="top-performers" class="space-y-0.5"></div>
                             </div>
-                            
                             <div class="bg-white rounded-lg p-2 border border-red-200 shadow-sm">
                                 <div class="text-[11px] font-bold text-red-600 mb-1 flex items-center gap-1">
                                     <i data-lucide="trending-down" class="w-3 h-3"></i> TOP 5 מפסידים
                                 </div>
                                 <div id="top-losers" class="space-y-0.5"></div>
                             </div>
-                            
                             <div class="bg-white rounded-lg p-2 border border-purple-200 shadow-sm">
                                 <div class="text-[11px] font-bold text-purple-600 mb-1 flex items-center gap-1">
                                     <i data-lucide="star" class="w-3 h-3"></i> ראויים לקמפיין נפרד
                                 </div>
                                 <div id="outstanding-list" class="space-y-0.5"></div>
                             </div>
-                            
                             <div class="bg-white rounded-lg p-2 border border-blue-200 shadow-sm">
                                 <div class="text-[11px] font-bold text-blue-600 mb-1 flex items-center gap-1">
                                     <i data-lucide="calculator" class="w-3 h-3"></i> Break-Even Calculator
@@ -560,9 +545,9 @@
                     </div>
                 </div>
 
-                <div class="flex-1 p-3 min-h-0 flex flex-col">
-                    <div class="bg-white rounded-xl border border-slate-200 flex-1 flex flex-col overflow-hidden shadow-sm">
-                        <div class="px-4 py-2 border-b border-slate-200 bg-white flex justify-between items-center shrink-0 flex-wrap gap-2">
+                <div class="flex-1 p-2.5 min-h-0 flex flex-col">
+                    <div class="bg-white rounded-lg border border-gray-200 flex-1 flex flex-col overflow-hidden">
+                        <div class="px-3 py-2 border-b border-gray-100 bg-white flex justify-between items-center shrink-0 flex-wrap gap-2">
                             <div class="flex items-center gap-3 flex-wrap">
                                 <div class="search-box">
                                     <i data-lucide="search" class="w-3 h-3"></i>
@@ -656,17 +641,16 @@
                                         <th class="text-center sortable-th" data-sort="cr" onclick="sortByColumn('cr')">CR% <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="ppc" onclick="sortByColumn('ppc')">PPC <span class="sort-icon">⇅</span></th>
                                     </tr>
-                                    <tr id="table-summary-row">
-                                        </tr>
+                                    <tr id="table-summary-row"></tr>
                                 </thead>
                                 <tbody id="table-body"></tbody>
                             </table>
                         </div>
 
-                        <div class="p-2 border-t border-slate-100 bg-white flex justify-center gap-4 items-center shrink-0">
-                            <button onclick="changePage(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
-                            <span id="page-num" class="text-[11px] font-bold text-slate-400 num-font">1 / 1</span>
-                            <button onclick="changePage(1)" class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                        <div class="p-1.5 border-t border-gray-100 bg-white flex justify-center gap-4 items-center shrink-0">
+                            <button onclick="changePage(-1)" class="p-1 hover:bg-gray-100 rounded text-gray-400"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                            <span id="page-num" class="text-[11px] font-bold text-gray-400 num-font">1 / 1</span>
+                            <button onclick="changePage(1)" class="p-1 hover:bg-gray-100 rounded text-gray-400"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
                         </div>
                     </div>
                 </div>
@@ -677,7 +661,6 @@
     <script>
         lucide.createIcons();
         
-        // Click outside to close filter popups
         document.addEventListener('click', (e) => {
             const insidePopup = e.target.closest('.filter-popup');
             const insideBtn = e.target.closest('.filter-btn');
@@ -693,7 +676,7 @@
             visibleKpis: ['pure', 'gold', 'potential', 'ignore', 'blacklist', 'testing'],
             hasHierarchy: false, levelColumn: null, maxLevel: 1, ipColumn: '',
             customEnabled: false,
-            identifierType: 'auto', // auto, ip, zone, subid
+            identifierType: 'auto',
             detectedType: null,
             compareMode: false,
             compareData: null,
@@ -708,16 +691,15 @@
             aggMode: 'split',
             rawDetailRows: [],
             processedRaw: null,
-            hasActiveAdvancedFilters: false
+            hasActiveAdvancedFilters: false,
+            blMode: 'ppc' // NEW: 'ppc' or 'cr'
         };
         
         const ICLOUD_RANGES = ['104.28', '172.226', '172.225', '172.224', '146.75', '140.248'];
         function isIcloudIP(identifier) {
             if (!identifier) return false;
             const str = String(identifier);
-            for (const range of ICLOUD_RANGES) {
-                if (str.startsWith(range + '.')) return true;
-            }
+            for (const range of ICLOUD_RANGES) { if (str.startsWith(range + '.')) return true; }
             return false;
         }
 
@@ -748,18 +730,14 @@
             const raw = String(text ?? '');
             const q = String(query ?? '').trim();
             if (!q) return escapeHtml(raw);
-            
             const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-            let out = '';
-            let last = 0;
-            
+            let out = '', last = 0;
             raw.replace(re, (m, offset) => {
                 out += escapeHtml(raw.slice(last, offset));
                 out += '<mark class="search-highlight">' + escapeHtml(m) + '</mark>';
                 last = offset + m.length;
                 return m;
             });
-            
             out += escapeHtml(raw.slice(last));
             return out;
         }
@@ -784,11 +762,8 @@
             if (!id || id.trim() === '') return true;
             const lower = id.toLowerCase().trim();
             for (const pattern of INVALID_PATTERNS) {
-                if (pattern instanceof RegExp) {
-                    if (pattern.test(lower)) return true;
-                } else {
-                    if (lower === pattern.toLowerCase()) return true;
-                }
+                if (pattern instanceof RegExp) { if (pattern.test(lower)) return true; }
+                else { if (lower === pattern.toLowerCase()) return true; }
             }
             if (/^\{.*\}$/.test(lower)) return true;
             return false;
@@ -796,20 +771,12 @@
         
         function detectIdentifierType(values) {
             const sample = values.slice(0, 100);
-            let ipCount = 0;
-            let numericCount = 0;
-            let mixedCount = 0;
+            let ipCount = 0, numericCount = 0, mixedCount = 0;
             for (const val of sample) {
                 if (!val || isInvalidIdentifier(val)) continue;
-                if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/\d{1,2})?$/.test(val)) {
-                    ipCount++;
-                }
-                else if (/^\d+$/.test(val)) {
-                    numericCount++;
-                }
-                else {
-                    mixedCount++;
-                }
+                if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/\d{1,2})?$/.test(val)) ipCount++;
+                else if (/^\d+$/.test(val)) numericCount++;
+                else mixedCount++;
             }
             const total = ipCount + numericCount + mixedCount;
             if (total === 0) return 'unknown';
@@ -825,55 +792,27 @@
         }
         
         function getIdentifierTypeLabel(type) {
-            const labels = {
-                'ip': '🌐 IP Address',
-                'zone': '📍 Zone ID',
-                'subid': '🎯 SubID',
-                'mixed': '🔀 Mixed',
-                'unknown': '❓ Unknown'
-            };
+            const labels = { 'ip': '🌐 IP Address', 'zone': '📍 Zone ID', 'subid': '🎯 SubID', 'mixed': '🔀 Mixed', 'unknown': '❓ Unknown' };
             return labels[type] || type;
         }
 
-        function ipToLong(ip) {
-            return ip.split('.').reduce((long, octet) => (long << 8) + parseInt(octet, 10), 0) >>> 0;
-        }
-        
-        function longToIp(long) {
-            return [(long >>> 24) & 255, (long >>> 16) & 255, (long >>> 8) & 255, long & 255].join('.');
-        }
-        
         function toCIDR(identifier) {
             const str = String(identifier).trim();
             const ipLevel = parseInt($('ip-level').value);
-
             if (str.includes('/')) return str;
-
             if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(str)) {
                 const parts = str.split('.').map(Number);
-
-                if (ipLevel === 1) {
-                    return str + '/32';
-                }
-
-                if (ipLevel === 2) {
-                    return parts[0] + '.' + parts[1] + '.' + parts[2] + '.0/24';
-                }
-
-                if (ipLevel === 3) {
-                    return parts[0] + '.' + parts[1] + '.0.0/16';
-                }
-
+                if (ipLevel === 1) return str + '/32';
+                if (ipLevel === 2) return parts[0] + '.' + parts[1] + '.' + parts[2] + '.0/24';
+                if (ipLevel === 3) return parts[0] + '.' + parts[1] + '.0.0/16';
                 return str + '/32';
             }
-
             return str;
         }
 
         function calculateClickThreshold() {
             const level = parseInt($('ip-level').value);
             const config = IP_LEVELS[level];
-            
             if (state.campaignCR <= 0 || state.campaignCR < 0.001) {
                 state.clickThreshold = config.default;
             } else {
@@ -907,7 +846,6 @@
                         const wb = XLSX.read(e.target.result, { type: 'array', cellDates: false, cellNF: false, cellStyles: false });
                         const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '', raw: true });
                         if (json.length < 2) { alert('קובץ ריק'); $('filename').textContent = ''; return; }
-
                         state.headers = json[0].map(h => String(h || '').trim());
                         state.rawData = json.slice(1).filter(row => row.some(c => c !== '' && c != null));
                         $('filename').textContent = file.name + ' (' + state.rawData.length.toLocaleString() + ' שורות)';
@@ -915,7 +853,6 @@
                         const levelIdx = hLower.findIndex(x => x === 'level' || x === 'lvl' || x === 'depth');
                         state.levelColumn = levelIdx !== -1 ? state.headers[levelIdx] : null;
                         state.hasHierarchy = levelIdx !== -1;
-
                         setupMapping();
                         setupFilters();
                         setTimeout(() => processData(), 10);
@@ -944,12 +881,7 @@
             if (matchIdx >= 0) ipSel.value = matchIdx;
 
             const selects = ['col-clicks', 'col-conv', 'col-rev', 'col-cost'];
-            const defaults = { 
-                'col-clicks': ['clicks', 'click', 'impressions'], 
-                'col-conv': ['conv', 'conversions', 'conversion', 'leads'], 
-                'col-rev': ['revenue', 'rev', 'income', 'payout'], 
-                'col-cost': ['cost', 'spend', 'expense'] 
-            };
+            const defaults = { 'col-clicks': ['clicks', 'click', 'impressions'], 'col-conv': ['conv', 'conversions', 'conversion', 'leads'], 'col-rev': ['revenue', 'rev', 'income', 'payout'], 'col-cost': ['cost', 'spend', 'expense'] };
             selects.forEach(id => {
                 const sel = $(id);
                 fillSelectWithHeaders(sel, state.headers);
@@ -998,7 +930,6 @@
             if (colLower.includes('subid') || colLower.includes('sub_id') || colLower.includes('token 3') || colLower.includes('token3')) nameHint = 'subid';
             else if (colLower.includes('zone') || colLower.includes('token 4') || colLower.includes('token4')) nameHint = 'zone';
             else if (colLower.includes('ip')) nameHint = 'ip';
-            
             const finalType = nameHint || state.detectedType;
             const detectedEl = $('detected-type');
             if (finalType && finalType !== 'unknown') {
@@ -1012,9 +943,7 @@
                         $('ip-level').value = hasSlash24 ? '2' : '1';
                     }
                 }
-            } else {
-                detectedEl.classList.add('hidden');
-            }
+            } else { detectedEl.classList.add('hidden'); }
             state.ipColumn = colName;
         }
 
@@ -1066,13 +995,10 @@
                 const optDiv = document.createElement('div');
                 optDiv.className = 'filter-opt';
                 const chk = document.createElement('input');
-                chk.type = 'checkbox';
-                chk.className = 'chk-input';
-                chk.value = v;
+                chk.type = 'checkbox'; chk.className = 'chk-input'; chk.value = v;
                 const span = document.createElement('span');
                 span.textContent = v;
-                optDiv.appendChild(chk);
-                optDiv.appendChild(span);
+                optDiv.appendChild(chk); optDiv.appendChild(span);
                 lst.appendChild(optDiv);
             });
             state.activeFilters.push({ id: fid, col, colIdx: state.headers.indexOf(col), values: [] });
@@ -1097,8 +1023,6 @@
 
         function processData() {
             try {
-                console.log('Starting processData...');
-                
                 if (state.compareMode) {
                     state.compareMode = false;
                     state.compareData = null;
@@ -1118,10 +1042,7 @@
                 state.allRows = state.rawData.map((row, idx) => {
                     const level = levelIdx >= 0 ? parseNum(row[levelIdx]) : 1;
                     const extraData = {};
-                    state.extraColumns.forEach(col => {
-                        const colIdx = extraColIndices[col];
-                        if (colIdx >= 0) extraData[col] = String(row[colIdx] || '').trim();
-                    });
+                    state.extraColumns.forEach(col => { const colIdx = extraColIndices[col]; if (colIdx >= 0) extraData[col] = String(row[colIdx] || '').trim(); });
                     return { idx, raw: row, identifier: String(row[cols.ip] || '').trim(), level, clicks: parseNum(row[cols.clicks]), conv: parseNum(row[cols.conv]), rev: parseNum(row[cols.rev]), cost: parseNum(row[cols.cost]), profit: parseNum(row[cols.rev]) - parseNum(row[cols.cost]), extraData };
                 });
 
@@ -1140,9 +1061,7 @@
 
                 state.customEnabled = $('custom-enabled').checked;
                 $('custom-badge').classList.toggle('hidden', !state.customEnabled);
-
                 processFullPipeline();
-
             } catch (err) {
                 console.error('Error in processData:', err);
                 $('global-stats').innerHTML = '<span class="text-red-500">❌ שגיאה: ' + err.message + '</span>';
@@ -1155,22 +1074,24 @@
             if (r.ppc <= 0) return 0;
             if (r.profit <= 0) return 0;
             if (medianPPC <= 0 || medianCR <= 0) return 0;
-            
             const roiMed = medianROI > 0 ? medianROI : 100;
             const ppcComponent = 0.5 * (r.ppc / medianPPC);
             const roiComponent = 0.3 * (r.roi / roiMed);
             const crComponent = 0.2 * (r.cr / medianCR);
             const quality = ppcComponent + roiComponent + crComponent;
             const reliability = Math.min(r.conv / 10, 1.0);
-            
             return quality * reliability;
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // UPDATED BLACKLIST LOGIC
+        // ═══════════════════════════════════════════════════════════════
         function classifyRanges(data, medianPPC, medianCR, campaignAvgCR, campaignAvgPPC, totalCost, totalProfit, medianROI) {
             const purePct = +$('pure-pct-num').value || 10;
             const goldPct = +$('gold-pct-num').value || 25;
             const clickThreshold = state.clickThreshold;
             const medROI = medianROI || state.medianROI || 100;
+            const blMode = state.blMode; // 'ppc' or 'cr'
 
             const custConvMin = parseFloat($('cust-conv-min').value) || 0;
             const custConvMax = $('cust-conv-max').value !== '' ? parseFloat($('cust-conv-max').value) : Infinity;
@@ -1203,12 +1124,23 @@
             return data.map(r => {
                 let category, action;
                 const hasEnoughClicks = r.clicks >= clickThreshold;
+                
+                // --- NEW BL LOGIC ---
+                // Always BL: zero conversions with enough clicks, or negative profit with enough clicks
                 const blCond1_ZeroConv = r.conv === 0;
                 const blCond2_NegProfit = r.profit < 0;
-                const crBelow50OfAvg = r.cr < (campaignAvgCR * 0.5);
-                const ppcBelow50OfAvg = r.ppc < (campaignAvgPPC * 0.5);
-                const roiBelow50OfAvg = r.roi < (campaignAvgROI * 0.5);
-                const blCond3_PoorPerformance = r.conv > 0 && (crBelow50OfAvg || ppcBelow50OfAvg || roiBelow50OfAvg);
+                
+                // Mode-based BL condition: PPC or CR below 50% of campaign average
+                let blCond3_PoorPerformance = false;
+                if (r.conv > 0) {
+                    if (blMode === 'ppc') {
+                        // PPC mode: blacklist if PPC < 50% of campaign average PPC
+                        blCond3_PoorPerformance = r.ppc < (campaignAvgPPC * 0.5);
+                    } else {
+                        // CR mode: blacklist if CR < 50% of campaign average CR
+                        blCond3_PoorPerformance = r.cr < (campaignAvgCR * 0.5);
+                    }
+                }
                 
                 const isBlacklist = hasEnoughClicks && (blCond1_ZeroConv || blCond2_NegProfit || blCond3_PoorPerformance);
                 const isTesting = r.conv === 0 && r.clicks < clickThreshold;
@@ -1230,17 +1162,14 @@
                 else if (r.conv >= 1 && r.profit > 0) { category = 'potential'; action = 'Bid +5-10%'; }
                 else { category = 'ignore'; action = 'RON'; }
 
-                return { ...r, category, action, matchesCustom, isBlacklist, isTesting };
+                return { ...r, category, action, matchesCustom, isBlacklist, isTesting, blReason: isBlacklist ? (blCond1_ZeroConv ? 'zero_conv' : blCond2_NegProfit ? 'neg_profit' : 'poor_' + blMode) : null };
             });
         }
 
         function processFullPipeline() {
             let filteredRows = state.allRows.filter(r => {
                 for (const f of state.activeFilters) { 
-                    if (f.values.length > 0) { 
-                        const val = String(r.raw[f.colIdx] || ''); 
-                        if (!f.values.includes(val)) return false; 
-                    } 
+                    if (f.values.length > 0) { const val = String(r.raw[f.colIdx] || ''); if (!f.values.includes(val)) return false; } 
                 }
                 if (state.icloudFilter === 'hide' && isIcloudIP(r.identifier)) return false;
                 if (state.icloudFilter === 'only' && !isIcloudIP(r.identifier)) return false;
@@ -1254,12 +1183,10 @@
                 state.detailRows = filteredRows.filter(r => r.identifier !== '');
                 state.summaryRows = [];
             }
-
             state.detailRows = state.detailRows.filter(r => !isInvalidIdentifier(r.identifier));
 
             state.rawDetailRows = state.detailRows.map(r => ({
-                ...r,
-                identifier: r.identifier || 'Unknown',
+                ...r, identifier: r.identifier || 'Unknown',
                 roi: r.cost > 0 ? (r.profit / r.cost) * 100 : (r.profit > 0 ? 999 : 0),
                 cr: r.clicks > 0 ? r.conv / r.clicks : 0,
                 ppc: r.clicks > 0 ? r.profit / r.clicks : 0
@@ -1267,12 +1194,7 @@
             
             const getAggKey = (r) => {
                 let keyParts = [r.identifier || 'Unknown'];
-                state.activeFilters.forEach(f => {
-                    if (f.values.length > 0) {
-                        const val = String(r.raw[f.colIdx] || '').trim();
-                        keyParts.push(f.colIdx + ':' + val);
-                    }
-                });
+                state.activeFilters.forEach(f => { if (f.values.length > 0) { keyParts.push(f.colIdx + ':' + String(r.raw[f.colIdx] || '').trim()); } });
                 return keyParts.join('|');
             };
             
@@ -1280,69 +1202,34 @@
             state.detailRows.forEach(r => {
                 const key = getAggKey(r);
                 if (!grouped[key]) {
-                    grouped[key] = { 
-                        identifier: r.identifier || 'Unknown', 
-                        level: r.level, 
-                        clicks: 0, conv: 0, rev: 0, cost: 0, profit: 0, 
-                        isSummary: false, 
-                        extraData: { ...r.extraData },
-                        _extraSets: {},
-                        _rowCount: 0
-                    };
-                    state.extraColumns.forEach(col => {
-                        grouped[key]._extraSets[col] = new Set();
-                        if (r.extraData && r.extraData[col]) {
-                            grouped[key]._extraSets[col].add(r.extraData[col]);
-                        }
-                    });
+                    grouped[key] = { identifier: r.identifier || 'Unknown', level: r.level, clicks: 0, conv: 0, rev: 0, cost: 0, profit: 0, isSummary: false, extraData: { ...r.extraData }, _extraSets: {}, _rowCount: 0 };
+                    state.extraColumns.forEach(col => { grouped[key]._extraSets[col] = new Set(); if (r.extraData && r.extraData[col]) grouped[key]._extraSets[col].add(r.extraData[col]); });
                 } else {
-                    state.extraColumns.forEach(col => {
-                        if (r.extraData && r.extraData[col]) {
-                            grouped[key]._extraSets[col].add(r.extraData[col]);
-                        }
-                    });
+                    state.extraColumns.forEach(col => { if (r.extraData && r.extraData[col]) grouped[key]._extraSets[col].add(r.extraData[col]); });
                 }
                 const g = grouped[key];
-                g.clicks += r.clicks; g.conv += r.conv; g.rev += r.rev; g.cost += r.cost; g.profit += r.profit;
-                g._rowCount++;
+                g.clicks += r.clicks; g.conv += r.conv; g.rev += r.rev; g.cost += r.cost; g.profit += r.profit; g._rowCount++;
             });
             
             state.aggregatedData = Object.values(grouped).map(g => {
                 const finalExtraData = { ...g.extraData };
-                state.extraColumns.forEach(col => {
-                    if (g._extraSets[col] && g._extraSets[col].size > 1) {
-                        finalExtraData[col] = 'מעורב (' + g._extraSets[col].size + ')';
-                    }
-                });
-                return {
-                    ...g,
-                    extraData: finalExtraData,
-                    roi: g.cost > 0 ? (g.profit / g.cost) * 100 : (g.profit > 0 ? 999 : 0),
-                    cr: g.clicks > 0 ? g.conv / g.clicks : 0,
-                    ppc: g.clicks > 0 ? g.profit / g.clicks : 0
-                };
+                state.extraColumns.forEach(col => { if (g._extraSets[col] && g._extraSets[col].size > 1) finalExtraData[col] = 'מעורב (' + g._extraSets[col].size + ')'; });
+                return { ...g, extraData: finalExtraData, roi: g.cost > 0 ? (g.profit / g.cost) * 100 : (g.profit > 0 ? 999 : 0), cr: g.clicks > 0 ? g.conv / g.clicks : 0, ppc: g.clicks > 0 ? g.profit / g.clicks : 0 };
             });
 
             const totalClicks = state.aggregatedData.reduce((s, r) => s + r.clicks, 0);
             const totalConv = state.aggregatedData.reduce((s, r) => s + r.conv, 0);
             const totalProfit = state.aggregatedData.reduce((s, r) => s + r.profit, 0);
             const totalCost = state.aggregatedData.reduce((s, r) => s + r.cost, 0);
-            
             const campaignAvgCR = totalClicks > 0 ? totalConv / totalClicks : 0;
             const campaignAvgPPC = totalClicks > 0 ? totalProfit / totalClicks : 0;
 
             const profitable = state.aggregatedData.filter(r => r.conv > 0 && r.ppc > 0);
-            let medianPPC = 0.001;
-            let medianCR = 0.001;
-            let medianROI = 100;
-
+            let medianPPC = 0.001, medianCR = 0.001, medianROI = 100;
             if (profitable.length > 0) {
                 const ppcs = profitable.map(r => r.ppc).sort((a, b) => a - b);
                 const crs = profitable.map(r => r.cr).sort((a, b) => a - b);
-                const rois = profitable
-                    .filter(r => r.cost > 0 && r.roi > 0)
-                    .map(r => Math.min(r.roi, 300))
-                    .sort((a, b) => a - b);
+                const rois = profitable.filter(r => r.cost > 0 && r.roi > 0).map(r => Math.min(r.roi, 300)).sort((a, b) => a - b);
                 medianPPC = ppcs[Math.floor(ppcs.length / 2)];
                 medianCR = crs[Math.floor(crs.length / 2)];
                 medianROI = rois.length > 0 ? rois[Math.floor(rois.length / 2)] : 100;
@@ -1352,17 +1239,15 @@
             state.medianCR = medianCR;
             state.medianROI = medianROI;
             state.campaignCR = campaignAvgCR;
+            state.campaignAvgPPC = campaignAvgPPC; // Store for display
             $('med-ppc').textContent = '$' + state.medianPPC.toFixed(4);
             $('med-cr').textContent = (state.medianCR * 100).toFixed(3) + '%';
-            if ($('med-roi')) $('med-roi').textContent = state.medianROI.toFixed(0) + '%';
             calculateClickThreshold();
 
             state.processed = classifyRanges(state.aggregatedData, medianPPC, medianCR, campaignAvgCR, campaignAvgPPC, totalCost, totalProfit, medianROI);
-            
             state.processedRaw = null;
 
             applyViewFilter();
-
             renderKPIs();
             renderTable();
             renderGlobalStats();
@@ -1381,33 +1266,17 @@
                 const rawConv = state.rawDetailRows.reduce((s, r) => s + r.conv, 0);
                 const rawCost = state.rawDetailRows.reduce((s, r) => s + r.cost, 0);
                 const rawProfit = state.rawDetailRows.reduce((s, r) => s + r.profit, 0);
-                
                 const rawCampaignAvgCR = rawClicks > 0 ? (rawConv / rawClicks) : 0;
                 const rawCampaignAvgPPC = rawClicks > 0 ? (rawProfit / rawClicks) : 0;
-                
-                state.processedRaw = classifyRanges(
-                    state.rawDetailRows,
-                    state.medianPPC,
-                    state.medianCR,
-                    rawCampaignAvgCR,
-                    rawCampaignAvgPPC,
-                    rawCost,
-                    rawProfit,
-                    state.medianROI
-                );
+                state.processedRaw = classifyRanges(state.rawDetailRows, state.medianPPC, state.medianCR, rawCampaignAvgCR, rawCampaignAvgPPC, rawCost, rawProfit, state.medianROI);
                 
                 if (state.compareMode && state.compareData) {
                     state.processedRaw.forEach(r => {
                         const old = state.compareData.get(r.identifier);
-                        if (!old) {
-                            r.compareStatus = 'new';
-                            r.profitChange = 0;
-                        } else {
+                        if (!old) { r.compareStatus = 'new'; r.profitChange = 0; }
+                        else {
                             const profitChange = old.profit - r.profit;
-                            r.profitChange = profitChange;
-                            r.oldProfit = old.profit;
-                            r.oldRoi = old.roi;
-                            r.oldCr = old.cr;
+                            r.profitChange = profitChange; r.oldProfit = old.profit; r.oldRoi = old.roi; r.oldCr = old.cr;
                             if (profitChange > 0.5) r.compareStatus = 'improved';
                             else if (profitChange < -0.5) r.compareStatus = 'declined';
                             else r.compareStatus = 'same';
@@ -1439,22 +1308,14 @@
             else if (view !== 'all') finalData = finalData.filter(r => r.category === view);
             
             if (minScore > 0) finalData = finalData.filter(r => r.score >= minScore || r.isSummary);
-            
-            if (state.icloudFilter === 'hide') {
-                finalData = finalData.filter(r => !isIcloudIP(r.identifier));
-            } else if (state.icloudFilter === 'only') {
-                finalData = finalData.filter(r => isIcloudIP(r.identifier));
-            }
-            
-            if (state.searchQuery) {
-                finalData = finalData.filter(r => r.identifier.toLowerCase().includes(state.searchQuery));
-            }
+            if (state.icloudFilter === 'hide') finalData = finalData.filter(r => !isIcloudIP(r.identifier));
+            else if (state.icloudFilter === 'only') finalData = finalData.filter(r => isIcloudIP(r.identifier));
+            if (state.searchQuery) finalData = finalData.filter(r => r.identifier.toLowerCase().includes(state.searchQuery));
             
             state.filtered = finalData.sort((a, b) => {
                 if (a.isSummary && !b.isSummary) return -1;
                 if (!a.isSummary && b.isSummary) return 1;
                 if (a.isSummary && b.isSummary) return a.level - b.level;
-                
                 if (state.sortColumn) {
                     let valA, valB;
                     switch (state.sortColumn) {
@@ -1471,10 +1332,7 @@
                         case 'ppc': valA = a.ppc; valB = b.ppc; break;
                         default: valA = a.score; valB = b.score;
                     }
-                    if (typeof valA === 'string') {
-                        const cmp = valA.localeCompare(valB);
-                        return state.sortDirection === 'asc' ? cmp : -cmp;
-                    }
+                    if (typeof valA === 'string') { const cmp = valA.localeCompare(valB); return state.sortDirection === 'asc' ? cmp : -cmp; }
                     return state.sortDirection === 'asc' ? valA - valB : valB - valA;
                 }
                 return b.score - a.score;
@@ -1493,25 +1351,18 @@
         
         function updateMacroWarning() {
             const warningEl = $('macro-warning');
-            const microCountEl = $('micro-count');
-            const macroCountEl = $('macro-count');
             if (!warningEl) return;
-
             const microCount = state.rawDetailRows ? state.rawDetailRows.length : 0;
             const macroCount = state.processed ? state.processed.length : 0;
-
+            const microCountEl = $('micro-count');
+            const macroCountEl = $('macro-count');
             if (microCountEl) microCountEl.textContent = microCount.toLocaleString();
             if (macroCountEl) macroCountEl.textContent = macroCount.toLocaleString();
-
-            if (state.aggMode === 'smart') {
-                warningEl.classList.remove('hidden');
-            } else {
-                warningEl.classList.add('hidden');
-            }
+            warningEl.classList.toggle('hidden', state.aggMode !== 'smart');
         }
         
         function sortByColumn(column) {
-            if (state.sortColumn === column) { state.sortDirection = state.sortDirection === 'desc' ? 'asc' : 'desc'; } 
+            if (state.sortColumn === column) state.sortDirection = state.sortDirection === 'desc' ? 'asc' : 'desc';
             else { state.sortColumn = column; state.sortDirection = 'desc'; }
             applyFilter();
         }
@@ -1519,9 +1370,7 @@
         function updateSortIndicators() {
             document.querySelectorAll('th[data-sort]').forEach(th => {
                 th.classList.remove('sort-asc', 'sort-desc');
-                if (th.dataset.sort === state.sortColumn) {
-                    th.classList.add(state.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
-                }
+                if (th.dataset.sort === state.sortColumn) th.classList.add(state.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
             });
         }
 
@@ -1558,9 +1407,7 @@
                 btn.classList.add('active');
                 state.aggMode = newMode;
                 updateMacroWarning();
-                if (newMode === 'smart') {
-                    state.processedRaw = null;
-                }
+                if (newMode === 'smart') state.processedRaw = null;
                 applyFilter();
             });
         });
@@ -1578,12 +1425,18 @@
         $('col-ip').addEventListener('change', () => { detectAndUpdateIdentifierType(); processData(); });
         $('custom-enabled').addEventListener('change', () => { processData(); });
 
-        function toggleKpi(kpi) {
-            const idx = state.visibleKpis.indexOf(kpi);
-            if (idx >= 0) state.visibleKpis.splice(idx, 1);
-            else state.visibleKpis.push(kpi);
-            document.querySelectorAll('.kpi-toggle-btn').forEach(btn => { btn.classList.toggle('active', state.visibleKpis.includes(btn.dataset.kpi)); });
-            renderKPIs();
+        // ═══════════════════════════════════════════════════════════════
+        // BL MODE SWITCHER HANDLER (on KPI card)
+        // ═══════════════════════════════════════════════════════════════
+        function setBlMode(mode) {
+            state.blMode = mode;
+            // Update button states
+            document.querySelectorAll('.bl-mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.blmode === mode);
+            });
+            // Reprocess
+            state.processedRaw = null;
+            processFullPipeline();
         }
 
         function renderKPIs() {
@@ -1607,9 +1460,51 @@
                 s.roi = s.cost > 0 ? (s.profit / s.cost * 100) : (s.profit > 0 ? 999 : 0);
                 s.cr = s.clicks > 0 ? (s.conv / s.clicks * 100) : 0;
                 s.ppc = s.clicks > 0 ? (s.profit / s.clicks) : 0;
-                const isHidden = !state.visibleKpis.includes(cat.key);
                 const isCustomActive = cat.key === 'testing' && state.customEnabled;
-                html += '<div class="kpi-card ' + cat.cls + (isHidden ? ' hidden' : '') + (isCustomActive ? ' custom-active' : '') + '"><div class="flex justify-between items-center mb-1"><div class="flex items-center gap-1"><span class="text-lg">' + cat.icon + '</span><span class="text-[11px] font-black uppercase">' + cat.name + '</span></div><div class="text-xl font-black num-font text-slate-800">' + s.count.toLocaleString() + '</div></div><div class="bg-slate-100 border border-slate-200 rounded px-2 py-1 flex justify-between items-center mb-1"><div class="text-center flex-1"><div class="stat-lbl">Clicks</div><div class="stat-val text-[12px]">' + formatNum(s.clicks) + '</div></div><div class="text-center flex-1 border-r border-slate-200"><div class="stat-lbl">PPC</div><div class="stat-val text-[12px]">$' + s.ppc.toFixed(4) + '</div></div></div><div class="grid grid-cols-3 gap-0.5 text-center mb-1 border-b border-slate-100 pb-1"><div><div class="stat-lbl">Conv</div><div class="stat-val text-[12px]">' + s.conv.toLocaleString() + '</div></div><div><div class="stat-lbl">Revenue</div><div class="stat-val text-[12px] text-green-600">$' + formatNum(s.rev) + '</div></div><div><div class="stat-lbl">Cost</div><div class="stat-val text-[12px] text-slate-500">$' + formatNum(s.cost) + '</div></div></div><div class="grid grid-cols-3 gap-0.5 text-center"><div><div class="stat-lbl">Profit</div><div class="stat-val text-[12px] ' + (s.profit >= 0 ? 'text-green-600' : 'text-red-500') + '">$' + formatNum(s.profit) + '</div></div><div><div class="stat-lbl">ROI</div><div class="stat-val text-[12px] ' + (s.roi >= 0 ? 'text-green-600' : 'text-red-500') + '">' + s.roi.toFixed(0) + '%</div></div><div><div class="stat-lbl">CR</div><div class="stat-val text-[12px] text-blue-600">' + s.cr.toFixed(3) + '%</div></div></div></div>';
+                
+                // BL switcher - only on the blacklist KPI card
+                let blSwitcherHtml = '';
+                if (cat.key === 'blacklist') {
+                    const ppcActive = state.blMode === 'ppc' ? 'active' : '';
+                    const crActive = state.blMode === 'cr' ? 'active' : '';
+                    
+                    // Show current threshold info
+                    const avgPPC = state.campaignAvgPPC || 0;
+                    const avgCR = state.campaignCR || 0;
+                    const thresholdVal = state.blMode === 'ppc' 
+                        ? 'PPC < $' + (avgPPC * 0.5).toFixed(4)
+                        : 'CR < ' + (avgCR * 50).toFixed(3) + '%';
+                    
+                    blSwitcherHtml = '<div class="flex items-center justify-between mt-1 pt-1 border-t border-red-200">' +
+                        '<div class="bl-mode-switcher">' +
+                        '<button class="bl-mode-btn ' + ppcActive + '" data-blmode="ppc" onclick="event.stopPropagation(); setBlMode(\'ppc\')" title="חסום לפי PPC נמוך מ-50% מהממוצע">PPC</button>' +
+                        '<button class="bl-mode-btn ' + crActive + '" data-blmode="cr" onclick="event.stopPropagation(); setBlMode(\'cr\')" title="חסום לפי CR נמוך מ-50% מהממוצע">CR</button>' +
+                        '</div>' +
+                        '<span class="text-[9px] text-red-400 num-font font-bold">' + thresholdVal + '</span>' +
+                        '</div>';
+                }
+
+                html += '<div class="kpi-card ' + cat.cls + (isCustomActive ? ' custom-active' : '') + '">' +
+                    '<div class="flex justify-between items-center mb-1">' +
+                    '<div class="flex items-center gap-1"><span class="text-lg">' + cat.icon + '</span><span class="text-[11px] font-black uppercase">' + cat.name + '</span></div>' +
+                    '<div class="text-xl font-black num-font text-slate-800">' + s.count.toLocaleString() + '</div>' +
+                    '</div>' +
+                    '<div class="bg-slate-100 border border-slate-200 rounded px-2 py-1 flex justify-between items-center mb-1">' +
+                    '<div class="text-center flex-1"><div class="stat-lbl">Clicks</div><div class="stat-val text-[12px]">' + formatNum(s.clicks) + '</div></div>' +
+                    '<div class="text-center flex-1 border-r border-slate-200"><div class="stat-lbl">PPC</div><div class="stat-val text-[12px]">$' + s.ppc.toFixed(4) + '</div></div>' +
+                    '</div>' +
+                    '<div class="grid grid-cols-3 gap-0.5 text-center mb-1 border-b border-slate-100 pb-1">' +
+                    '<div><div class="stat-lbl">Conv</div><div class="stat-val text-[12px]">' + s.conv.toLocaleString() + '</div></div>' +
+                    '<div><div class="stat-lbl">Revenue</div><div class="stat-val text-[12px] text-green-600">$' + formatNum(s.rev) + '</div></div>' +
+                    '<div><div class="stat-lbl">Cost</div><div class="stat-val text-[12px] text-slate-500">$' + formatNum(s.cost) + '</div></div>' +
+                    '</div>' +
+                    '<div class="grid grid-cols-3 gap-0.5 text-center">' +
+                    '<div><div class="stat-lbl">Profit</div><div class="stat-val text-[12px] ' + (s.profit >= 0 ? 'text-green-600' : 'text-red-500') + '">$' + formatNum(s.profit) + '</div></div>' +
+                    '<div><div class="stat-lbl">ROI</div><div class="stat-val text-[12px] ' + (s.roi >= 0 ? 'text-green-600' : 'text-red-500') + '">' + s.roi.toFixed(0) + '%</div></div>' +
+                    '<div><div class="stat-lbl">CR</div><div class="stat-val text-[12px] text-blue-600">' + s.cr.toFixed(3) + '%</div></div>' +
+                    '</div>' +
+                    blSwitcherHtml +
+                    '</div>';
             });
             $('kpi-container').innerHTML = html;
         }
@@ -1634,9 +1529,6 @@
             $('global-stats').innerHTML = pill('מזהים', data.length.toLocaleString(), '') + pill('Clicks', formatNum(clicks), 'text-blue-600') + pill('Conv', conv.toLocaleString(), '') + pill('Revenue', '$' + formatNum(rev), 'text-green-600') + pill('Cost', '$' + formatNum(cost), 'text-slate-500') + pill('Profit', '$' + formatNum(profit), profit >= 0 ? 'text-green-600' : 'text-red-500') + pill('ROI', roi.toFixed(0) + '%', roi >= 0 ? 'text-green-600' : 'text-red-500') + pill('CR', cr.toFixed(3) + '%', 'text-blue-600') + pill('PPC', '$' + ppc.toFixed(4), 'text-amber-600');
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // RENDER TABLE - INCLUDING SUMMARY ROW
-        // ═══════════════════════════════════════════════════════════════
         function renderTable() {
             const start = (state.page - 1) * state.pageSize;
             const pageData = state.filtered.slice(start, start + state.pageSize);
@@ -1644,42 +1536,28 @@
             const showChanges = state.compareMode && $('chk-show-changes').checked;
             const showExtraCols = state.extraColumns && state.extraColumns.length > 0;
             
-            // --- SUMMARY ROW LOGIC ---
-            // Calculate totals for currently filtered view
             const totals = { clicks: 0, conv: 0, rev: 0, cost: 0, profit: 0 };
             state.filtered.forEach(r => {
-                if (!r.isSummary) { // Avoid double counting summaries
-                    totals.clicks += r.clicks;
-                    totals.conv += r.conv;
-                    totals.rev += r.rev;
-                    totals.cost += r.cost;
-                    totals.profit += r.profit;
-                }
+                if (!r.isSummary) { totals.clicks += r.clicks; totals.conv += r.conv; totals.rev += r.rev; totals.cost += r.cost; totals.profit += r.profit; }
             });
             totals.roi = totals.cost > 0 ? (totals.profit / totals.cost * 100) : 0;
             totals.cr = totals.clicks > 0 ? (totals.conv / totals.clicks * 100) : 0;
             totals.ppc = totals.clicks > 0 ? (totals.profit / totals.clicks) : 0;
-
             const extraColsPlaceholders = state.extraColumns.map(() => '<th class="summary-cell"></th>').join('');
             
-            const summaryHTML = `
-                <th class="summary-cell text-center text-slate-400">-</th>
-                ${showLevel ? '<th class="summary-cell"></th>' : ''}
-                <th class="summary-cell text-right text-indigo-700">סה"כ (${state.filtered.length})</th>
-                ${extraColsPlaceholders}
-                <th class="summary-cell"></th>
-                <th class="summary-cell"></th>
-                <th class="summary-cell text-center text-indigo-900">${totals.clicks.toLocaleString()}</th>
-                <th class="summary-cell text-center text-indigo-900">${totals.conv.toLocaleString()}</th>
-                <th class="summary-cell text-center text-green-700">$${formatNum(totals.rev)}</th>
-                <th class="summary-cell text-center text-slate-500">$${formatNum(totals.cost)}</th>
-                <th class="summary-cell text-center ${totals.profit >= 0 ? 'text-green-700' : 'text-red-600'}">$${formatNum(totals.profit)}</th>
-                <th class="summary-cell text-center ${totals.roi >= 0 ? 'text-green-700' : 'text-red-600'}">${totals.roi.toFixed(0)}%</th>
-                <th class="summary-cell text-center text-blue-700">${totals.cr.toFixed(3)}%</th>
-                <th class="summary-cell text-center text-amber-700">$${totals.ppc.toFixed(4)}</th>
-            `;
-            $('table-summary-row').innerHTML = summaryHTML;
-            // --------------------------
+            $('table-summary-row').innerHTML = '<th class="summary-cell text-center text-slate-400">-</th>' +
+                (showLevel ? '<th class="summary-cell"></th>' : '') +
+                '<th class="summary-cell text-right text-indigo-700">סה"כ (' + state.filtered.length + ')</th>' +
+                extraColsPlaceholders +
+                '<th class="summary-cell"></th><th class="summary-cell"></th>' +
+                '<th class="summary-cell text-center text-indigo-900">' + totals.clicks.toLocaleString() + '</th>' +
+                '<th class="summary-cell text-center text-indigo-900">' + totals.conv.toLocaleString() + '</th>' +
+                '<th class="summary-cell text-center text-green-700">$' + formatNum(totals.rev) + '</th>' +
+                '<th class="summary-cell text-center text-slate-500">$' + formatNum(totals.cost) + '</th>' +
+                '<th class="summary-cell text-center ' + (totals.profit >= 0 ? 'text-green-700' : 'text-red-600') + '">$' + formatNum(totals.profit) + '</th>' +
+                '<th class="summary-cell text-center ' + (totals.roi >= 0 ? 'text-green-700' : 'text-red-600') + '">' + totals.roi.toFixed(0) + '%</th>' +
+                '<th class="summary-cell text-center text-blue-700">' + totals.cr.toFixed(3) + '%</th>' +
+                '<th class="summary-cell text-center text-amber-700">$' + totals.ppc.toFixed(4) + '</th>';
 
             const catConfig = {
                 pure: { badge: 'badge-pure', row: 'row-pure', label: '💎 PURE' },
@@ -1710,7 +1588,6 @@
                 const cfg = catConfig[r.category] || catConfig.ignore;
                 const scoreCls = r.score > 5 ? 'score-high' : r.score > 1 ? 'score-mid' : 'score-low';
                 const levelCls = r.level === 1 ? 'level-1' : r.level === 2 ? 'level-2' : 'level-3';
-                
                 const displayId = highlightSafe(r.identifier, state.searchQuery);
                 const cmpBadge = state.compareMode && r.compareStatus ? (compareBadges[r.compareStatus] || '') : '';
                 const icloudBadge = isIcloudIP(r.identifier) ? '<span class="icloud-badge" title="iCloud Private Relay">☁️</span>' : '';
@@ -1718,11 +1595,7 @@
                 const roiDelta = r.compareStatus !== 'new' ? makeDelta(r.roi, r.oldRoi, '', '%', 0) : '';
                 const crDelta = r.compareStatus !== 'new' ? makeDelta(r.cr * 100, r.oldCr * 100, '', '%', 2) : '';
                 let extraCells = '';
-                if (showExtraCols) {
-                    state.extraColumns.forEach(col => {
-                        extraCells += '<td class="text-center text-[11px] text-slate-600">' + escapeHtml((r.extraData && r.extraData[col]) || '-') + '</td>';
-                    });
-                }
+                if (showExtraCols) state.extraColumns.forEach(col => { extraCells += '<td class="text-center text-[11px] text-slate-600">' + escapeHtml((r.extraData && r.extraData[col]) || '-') + '</td>'; });
                 
                 html += '<tr class="' + cfg.row + '">' +
                     '<td class="text-center num-font text-slate-400">' + (start + i + 1) + '</td>' +
@@ -1738,8 +1611,7 @@
                     '<td class="text-center num-font font-bold ' + (r.profit >= 0 ? 'text-green-600' : 'text-red-500') + '">' + profitDelta + '$' + r.profit.toFixed(2) + '</td>' +
                     '<td class="text-center num-font ' + (r.roi >= 0 ? 'text-green-600' : 'text-red-500') + '">' + roiDelta + r.roi.toFixed(0) + '%</td>' +
                     '<td class="text-center num-font text-blue-600">' + crDelta + (r.cr * 100).toFixed(3) + '%</td>' +
-                    '<td class="text-center num-font">$' + r.ppc.toFixed(4) + '</td>' +
-                    '</tr>';
+                    '<td class="text-center num-font">$' + r.ppc.toFixed(4) + '</td></tr>';
             });
             const baseCols = showLevel ? 13 : 12;
             const colspan = baseCols + (showExtraCols ? state.extraColumns.length : 0);
@@ -1752,7 +1624,6 @@
         }
         
         function updateExtraColumnHeaders() {
-            const headerRow = document.querySelector('thead tr');
             const existingExtraTh = document.querySelectorAll('.extra-col-th');
             existingExtraTh.forEach(th => th.remove());
             if (state.extraColumns && state.extraColumns.length > 0) {
@@ -1774,9 +1645,7 @@
         function exportData() {
             const wb = XLSX.utils.book_new();
             const useCidr = $('chk-cidr').checked;
-
             const source = state.aggMode === 'split' ? (state.processedRaw || []) : (state.processed || []);
-
             const exports = [
                 { id: 'chk-pure', name: 'Pure', pick: r => r.category === 'pure' },
                 { id: 'chk-gold', name: 'Gold', pick: r => r.category === 'gold' },
@@ -1788,39 +1657,28 @@
             exports.forEach(exp => {
                 if ($(exp.id).checked) {
                     const rows = source.filter(r => !r.isSummary && exp.pick(r));
-
                     if (rows.length) {
                         const data = rows.map(r => ({
                             Identifier: useCidr ? toCIDR(r.identifier) : r.identifier,
-                            Score: r.score.toFixed(2),
-                            Clicks: r.clicks,
-                            Conv: r.conv,
-                            Revenue: r.rev.toFixed(2),
-                            Cost: r.cost.toFixed(2),
-                            Profit: r.profit.toFixed(2),
-                            'ROI%': r.roi.toFixed(0),
-                            'CR%': (r.cr * 100).toFixed(3),
-                            PPC: r.ppc.toFixed(4),
-                            Action: r.action
+                            Score: r.score.toFixed(2), Clicks: r.clicks, Conv: r.conv,
+                            Revenue: r.rev.toFixed(2), Cost: r.cost.toFixed(2), Profit: r.profit.toFixed(2),
+                            'ROI%': r.roi.toFixed(0), 'CR%': (r.cr * 100).toFixed(3), PPC: r.ppc.toFixed(4), Action: r.action
                         }));
                         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), exp.name);
                         count++;
                     }
                 }
             });
-            if (count) XLSX.writeFile(wb, 'ListLab_V47_Export.xlsx');
+            if (count) XLSX.writeFile(wb, 'ListLab_V48_Export.xlsx');
             else alert('בחר לפחות רשימה אחת');
         }
 
         function copyIPs() {
             if (!state.filtered.length) return alert('אין נתונים');
             const useCidr = $('chk-copy-cidr').checked;
-
             const allIds = state.filtered.filter(r => !r.isSummary).map(r => useCidr ? toCIDR(r.identifier) : r.identifier);
             const uniqueIds = [...new Set(allIds)];
-            const text = uniqueIds.join('\n');
-
-            navigator.clipboard.writeText(text).then(() => {
+            navigator.clipboard.writeText(uniqueIds.join('\n')).then(() => {
                 const btn = $('btn-copy');
                 btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> הועתק!';
                 lucide.createIcons();
@@ -1828,16 +1686,11 @@
             });
         }
 
-        function debounce(fn, ms = 150) {
-            let t;
-            return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
-        }
-        
+        function debounce(fn, ms = 150) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; }
         const debouncedProcess = debounce(processData, 200);
         
         function syncControls(rangeId, numId) {
-            const range = $(rangeId);
-            const num = $(numId);
+            const range = $(rangeId); const num = $(numId);
             range.addEventListener('input', () => { num.value = range.value; debouncedProcess(); });
             num.addEventListener('input', () => { range.value = num.value; debouncedProcess(); });
         }
@@ -1879,7 +1732,6 @@
             const totalClicks = sourceData.reduce((s, r) => s + r.clicks, 0);
             const totalCost = sourceData.reduce((s, r) => s + r.cost, 0);
             const avgCPC = totalClicks > 0 ? totalCost / totalClicks : 0.001;
-            
             const payoutsPerConv = [];
             sourceData.forEach(r => { if (r.conv > 0 && r.rev > 0) payoutsPerConv.push(r.rev / r.conv); });
             payoutsPerConv.sort((a, b) => a - b);
@@ -1897,9 +1749,7 @@
             const medianCR = crValues.length > 0 ? crValues[Math.floor(crValues.length / 2)] : 0;
             
             const outstanding = testedOnly.filter(r => {
-                if (r.profit <= 0) return false;
-                if (r.conv < 2) return false;
-                if (r.cr < medianCR) return false;
+                if (r.profit <= 0 || r.conv < 2 || r.cr < medianCR) return false;
                 const roiRatio = avgROI > 0 ? r.roi / avgROI : 0;
                 return roiRatio >= 2 && r.roi > 750;
             }).sort((a, b) => b.roi - a.roi).slice(0, 5);
@@ -1910,22 +1760,16 @@
             }).join('') : '<div class="text-slate-400 text-[10px]">אין מצטיינים בולטים</div>';
         }
         
-        function searchIdentifier(query) {
-            state.searchQuery = query.trim().toLowerCase();
-            applyFilter();
-        }
+        function searchIdentifier(query) { state.searchQuery = query.trim().toLowerCase(); applyFilter(); }
         $('search-input').addEventListener('input', (e) => { searchIdentifier(e.target.value); });
 
         function enableCompareButton() { $('btn-compare').disabled = !state.processed.length; }
         $('btn-compare').addEventListener('click', () => { $('compare-input').click(); });
         $('btn-clear-compare').addEventListener('click', () => {
-            state.compareMode = false;
-            state.compareData = null;
+            state.compareMode = false; state.compareData = null;
             state.compareResults = { new: [], improved: [], declined: [], gone: [] };
             state.processed.forEach(r => { r.compareStatus = null; r.profitChange = undefined; r.oldProfit = undefined; r.oldRoi = undefined; r.oldCr = undefined; });
-            if (state.processedRaw) {
-                state.processedRaw.forEach(r => { r.compareStatus = null; r.profitChange = undefined; r.oldProfit = undefined; r.oldRoi = undefined; r.oldCr = undefined; });
-            }
+            if (state.processedRaw) state.processedRaw.forEach(r => { r.compareStatus = null; r.profitChange = undefined; r.oldProfit = undefined; r.oldRoi = undefined; r.oldCr = undefined; });
             $('compare-panel').classList.add('hidden');
             $('btn-clear-compare').classList.add('hidden');
             $('show-changes-box').classList.add('hidden');
@@ -1943,73 +1787,34 @@
                     const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     const json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
                     if (json.length < 2) { alert('קובץ ההשוואה ריק'); return; }
-                    
-                    const ipIdx = +$('col-ip').value;
-                    const clicksIdx = +$('col-clicks').value;
-                    const convIdx = +$('col-conv').value;
-                    const revIdx = +$('col-rev').value;
-                    const costIdx = +$('col-cost').value;
-                    
+                    const ipIdx = +$('col-ip').value, clicksIdx = +$('col-clicks').value, convIdx = +$('col-conv').value, revIdx = +$('col-rev').value, costIdx = +$('col-cost').value;
                     const compareMap = new Map();
                     for (let i = 1; i < json.length; i++) {
                         const row = json[i];
                         const id = String(row[ipIdx] || '').trim();
                         if (!id || isInvalidIdentifier(id)) continue;
-                        const clicks = parseFloat(row[clicksIdx]) || 0;
-                        const conv = parseFloat(row[convIdx]) || 0;
-                        const rev = parseFloat(row[revIdx]) || 0;
-                        const cost = parseFloat(row[costIdx]) || 0;
-                        const profit = rev - cost;
-                        const roi = cost > 0 ? ((rev - cost) / cost) * 100 : 0;
-                        const cr = clicks > 0 ? conv / clicks : 0;
+                        const clicks = parseFloat(row[clicksIdx]) || 0, conv = parseFloat(row[convIdx]) || 0, rev = parseFloat(row[revIdx]) || 0, cost = parseFloat(row[costIdx]) || 0;
+                        const profit = rev - cost, roi = cost > 0 ? ((rev - cost) / cost) * 100 : 0, cr = clicks > 0 ? conv / clicks : 0;
                         compareMap.set(id, { clicks, conv, rev, cost, profit, roi, cr });
                     }
-                    
-                    state.compareData = compareMap;
-                    state.compareMode = true;
-                    
+                    state.compareData = compareMap; state.compareMode = true;
                     const results = { new: [], improved: [], declined: [], gone: [] };
                     const currentIds = new Set(state.processed.map(r => r.identifier));
-                    
                     function applyCompareToRow(r) {
                         const old = compareMap.get(r.identifier);
-                        if (!old) {
-                            r.compareStatus = 'new';
-                            r.profitChange = 0;
-                            return 'new';
-                        } else {
+                        if (!old) { r.compareStatus = 'new'; r.profitChange = 0; return 'new'; }
+                        else {
                             const profitChange = old.profit - r.profit;
-                            r.profitChange = profitChange;
-                            r.oldProfit = old.profit;
-                            r.oldRoi = old.roi;
-                            r.oldCr = old.cr;
-                            if (profitChange > 0.5) {
-                                r.compareStatus = 'improved';
-                                return 'improved';
-                            } else if (profitChange < -0.5) {
-                                r.compareStatus = 'declined';
-                                return 'declined';
-                            } else {
-                                r.compareStatus = 'same';
-                                return 'same';
-                            }
+                            r.profitChange = profitChange; r.oldProfit = old.profit; r.oldRoi = old.roi; r.oldCr = old.cr;
+                            if (profitChange > 0.5) { r.compareStatus = 'improved'; return 'improved'; }
+                            else if (profitChange < -0.5) { r.compareStatus = 'declined'; return 'declined'; }
+                            else { r.compareStatus = 'same'; return 'same'; }
                         }
                     }
-                    
-                    state.processed.forEach(r => {
-                        const status = applyCompareToRow(r);
-                        if (status === 'new') results.new.push(r.identifier);
-                        else if (status === 'improved') results.improved.push(r.identifier);
-                        else if (status === 'declined') results.declined.push(r.identifier);
-                    });
-                    
-                    if (state.processedRaw) {
-                        state.processedRaw.forEach(r => applyCompareToRow(r));
-                    }
-                    
+                    state.processed.forEach(r => { const s = applyCompareToRow(r); if (s === 'new') results.new.push(r.identifier); else if (s === 'improved') results.improved.push(r.identifier); else if (s === 'declined') results.declined.push(r.identifier); });
+                    if (state.processedRaw) state.processedRaw.forEach(r => applyCompareToRow(r));
                     compareMap.forEach((_, id) => { if (!currentIds.has(id)) results.gone.push(id); });
                     state.compareResults = results;
-                    
                     $('compare-panel').classList.remove('hidden');
                     $('btn-clear-compare').classList.remove('hidden');
                     $('show-changes-box').classList.remove('hidden');
@@ -2018,12 +1823,8 @@
                     $('cmp-improved').textContent = results.improved.length;
                     $('cmp-declined').textContent = results.declined.length;
                     $('cmp-gone').textContent = results.gone.length;
-                    
-                    applyFilter(); 
-                } catch (err) {
-                    console.error('Compare file error:', err);
-                    alert('שגיאה בקריאת קובץ ההשוואה');
-                }
+                    applyFilter();
+                } catch (err) { console.error('Compare file error:', err); alert('שגיאה בקריאת קובץ ההשוואה'); }
             };
             reader.readAsArrayBuffer(file);
             e.target.value = '';
