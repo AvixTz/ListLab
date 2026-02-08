@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ListLab V49 - Enhanced Edition</title>
+    <title>ListLab V55 - Enhanced Edition</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -12,7 +12,7 @@
 
     <style>
         /* ═══════════════════════════════════════════════════
-           LISTLAB V49 - ENHANCED EDITION
+           LISTLAB V52 - ENHANCED EDITION
            Based on V48 by Nir & Yael
            Improvements: Scoring, BL tiers, Wilson CI, 
            localStorage, compact KPIs, shortcuts, anomaly detection
@@ -55,34 +55,36 @@
         .collapse-icon.open { transform: rotate(180deg); }
 
         /* === KPI CARDS === */
-        .kpi-container { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; padding: 3px 0; }
+        .kpi-container { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; padding: 3px 0 2px 0; }
         .kpi-card { 
             background: white; border: 1px solid #e2e5e9; border-radius: 8px; 
-            cursor: pointer; transition: all 0.15s; flex: 1; min-width: 148px;
-            display: flex; flex-direction: column; overflow: hidden;
+            cursor: pointer; transition: all 0.15s; flex: 1; min-width: 165px;
+            display: flex; flex-direction: column; overflow: visible;
         }
         .kpi-card:hover { box-shadow: 0 3px 12px -2px rgba(0,0,0,0.1); transform: translateY(-1px); }
         .kpi-card-header { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px 5px; }
         .kpi-card-count { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 900; color: #1e293b; line-height: 1; }
-        .kpi-card-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; display: flex; align-items: center; gap: 3px; }
-        .kpi-top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px 8px; }
-        .kpi-top-cell { background: #f8f9fb; border: 1px solid #eef0f3; border-radius: 5px; padding: 3px 6px; text-align: center; }
-        .kpi-top-lbl { font-size: 8px; font-weight: 700; color: #9ca3af; text-transform: uppercase; }
-        .kpi-top-val { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 800; color: #374151; }
+        .kpi-card-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; display: flex; align-items: center; gap: 3px; white-space: nowrap; }
+        .kpi-top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 4px 6px; }
+        .kpi-top-cell { background: #f8f9fb; border: 1px solid #eef0f3; border-radius: 5px; padding: 2px 4px; text-align: center; }
+        .kpi-top-lbl { font-size: 7px; font-weight: 700; color: #9ca3af; text-transform: uppercase; }
+        .kpi-top-val { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800; color: #374151; white-space: nowrap; }
         .kpi-mid-row { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid #f1f2f4; }
-        .kpi-mid-cell { padding: 3px 6px; text-align: center; }
-        .kpi-mid-lbl { font-size: 8px; font-weight: 700; color: #b0b5bc; text-transform: uppercase; }
-        .kpi-mid-val { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; color: #4b5563; }
+        .kpi-mid-cell { padding: 2px 4px; text-align: center; }
+        .kpi-mid-lbl { font-size: 7px; font-weight: 700; color: #b0b5bc; text-transform: uppercase; }
+        .kpi-mid-val { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700; color: #4b5563; white-space: nowrap; }
         .kpi-bot-row { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid #eef0f3; background: #fcfcfd; }
-        .kpi-bot-cell { padding: 4px 6px; text-align: center; }
-        .kpi-bot-lbl { font-size: 8px; font-weight: 700; color: #9ca3af; }
-        .kpi-bot-val { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 800; }
+        .kpi-bot-cell { padding: 3px 4px; text-align: center; }
+        .kpi-bot-lbl { font-size: 7px; font-weight: 700; color: #9ca3af; }
+        .kpi-bot-val { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800; white-space: nowrap; }
         
-        .kpi-pure { border-right: 3px solid #eab308; }
-        .kpi-gold { border-right: 3px solid #f59e0b; }
-        .kpi-potential { border-right: 3px solid #10b981; }
-        .kpi-ignore { border-right: 3px solid #9ca3af; }
-        .kpi-blacklist { border-right: 3px solid #ef4444; }
+        .kpi-pure { border-right: 3px solid #3b82f6; background: linear-gradient(135deg, #eff6ff 0%, white 100%); }
+        .kpi-gold { border-right: 3px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, white 100%); }
+        .kpi-potential { border-right: 3px solid #10b981; background: linear-gradient(135deg, #ecfdf5 0%, white 100%); }
+        .kpi-ignore { border-right: 3px solid #94a3b8; }
+        .kpi-poor { border-right: 3px solid #f97316; background: linear-gradient(135deg, #fff7ed 0%, white 100%); }
+        .kpi-bl-soft { border-right: 3px solid #ef4444; background: linear-gradient(135deg, #fef2f2 0%, white 100%); }
+        .kpi-blacklist { border-right: 3px solid #b91c1c; background: linear-gradient(135deg, #fef2f2 0%, white 100%); }
         .kpi-testing { border-right: 3px solid #3b82f6; }
         .kpi-custom-active { border: 2px solid #8b5cf6; box-shadow: 0 0 12px rgba(139, 92, 246, 0.2); }
 
@@ -133,38 +135,48 @@
         th:hover { background: #e8eaed; color: #374151; }
         
         .summary-cell {
-            background: #f0f0ff; color: #312e81; font-weight: 800;
-            font-family: 'Inter', sans-serif; font-size: 11px; padding: 7px 10px;
-            position: sticky; top: 34px; z-index: 19; border-bottom: 2px solid #c7d2fe;
+            background: #f3f4f6; color: #1e293b; font-weight: 800;
+            font-family: 'Inter', sans-serif; font-size: 12px; padding: 7px 10px;
+            position: sticky; top: 34px; z-index: 19; border-bottom: 2px solid #d1d5db;
         }
 
         td { font-size: 12px; border-bottom: 1px solid #f3f4f6; padding: 6px 10px; }
         tr:hover td { background-color: #f8f9fb; }
         
-        .row-pure { background: rgba(253, 224, 71, 0.08); }
-        .row-gold { background: rgba(245, 158, 11, 0.06); }
-        .row-potential { background: rgba(16, 185, 129, 0.06); }
-        .row-blacklist { background: rgba(239, 68, 68, 0.06); }
-        .row-blacklist-soft { background: rgba(251, 146, 60, 0.06); }
-        .row-watch { background: rgba(234, 179, 8, 0.05); }
+        .row-pure { background: rgba(147, 197, 253, 0.12); }
+        .row-gold { background: rgba(251, 191, 36, 0.10); }
+        .row-potential { background: rgba(16, 185, 129, 0.08); }
+        .row-blacklist { background: rgba(185, 28, 28, 0.10); }
+        .row-blacklist-soft { background: rgba(220, 38, 38, 0.07); }
+        .row-watch { background: rgba(249, 115, 22, 0.08); }
+        .row-ignore { background: rgba(148, 163, 184, 0.06); }
         .row-testing { background: rgba(59, 130, 246, 0.05); }
         .row-custom { background: rgba(139, 92, 246, 0.06); }
         .row-summary { background: #f0f0ff; font-weight: 700; }
 
         .cat-badge { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px; white-space: nowrap; letter-spacing: 0.02em; }
-        .badge-pure { background: #fef3c7; color: #92400e; }
-        .badge-gold { background: #fde68a; color: #92400e; }
-        .badge-potential { background: #d1fae5; color: #065f46; }
-        .badge-ignore { background: #f3f4f6; color: #6b7280; }
-        .badge-blacklist { background: #fee2e2; color: #991b1b; }
-        .badge-blacklist-soft { background: #ffedd5; color: #9a3412; }
-        .badge-watch { background: #fef9c3; color: #854d0e; }
-        .badge-testing { background: #dbeafe; color: #1e40af; }
+        .badge-pure { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+        .badge-gold { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
+        .badge-potential { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .badge-ignore { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+        .badge-blacklist { background: #fecaca; color: #7f1d1d; border: 1px solid #f87171; }
+        .badge-blacklist-soft { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .badge-watch { background: #ffedd5; color: #9a3412; border: 1px solid #fdba74; }
+        .badge-testing { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
         .badge-custom { background: #ede9fe; color: #7c3aed; }
         .vol-badge { font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 3px; letter-spacing: 0.3px; }
         .vol-high { background: #dcfce7; color: #166534; }
         .vol-mid { background: #f1f5f9; color: #475569; }
         .vol-low { background: #fef2f2; color: #991b1b; }
+        .ci-bar { display: inline-flex; align-items: center; gap: 2px; margin-left: 3px; vertical-align: middle; }
+        .ci-bar-inner { height: 6px; border-radius: 3px; min-width: 8px; max-width: 28px; }
+        .ci-bar-high { background: #22c55e; width: 28px; }
+        .ci-bar-med { background: #f59e0b; width: 18px; }
+        .ci-bar-low { background: #ef4444; width: 8px; }
+        .be-badge { font-size: 8px; font-weight: 800; padding: 0px 4px; border-radius: 3px; display: inline-block; cursor: help; }
+        .be-safe { background: #dcfce7; color: #166534; }
+        .be-warn { background: #fef9c3; color: #854d0e; }
+        .be-danger { background: #fecaca; color: #dc2626; }
         .badge-summary { background: #e0e7ff; color: #4338ca; }
 
         .score-pill { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 10px; }
@@ -223,21 +235,7 @@
         .sortable-th.sort-desc .sort-icon { opacity: 1; font-size: 0; }
         .sortable-th.sort-desc .sort-icon::after { content: '↓'; font-size: 10px; }
         
-        .compare-badge { font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: 700; }
-        .badge-new { background: #d1fae5; color: #065f46; }
-        .badge-improved { background: #dbeafe; color: #1e40af; }
-        .badge-declined { background: #fee2e2; color: #991b1b; }
-        .badge-gone { background: #f3f4f6; color: #6b7280; }
-        
-        .compare-panel { background: white; border: 1px solid #93c5fd; border-right: 3px solid #3b82f6; border-radius: 8px; padding: 8px; }
-        .compare-stats { display: flex; gap: 8px; flex-wrap: wrap; }
-        .compare-stat { text-align: center; padding: 5px 10px; background: #f8f9fb; border-radius: 6px; border: 1px solid #e5e7eb; }
-        .compare-stat-val { font-size: 16px; font-weight: 800; font-family: 'Inter', sans-serif; }
-        .compare-stat-lbl { font-size: 9px; color: #6b7280; font-weight: 600; }
-        
-        .change-delta { font-size: 9px; font-weight: 700; padding: 1px 3px; border-radius: 3px; font-family: 'Inter', sans-serif; display: inline-block; margin-bottom: 1px; }
-        .delta-positive { background: #d1fae5; color: #059669; }
-        .delta-negative { background: #fee2e2; color: #dc2626; }
+        .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         
         .performer-item { display: flex; justify-content: space-between; align-items: center; gap: 2px; padding: 2px 0; border-bottom: 1px solid #f3f4f6; flex-wrap: wrap; }
         .performer-item:last-child { border: none; }
@@ -271,10 +269,10 @@
         /* === CONFIDENCE INTERVAL === */
         .ci-bar { display: inline-flex; align-items: center; gap: 2px; }
         .ci-range { font-size: 9px; color: #9ca3af; font-family: 'Inter', sans-serif; }
-        .ci-indicator { width: 4px; height: 10px; border-radius: 1px; display: inline-block; }
-        .ci-high { background: #10b981; }
-        .ci-medium { background: #f59e0b; }
-        .ci-low { background: #ef4444; }
+        .ci-indicator { font-size: 8px; font-weight: 800; padding: 0px 3px; border-radius: 2px; display: inline-block; vertical-align: middle; line-height: 13px; }
+        .ci-high { background: #dcfce7; color: #166534; }
+        .ci-medium { background: #fef3c7; color: #92400e; }
+        .ci-low { background: #fecaca; color: #991b1b; }
         
         /* === ANOMALY FLAG === */
         .anomaly-flag { font-size: 9px; padding: 1px 4px; border-radius: 3px; font-weight: 800; margin-left: 3px; cursor: help; }
@@ -295,11 +293,18 @@
         .bl-severity { font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 3px; margin-right: 4px; }
         .bl-hard { background: #dc2626; color: white; }
         .bl-soft { background: #fb923c; color: white; }
-        .bl-watch { background: #fbbf24; color: #78350f; }
+        .bl-poor { background: #fbbf24; color: #78350f; }
+        
+        .kpi-label-hover { cursor: help; }
+        #kpi-tooltip-el { position: fixed; background: #1e293b; color: white; font-size: 10px; font-weight: 600; padding: 6px 10px; border-radius: 6px; max-width: 260px; min-width: 180px; white-space: normal; z-index: 99999; box-shadow: 0 4px 16px rgba(0,0,0,0.3); line-height: 1.5; direction: rtl; text-align: right; pointer-events: none; display: none; }
+        
+        .btn-reset-view { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 6px; cursor: pointer; border: 2px solid #818cf8; background: linear-gradient(135deg,#eef2ff,#e0e7ff); color: #4338ca; transition: all 0.15s; display: flex; align-items: center; gap: 3px; box-shadow: 0 1px 3px rgba(99,102,241,0.2); }
+        .btn-reset-view:hover { background: #4f46e5; color: white; border-color: #4f46e5; box-shadow: 0 2px 6px rgba(99,102,241,0.3); }
     </style>
 </head>
 <body>
     <div class="toast-container" id="toast-container"></div>
+    <div id="kpi-tooltip-el"></div>
     <div id="focus-badge">🔍 Focus Mode — לחץ F לחזור</div>
     
     <div class="main-wrapper">
@@ -309,7 +314,7 @@
                     <i data-lucide="activity" class="w-4 h-4"></i>
                 </div>
                 <div>
-                    <h1 class="text-sm font-extrabold text-slate-800 leading-none">ListLab <span class="text-indigo-500 font-black">V49</span></h1>
+                    <h1 class="text-sm font-extrabold text-slate-800 leading-none">ListLab <span class="text-indigo-500 font-black">V55</span></h1>
                     <div class="text-[9px] text-slate-400 font-medium">Enhanced Edition</div>
                 </div>
             </div>
@@ -329,6 +334,7 @@
 
         <div class="dash-container">
             <aside class="dash-sidebar custom-scrollbar">
+
                 <div class="btn-upload" id="drop-zone">
                     <input type="file" id="file-input" class="hidden" accept=".xlsx,.csv">
                     <div class="flex items-center justify-center gap-2 text-indigo-600">
@@ -337,29 +343,6 @@
                     </div>
                     <div id="filename" class="text-[10px] text-indigo-400 truncate mt-0.5"></div>
                 </div>
-                
-                <div class="flex gap-1.5">
-                    <button id="btn-compare" class="flex-1 flex items-center justify-center gap-1 bg-white border border-gray-200 text-gray-600 py-1 rounded-md text-[10px] font-bold hover:bg-gray-50 hover:border-indigo-300 hover:text-indigo-600 disabled:opacity-40 transition-colors" disabled>
-                        <i data-lucide="git-compare" class="w-3 h-3"></i> השווה קבצים
-                    </button>
-                    <input type="file" id="compare-input" class="hidden" accept=".xlsx,.csv">
-                    <button id="btn-clear-compare" class="hidden px-2 py-1.5 bg-slate-100 border border-slate-200 text-slate-600 rounded text-[11px] font-bold hover:bg-slate-200">
-                        <i data-lucide="x" class="w-3 h-3"></i>
-                    </button>
-                </div>
-                
-                <div id="compare-panel" class="compare-panel hidden">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[11px] font-bold text-indigo-700">תוצאות השוואה</span>
-                        <span id="compare-file-name" class="text-[10px] text-blue-500 truncate max-w-[150px]"></span>
-                    </div>
-                    <div class="compare-stats">
-                        <div class="compare-stat"><div class="compare-stat-val text-green-600" id="cmp-new">0</div><div class="compare-stat-lbl">חדשים</div></div>
-                        <div class="compare-stat"><div class="compare-stat-val text-blue-600" id="cmp-improved">0</div><div class="compare-stat-lbl">השתפרו</div></div>
-                        <div class="compare-stat"><div class="compare-stat-val text-red-600" id="cmp-declined">0</div><div class="compare-stat-lbl">ירדו</div></div>
-                        <div class="compare-stat"><div class="compare-stat-val text-slate-500" id="cmp-gone">0</div><div class="compare-stat-lbl">נעלמו</div></div>
-                    </div>
-                </div>
 
                 <div id="hierarchy-box" class="hidden bg-white border border-amber-200 border-r-4 rounded-lg p-2">
                     <div class="flex items-center justify-between">
@@ -367,98 +350,6 @@
                             <i data-lucide="git-branch" class="w-3 h-3"></i><span>היררכיה פעילה</span>
                         </div>
                         <div id="level-badges" class="flex gap-1"></div>
-                    </div>
-                </div>
-
-                <div class="control-box border-blue-200">
-                    <div class="text-[11px] font-bold text-slate-700 mb-2 flex items-center gap-1.5">
-                        <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-500"></i> סוג מזהה וסף קליקים
-                    </div>
-                    <div class="grid grid-cols-2 gap-1.5 mb-1.5">
-                        <div>
-                            <label class="text-[10px] text-slate-500 mb-1 block">עמודת מזהה:</label>
-                            <select id="col-ip" class="w-full text-[11px] border border-gray-200 rounded p-1.5 font-medium"></select>
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-500 mb-1 block">סוג:</label>
-                            <select id="identifier-type" class="w-full text-[11px] border border-gray-200 rounded p-1.5 font-medium">
-                                <option value="auto">🔍 אוטומטי</option>
-                                <option value="subid">🎯 SubID</option>
-                                <option value="zone">📍 Zone</option>
-                                <option value="ip">🌐 IP</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div id="detected-type" class="text-[10px] text-green-600 font-bold mb-1.5 hidden"></div>
-                    <div class="mb-1.5">
-                        <label class="text-[10px] text-slate-500 mb-0.5 block">רמת טראפיק:</label>
-                        <select id="ip-level" class="w-full text-[11px] border border-gray-200 rounded p-1 font-medium">
-                            <option value="1" selected>רמה 1 - SubID/IP32 (1.5×)</option>
-                            <option value="2">רמה 2 - Zone/IP24 (3×)</option>
-                            <option value="3">רמה 3 - IP16 (5×)</option>
-                        </select>
-                    </div>
-                    <div class="threshold-info">
-                        סף קליקים נוכחי: <span class="threshold-val" id="current-threshold">1,500</span>
-                        <br>נוסחה: מכפיל × (100 / CR%)
-                    </div>
-                </div>
-
-                <!-- === BL SEVERITY CONFIG === -->
-                <div class="control-box border-red-200">
-                    <div class="collapsible-header" onclick="toggleSection('bl-config')">
-                        <div class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
-                            <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-red-500"></i> הגדרות Blacklist
-                        </div>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-600 collapse-icon" id="bl-config-icon"></i>
-                    </div>
-                    <div class="collapsible-content" id="bl-config-content">
-                        <div class="mt-2 space-y-2">
-                            <div class="flex items-center gap-2 text-[10px]">
-                                <span class="font-bold text-slate-600 w-20">חישוב סף:</span>
-                                <div class="bl-mode-switcher" style="background:#fef3c3;">
-                                    <button class="bl-mode-btn active" data-blcalc="median" onclick="setBlCalc('median')" title="מחציון — שמרני, עמיד ל-outliers" style="color:#854d0e;">מחציון</button>
-                                    <button class="bl-mode-btn" data-blcalc="mean" onclick="setBlCalc('mean')" title="ממוצע — אגרסיבי, חוסם יותר" style="color:#854d0e;">ממוצע</button>
-                                    <button class="bl-mode-btn" data-blcalc="jenks" onclick="setBlCalc('jenks')" title="Jenks — מוצא פערים טבעיים בדאטה" style="color:#854d0e;">🤖 Auto</button>
-                                </div>
-                            </div>
-                            <div id="bl-jenks-info" class="hidden bg-amber-50 rounded p-2 text-[9px] text-amber-800 border border-amber-200">
-                                <span class="font-bold">🤖 Jenks BL:</span> <span id="bl-jenks-text"></span>
-                            </div>
-                            <div class="flex items-center gap-2 text-[10px]">
-                                <span class="font-bold text-slate-600 w-20">מצב BL:</span>
-                                <div class="bl-mode-switcher">
-                                    <button class="bl-mode-btn active" data-blmode="ppc" onclick="setBlMode('ppc')" title="חסום לפי PPC">PPC</button>
-                                    <button class="bl-mode-btn" data-blmode="cr" onclick="setBlMode('cr')" title="חסום לפי CR">CR</button>
-                                    <button class="bl-mode-btn" data-blmode="roi" onclick="setBlMode('roi')" title="חסום לפי ROI">ROI</button>
-                                    <button class="bl-mode-btn" data-blmode="score" onclick="setBlMode('score')" title="חסום לפי Score (PPC+ROI+CR משוקלל)">Score</button>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2 text-[10px]">
-                                <span class="font-bold text-slate-600 w-20">מכפיל BL:</span>
-                                <input type="number" id="bl-threshold-mult" value="0.5" step="0.05" min="0.1" max="1.0" class="w-16 text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center">
-                                <span class="text-slate-400">× ממוצע (ברירת מחדל: 0.5)</span>
-                            </div>
-                            <div class="flex items-center gap-2 text-[10px]">
-                                <span class="font-bold text-slate-600 w-20">Soft BL ROI:</span>
-                                <input type="number" id="bl-soft-roi" value="-30" step="5" class="w-16 text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center">
-                                <span class="text-slate-400">% (בין Soft ל-Hard)</span>
-                            </div>
-                            <div class="bg-red-50 rounded p-2 text-[10px] text-red-700 border border-red-100">
-                                <div class="font-bold mb-1">רמות Blacklist:</div>
-                                <div class="flex items-center gap-1 mb-0.5"><span class="bl-severity bl-hard">HARD</span> 0 Conv / ROI קיצוני / Jenks bottom</div>
-                                <div class="flex items-center gap-1 mb-0.5"><span class="bl-severity bl-soft">SOFT</span> רווח שלילי עמוק / Jenks mid-low</div>
-                                <div class="flex items-center gap-1"><span class="bl-severity bl-watch">WATCH</span> ביצוע חלש (ליד BL)</div>
-                                <div class="mt-1.5 pt-1.5 border-t border-red-200 text-[9px]">
-                                    <div>סף נוכחי (<span id="bl-calc-label">מחציון</span>):</div>
-                                    <div class="font-bold num-font text-red-800" id="bl-current-threshold-display">טען קובץ...</div>
-                                    <div class="text-red-400 mt-0.5">מחציון = שמרני | ממוצע = אגרסיבי | Jenks = מותאם לדאטה</div>
-                                </div>
-                            </div>
-                            <button onclick="processData()" class="w-full bg-red-600 text-white py-1.5 rounded-md text-xs font-bold hover:bg-red-700 flex items-center justify-center gap-1 transition-colors">
-                                <i data-lucide="refresh-cw" class="w-3 h-3"></i> עדכן
-                            </button>
-                        </div>
                     </div>
                 </div>
 
@@ -481,6 +372,93 @@
                     </div>
                 </div>
 
+                <div class="control-box border-blue-200">
+                    <div class="text-[11px] font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                        <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-500"></i> מזהה וסף קליקים
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <div>
+                            <label class="text-[10px] text-slate-500 mb-0.5 block">רמת טראפיק:</label>
+                            <select id="ip-level" class="w-full text-[11px] border border-gray-200 rounded-lg p-1.5 font-medium bg-white">
+                                <option value="1" selected>רמה 1 - SubID/IP32 (1.5×)</option>
+                                <option value="2">רמה 2 - Zone/IP24 (3×)</option>
+                                <option value="3">רמה 3 - IP16 (5×)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-500 mb-0.5 block">עמודת מזהה:</label>
+                            <select id="col-ip" class="w-full text-[11px] border border-gray-200 rounded-lg p-1.5 font-medium bg-white"></select>
+                        </div>
+                    </div>
+                    <div id="detected-type" class="text-center mb-2 hidden">
+                        <span id="detected-type-badge" style="display:inline-flex;align-items:center;gap:5px;background:#dbeafe;color:#1e40af;font-size:11px;font-weight:700;padding:4px 14px;border-radius:14px;border:1px solid #93c5fd;">
+                            <i data-lucide="globe" class="w-3.5 h-3.5" style="color:#3b82f6;"></i>
+                            <span id="detected-type-text">זוהה: IP (IP Address)</span>
+                        </span>
+                    </div>
+                    <select id="identifier-type" class="hidden">
+                        <option value="auto">🔍 אוטומטי</option>
+                        <option value="subid">🎯 SubID</option>
+                        <option value="zone">📍 Zone</option>
+                        <option value="ip">🌐 IP</option>
+                    </select>
+                    <div style="text-align:center;background:linear-gradient(135deg,#ecfdf5,#f0fdfa);border:1px solid #a7f3d0;border-radius:8px;padding:6px 10px;">
+                        <div style="font-size:11px;color:#374151;font-weight:700;">סף קליקים נוכחי: <span style="font-family:'Inter',sans-serif;font-size:14px;font-weight:900;color:#059669;letter-spacing:-0.3px;" id="current-threshold">1,500</span></div>
+                        <div style="font-size:9px;color:#94a3b8;margin-top:1px;">נוסחה: מכפיל × (100 / CR%)</div>
+                    </div>
+                </div>
+
+                <!-- === BL CONTROL CENTER === -->
+                <div class="control-box border-red-200">
+                    <div class="collapsible-header" onclick="toggleSection('bl-config')">
+                        <div class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                            <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-red-500"></i> הגדרות Blacklist
+                        </div>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-600 collapse-icon" id="bl-config-icon"></i>
+                    </div>
+                    <div class="collapsible-content" id="bl-config-content">
+                        <div class="mt-2 space-y-2">
+                            <div class="flex items-center gap-2 text-[10px]">
+                                <span class="font-bold text-slate-600 w-20">חישוב סף:</span>
+                                <div class="bl-mode-switcher" style="background:#fef3c3;">
+                                    <button class="bl-mode-btn active" data-blcalc="median" onclick="setBlCalc('median')" title="מחציון — שמרני, עמיד ל-outliers" style="color:#854d0e;">מחציון</button>
+                                    <button class="bl-mode-btn" data-blcalc="mean" onclick="setBlCalc('mean')" title="ממוצע — אגרסיבי, חוסם יותר" style="color:#854d0e;">ממוצע</button>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 text-[10px]">
+                                <span class="font-bold text-slate-600 w-20">מצב BL:</span>
+                                <div class="bl-mode-switcher">
+                                    <button class="bl-mode-btn active" data-blmode="ppc" onclick="setBlMode('ppc')" title="חסום לפי PPC">PPC</button>
+                                    <button class="bl-mode-btn" data-blmode="cr" onclick="setBlMode('cr')" title="חסום לפי CR">CR</button>
+                                    <button class="bl-mode-btn" data-blmode="roi" onclick="setBlMode('roi')" title="חסום לפי ROI">ROI</button>
+                                    <button class="bl-mode-btn" data-blmode="score" onclick="setBlMode('score')" title="חסום לפי Score (PPC+ROI+CR משוקלל)">Score</button>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 text-[10px]">
+                                <span class="font-bold text-slate-600 w-20">מכפיל BL:</span>
+                                <input type="number" id="bl-threshold-mult" value="0.5" step="0.05" min="0.1" max="1.0" class="w-16 text-[11px] border border-slate-200 rounded px-2 py-1 num-font text-center">
+                                <span class="text-slate-400">× סף (ברירת מחדל: 0.5)</span>
+                            </div>
+                            <div class="bg-red-50 rounded p-2 text-[10px] text-red-700 border border-red-100">
+                                <div class="font-bold mb-1">רמות Blacklist:</div>
+                                <div class="flex items-center gap-1 mb-0.5"><span class="bl-severity bl-hard">HARD</span> 0 conv (מעל סף קליקים) / conv עם $0 Rev</div>
+                                <div class="flex items-center gap-1 mb-0.5"><span class="bl-severity bl-soft">SOFT</span> יש conv + Rev אבל profit שלילי</div>
+                                <div class="flex items-center gap-1"><span class="bl-severity bl-poor">POOR</span> מתחת לסף מטרי × מכפיל</div>
+                                <div class="mt-1.5 pt-1.5 border-t border-red-200 text-[9px]">
+                                    <div>סף נוכחי (<span id="bl-calc-label">מחציון</span>):</div>
+                                    <div class="font-bold num-font text-red-800" id="bl-current-threshold-display">טען קובץ...</div>
+                                </div>
+                            </div>
+                            <button onclick="processData()" class="w-full bg-red-600 text-white py-1.5 rounded-md text-xs font-bold hover:bg-red-700 flex items-center justify-center gap-1 transition-colors">
+                                <i data-lucide="refresh-cw" class="w-3 h-3"></i> עדכן
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="bl-soft-roi" value="-30">
+                    <input type="hidden" id="bl-soft-min-loss" value="0">
+                    <input type="hidden" id="bl-soft-needs-clicks" type="checkbox">
+                </div>
+
                 <div class="control-box border-amber-200">
                     <div class="text-[11px] font-bold text-slate-700 mb-2 flex items-center justify-between">
                         <div class="flex items-center gap-1.5">
@@ -493,8 +471,8 @@
                                 <option value="roi">ROI</option>
                                 <option value="cr">CR</option>
                             </select>
-                            <button onclick="autoDetectThresholds()" id="btn-auto-thresh" class="flex items-center gap-1 bg-amber-500 text-white px-2 py-0.5 rounded text-[10px] font-bold hover:bg-amber-600 transition-colors disabled:opacity-40" disabled>
-                                <i data-lucide="sparkles" class="w-3 h-3"></i> Smart Auto
+                            <button onclick="state.manualTiers = false; autoDetectThresholds(false); processData();" id="btn-auto-thresh" class="flex items-center gap-1 bg-amber-500 text-white px-2 py-0.5 rounded text-[10px] font-bold hover:bg-amber-600 transition-colors disabled:opacity-40" disabled title="Jenks clustering על זונים רווחיים → קובע Pure/Gold אוטומטית">
+                                <i data-lucide="sparkles" class="w-3 h-3"></i> Auto Tiers
                             </button>
                         </div>
                     </div>
@@ -509,7 +487,7 @@
                         </div>
                     </div>
                     <div id="auto-thresh-info" class="hidden threshold-info mt-2 border-amber-200 bg-amber-50" style="line-height:1.6;">
-                        <div class="text-amber-700 font-bold mb-1">🤖 Smart Auto Results:</div>
+                        <div class="text-amber-700 font-bold mb-1">⚡ Auto Tiers Results:</div>
                         <div id="auto-thresh-text" class="text-amber-800 text-[10px] num-font"></div>
                     </div>
                 </div>
@@ -587,6 +565,45 @@
                     </div>
                 </div>
 
+                <!-- === LEGEND (separate) === -->
+                <div class="control-box border-slate-200">
+                    <div class="collapsible-header" onclick="toggleSection('legend')">
+                        <div class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                            <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400"></i> Legend — סיווג זונים
+                        </div>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-600 collapse-icon" id="legend-icon"></i>
+                    </div>
+                    <div class="collapsible-content" id="legend-content">
+                        <div class="mt-2 bg-slate-50 rounded p-2.5 text-[10px] text-slate-700 border border-slate-200 space-y-1">
+                            <div class="flex items-center gap-1.5"><span class="cat-badge badge-pure" style="font-size:9px;">💎 PURE</span> <span class="text-slate-500">Top performers — scale up</span></div>
+                            <div class="flex items-center gap-1.5"><span class="cat-badge badge-gold" style="font-size:9px;">🥇 GOLD</span> <span class="text-slate-500">Strong — increase bids</span></div>
+                            <div class="flex items-center gap-1.5"><span class="cat-badge badge-potential" style="font-size:9px;">🌱 POTENTIAL</span> <span class="text-slate-500">Promising — grow</span></div>
+                            <div class="flex items-center gap-1.5"><span class="cat-badge badge-ignore" style="font-size:9px;">👀 WATCH</span> <span class="text-slate-500">Profitable, below gates — RON</span></div>
+                            <div class="flex items-center gap-1.5"><span class="cat-badge badge-watch" style="font-size:9px;">⚠️ POOR</span> <span class="text-slate-500">Profitable but weak metric</span></div>
+                            <div class="flex items-center gap-1.5"><span class="cat-badge badge-blacklist-soft" style="font-size:9px;">🟠 BL SOFT</span> <span class="text-slate-500">Has conv+rev, profit &lt; 0</span></div>
+                            <div class="flex items-center gap-1.5"><span class="cat-badge badge-blacklist" style="font-size:9px;">⛔ BL HARD</span> <span class="text-slate-500">0 conv or $0 revenue</span></div>
+                            <div class="flex items-center gap-1.5"><span class="cat-badge badge-testing" style="font-size:9px;">🔬 TESTING</span> <span class="text-slate-500">0 conv, below click threshold</span></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- === PAYOUT CONFIG (hidden - auto calculated, shown in top bar) === -->
+                <div class="control-box border-green-200 hidden">
+                    <div class="text-[11px] font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                        <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-green-500"></i> Campaign Payout (AP)
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="avg-payout" value="0" min="0" step="0.1" class="w-24 text-[12px] border border-gray-200 rounded p-1.5 font-bold num-font text-center" placeholder="Auto">
+                        <span class="text-[10px] text-slate-500">$ per conv</span>
+                        <button onclick="autoCalcPayout()" class="text-[9px] bg-green-100 text-green-700 px-2 py-1 rounded font-bold hover:bg-green-200" title="חשב מנתוני הקמפיין">Auto</button>
+                    </div>
+                    <div class="threshold-info mt-1" id="payout-info">
+                        מחושב אוטומטית מ-Revenue / Conversions
+                    </div>
+                </div>
+
+
                 <div id="mapping-box" class="hidden control-box border-slate-200">
                     <div class="collapsible-header" onclick="toggleSection('mapping')">
                         <div class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
@@ -616,6 +633,7 @@
                         <i data-lucide="download" class="w-3.5 h-3.5"></i> ייצוא Excel <span class="shortcut-key text-indigo-300">E</span>
                     </button>
                 </div>
+
             </aside>
 
             <main class="dash-content">
@@ -623,6 +641,93 @@
                     <button class="section-toggle" onclick="toggleSectionCollapse('section-kpi')" title="כווץ/הרחב">▲</button>
                     <div class="section-inner">
                         <div id="kpi-container" class="kpi-container"></div>
+                    </div>
+                </div>
+                
+                <!-- ACTION + SAVINGS MESSAGES SIDE BY SIDE -->
+                <div id="messages-row" class="hidden shrink-0" style="display:none;padding:6px 8px;gap:6px;">
+                    <div id="action-summary" class="hidden" style="flex:1;min-width:0;background:linear-gradient(135deg,#eef2ff 0%,#e0e7ff 50%,#ede9fe 100%);border-radius:10px;padding:10px 14px;border:1px solid #c7d2fe;">
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[15px]">🎯</span>
+                                <span class="font-extrabold text-indigo-800 text-[13px]">Next Steps</span>
+                            </div>
+                            <div class="flex items-center gap-1 px-2.5 py-0.5 bg-red-100 rounded-full border border-red-200 text-[12px]">
+                                <span class="text-red-700 font-bold">⛔ <span id="act-block-count" class="font-extrabold">0</span></span>
+                                <span class="text-red-400">→</span>
+                                <span class="text-red-800 font-extrabold">חסוך <span id="act-block-save">$0</span></span>
+                            </div>
+                            <div class="flex items-center gap-1 px-2.5 py-0.5 bg-blue-100 rounded-full border border-blue-200 text-[12px]">
+                                <span class="text-blue-700 font-bold">💎 <span id="act-scale-count" class="font-extrabold">0</span></span>
+                                <span class="text-blue-400">→</span>
+                                <span class="text-blue-800 font-extrabold">$<span id="act-scale-profit">0</span></span>
+                            </div>
+                            <div class="flex items-center gap-1 px-2.5 py-0.5 bg-green-100 rounded-full border border-green-200 text-[12px]">
+                                <span class="text-green-700 font-bold">🌱 <span id="act-grow-count" class="font-extrabold">0</span></span>
+                            </div>
+                            <div class="text-[11px] text-indigo-400 font-bold mr-auto">
+                                <span id="act-total-zones">0</span> zones | <span id="act-tested-pct">0</span>% tested
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="savings-banner" class="hidden" style="flex:1;min-width:0;background:linear-gradient(135deg,#ecfdf5 0%,#f0fdf4 50%,#fefce8 100%);border-radius:10px;padding:10px 14px;border:1px solid #bbf7d0;">
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="flex items-center gap-1 text-[13px] font-bold text-green-700">
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Projected Savings
+                            </div>
+                            <span class="bg-white border border-green-200 rounded px-1.5 py-0.5 font-bold text-green-700 text-[11px] num-font" id="sv-payout-display"></span>
+                        </div>
+                        <div class="text-[11px] num-font" style="line-height:1.7;">
+                            <div>
+                                <span class="font-bold text-red-600">⛔+🟠</span>
+                                חסום <strong id="sv-bl-count">0</strong> →
+                                <strong id="sv-save-amt" class="text-green-700">$0</strong> |
+                                CR: <span id="sv-cr-before" class="text-slate-400">0%</span>→<strong id="sv-cr-after" class="text-green-700">0%</strong> |
+                                ROI: <span id="sv-roi-before" class="text-slate-400">0%</span>→<strong id="sv-roi-after" class="text-green-700">0%</strong>
+                            </div>
+                            <div>
+                                <span class="font-bold text-amber-600">⛔+🟠+⚠️</span>
+                                חסום <strong id="sv2-bl-count">0</strong> →
+                                <strong id="sv2-save-amt" class="text-green-700">$0</strong> |
+                                CR: <span id="sv2-cr-before" class="text-slate-400">0%</span>→<strong id="sv2-cr-after" class="text-green-700">0%</strong> |
+                                ROI: <span id="sv2-roi-before" class="text-slate-400">0%</span>→<strong id="sv2-roi-after" class="text-green-700">0%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-savings" class="hidden px-3 py-2 bg-gradient-to-r from-red-50 to-green-50 border-b border-gray-200 shrink-0">
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-4 text-[11px]">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-red-600 font-black text-[13px]">🔴</span>
+                                <span class="font-bold text-red-700">חסום <span id="sav-bl-count" class="num-font">0</span> זונים</span>
+                                <span class="text-red-500 font-bold">→</span>
+                                <span class="font-black text-red-600 num-font text-[13px]" id="sav-waste">$0</span>
+                                <span class="text-red-500 font-bold">חיסכון</span>
+                            </div>
+                            <div class="h-5 w-px bg-gray-300"></div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-slate-500 font-bold">CR:</span>
+                                <span class="num-font text-slate-600" id="sav-cr-before">0%</span>
+                                <span class="text-green-600 font-bold">→</span>
+                                <span class="num-font text-green-700 font-bold" id="sav-cr-after">0%</span>
+                            </div>
+                            <div class="h-5 w-px bg-gray-300"></div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-slate-500 font-bold">ROI:</span>
+                                <span class="num-font text-slate-600" id="sav-roi-before">0%</span>
+                                <span class="text-green-600 font-bold">→</span>
+                                <span class="num-font text-green-700 font-bold" id="sav-roi-after">0%</span>
+                            </div>
+                            <div class="h-5 w-px bg-gray-300"></div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-slate-500 font-bold">Traffic:</span>
+                                <span class="num-font text-orange-600" id="sav-traffic-pct">0%</span>
+                                <span class="text-slate-400 text-[9px]">מהתנועה</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -685,6 +790,9 @@
                                     <i data-lucide="search" class="w-3 h-3"></i>
                                     <input type="text" id="search-input" placeholder="חפש מזהה... (Ctrl+F)" class="text-right">
                                 </div>
+                                <button class="btn-reset-view" onclick="$('filter-view').value='all'; $('filter-volume').value='all'; $('search-input').value=''; $('min-score-filter').value='0'; state.searchQuery=''; applyFilter();" title="איפוס כל הסינונים">
+                                    <i data-lucide="rotate-ccw" class="w-3 h-3"></i> איפוס
+                                </button>
                                 
                                 <div class="icloud-switcher">
                                     <div class="switcher-options">
@@ -702,42 +810,25 @@
                                     <span id="macro-warning" class="hidden text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold animate-pulse border border-orange-200 shadow-sm">⚠️ מאוגד: <span id="macro-count">0</span> | מפוצל: <span id="micro-count">0</span></span>
                                 </div>
                                 
-                                <div id="show-changes-box" class="hidden flex items-center gap-1 border-l border-slate-200 pl-3">
-                                    <label class="flex items-center gap-1 text-[11px] text-blue-600 font-bold cursor-pointer">
-                                        <input type="checkbox" id="chk-show-changes" class="chk-input" checked> הצג שינויים
-                                    </label>
-                                </div>
                                 
                                 <div class="flex items-center gap-2">
                                     <span class="text-[11px] font-bold text-slate-400 uppercase">תצוגה:</span>
                                     <select id="filter-view" class="text-sm bg-slate-50 border border-slate-200 rounded px-2 py-1 font-medium w-40">
                                         <option value="all">הכל</option>
                                         <option value="relevant">🎯 Relevant (P+G+Pot)</option>
-                                        <option value="relevant_high">🎯▲ Relevant High</option>
-                                        <option value="relevant_mid">🎯■ Relevant Mid</option>
-                                        <option value="relevant_low">🎯▼ Relevant Low</option>
                                         <option value="relevant_plus">🚀 Relevant+ (incl. Test)</option>
                                         <option value="winners">✨ Winners (P+G)</option>
                                         <option value="pure">💎 Pure</option>
-                                        <option value="pure_high">💎▲ Pure High</option>
-                                        <option value="pure_mid">💎■ Pure Mid</option>
-                                        <option value="pure_low">💎▼ Pure Low</option>
                                         <option value="gold">🥇 Gold</option>
-                                        <option value="gold_high">🥇▲ Gold High</option>
-                                        <option value="gold_mid">🥇■ Gold Mid</option>
-                                        <option value="gold_low">🥇▼ Gold Low</option>
                                         <option value="potential">🌱 Potential</option>
-                                        <option value="ignore">😐 Ignore</option>
-                                        <option value="blacklist">🚫 Blacklist (Hard)</option>
-                                        <option value="blacklist-soft">⚠️ Blacklist (Soft)</option>
-                                        <option value="watch">👀 Watch</option>
-                                        <option value="all-bl">🔴 All BL+Watch</option>
+                                        <option value="ignore">👀 Watch</option>
+                                        <option value="blacklist">⛔ Blacklist (Hard)</option>
+                                        <option value="blacklist-soft">🟠 Blacklist (Soft)</option>
+                                        <option value="watch">⚠️ Poor</option>
+                                        <option value="all-bl">⛔ All BL+Poor</option>
                                         <option value="testing">🔬 Testing</option>
                                         <option value="custom">🎯 Custom</option>
                                         <option value="anomaly">🚨 Anomalies</option>
-                                        <option value="compare-new">✨ חדשים</option>
-                                        <option value="compare-improved">📈 השתפרו</option>
-                                        <option value="compare-declined">📉 ירדו</option>
                                     </select>
                                 </div>
 
@@ -749,6 +840,7 @@
                                         <option value="mid">■ Mid</option>
                                         <option value="low">▼ Low</option>
                                         <option value="high-mid">▲■ High+Mid</option>
+                                        <option value="low-mid">▼■ Low+Mid</option>
                                     </select>
                                 </div>
 
@@ -798,6 +890,9 @@
                                         <th class="text-center sortable-th" data-sort="roi" onclick="sortByColumn('roi')">ROI% <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="cr" onclick="sortByColumn('cr')">CR% <span class="sort-icon">⇅</span></th>
                                         <th class="text-center sortable-th" data-sort="ppc" onclick="sortByColumn('ppc')">PPC <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="cpc" onclick="sortByColumn('cpc')">CPC <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="cpa" onclick="sortByColumn('cpa')">CPA <span class="sort-icon">⇅</span></th>
+                                        <th class="text-center sortable-th" data-sort="ap" onclick="sortByColumn('ap')">AP <span class="sort-icon">⇅</span></th>
                                     </tr>
                                     <tr id="table-summary-row"></tr>
                                 </thead>
@@ -833,6 +928,24 @@
 
     <script>
         lucide.createIcons();
+        
+        // KPI Tooltip handler (fixed position to bypass overflow clipping)
+        (function(){
+            const tip = document.getElementById('kpi-tooltip-el');
+            document.addEventListener('mouseover', function(e){
+                const el = e.target.closest('.kpi-label-hover');
+                if(el && el.dataset.tiphe){
+                    tip.textContent = el.dataset.tiphe;
+                    tip.style.display = 'block';
+                    const r = el.getBoundingClientRect();
+                    tip.style.top = (r.bottom + 8) + 'px';
+                    tip.style.left = Math.max(10, r.left + r.width/2 - 130) + 'px';
+                }
+            });
+            document.addEventListener('mouseout', function(e){
+                if(e.target.closest('.kpi-label-hover')){ tip.style.display = 'none'; }
+            });
+        })();
         
         document.addEventListener('click', (e) => {
             const insidePopup = e.target.closest('.filter-popup');
@@ -880,25 +993,23 @@
         // ═══════════════════════════════════════════════════
         function detectAnomalies(data, campaignAvgCR) {
             if (!data.length) return data;
-            const crs = data.filter(r => r.conv > 0 && r.clicks > 10).map(r => r.cr);
-            if (!crs.length) return data;
-            const mean = crs.reduce((s, v) => s + v, 0) / crs.length;
-            const variance = crs.reduce((s, v) => s + (v - mean) ** 2, 0) / crs.length;
-            const stdDev = Math.sqrt(variance);
+            // Calculate traffic percentiles for bot detection
+            const clickValues = data.map(r => r.clicks).sort((a, b) => a - b);
+            const p95clicks = clickValues[Math.floor(clickValues.length * 0.95)] || 1000;
             
             return data.map(r => {
                 const anomalies = [];
-                // Suspiciously high CR with low volume = possible fraud
-                if (r.conv > 0 && r.clicks < 50 && r.cr > mean + 3 * stdDev && r.cr > 0.1) {
-                    anomalies.push({ type: 'fraud', label: '🎭 CR חשוד', reason: 'CR גבוה מאוד עם volume נמוך' });
+                // Fraud: many conversions but zero/near-zero revenue (fake conversions)
+                if (r.conv >= 3 && r.rev < r.conv * 0.1) {
+                    anomalies.push({ type: 'fraud', label: '🎭 Fraud?', reason: r.conv + ' המרות עם $' + r.rev.toFixed(2) + ' הכנסה בלבד' });
                 }
-                // Zero conv with very high clicks = possible bot
-                if (r.conv === 0 && r.clicks > state.clickThreshold * 2) {
-                    anomalies.push({ type: 'bot', label: '🤖 Bot?', reason: '0 המרות עם ' + r.clicks.toLocaleString() + ' קליקים' });
+                // Bot: extreme traffic relative to dataset (P95+) with zero conversions
+                if (r.conv === 0 && r.clicks > p95clicks * 2) {
+                    anomalies.push({ type: 'bot', label: '🤖 Bot?', reason: '0 המרות עם ' + r.clicks.toLocaleString() + ' קליקים (P95 = ' + p95clicks.toLocaleString() + ')' });
                 }
                 // Statistical outlier - extreme PPC (positive)
                 if (r.ppc > state.medianPPC * 10 && r.conv >= 3) {
-                    anomalies.push({ type: 'outlier', label: '⭐ Outlier+', reason: 'PPC x' + (r.ppc / state.medianPPC).toFixed(0) + ' מהממוצע' });
+                    anomalies.push({ type: 'outlier', label: '⭐ Outlier+', reason: 'PPC x' + (r.ppc / state.medianPPC).toFixed(0) + ' מהמדיאן' });
                 }
                 return { ...r, anomalies };
             });
@@ -920,6 +1031,8 @@
                     blCalc: state.blCalc,
                     blThresholdMult: $('bl-threshold-mult').value,
                     blSoftRoi: $('bl-soft-roi').value,
+                    blSoftMinLoss: $('bl-soft-min-loss').value,
+                    blSoftNeedsClicks: $('bl-soft-needs-clicks').checked,
                     icloudFilter: state.icloudFilter,
                     aggMode: state.aggMode,
                     customEnabled: $('custom-enabled').checked,
@@ -939,7 +1052,8 @@
                         pure: $('chk-pure').checked, gold: $('chk-gold').checked,
                         potential: $('chk-potential').checked, bl: $('chk-bl').checked,
                         custom: $('chk-custom').checked, cidr: $('chk-cidr').checked
-                    }
+                    },
+                    avgPayout: $('avg-payout').value
                 };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
             } catch(e) { /* silent fail */ }
@@ -955,9 +1069,11 @@
                 if (s.ipLevel) $('ip-level').value = s.ipLevel;
                 if (s.identifierType) $('identifier-type').value = s.identifierType;
                 if (s.blMode) { state.blMode = s.blMode; document.querySelectorAll('.bl-mode-btn[data-blmode]').forEach(b => b.classList.toggle('active', b.dataset.blmode === s.blMode)); }
-                if (s.blCalc) { state.blCalc = s.blCalc; document.querySelectorAll('.bl-mode-btn[data-blcalc]').forEach(b => b.classList.toggle('active', b.dataset.blcalc === s.blCalc)); }
+                if (s.blCalc) { state.blCalc = s.blCalc === 'jenks' ? 'median' : s.blCalc; document.querySelectorAll('.bl-mode-btn[data-blcalc]').forEach(b => b.classList.toggle('active', b.dataset.blcalc === state.blCalc)); }
                 if (s.blThresholdMult) $('bl-threshold-mult').value = s.blThresholdMult;
                 if (s.blSoftRoi) $('bl-soft-roi').value = s.blSoftRoi;
+                if (s.blSoftMinLoss !== undefined) $('bl-soft-min-loss').value = s.blSoftMinLoss;
+                if (s.blSoftNeedsClicks !== undefined) $('bl-soft-needs-clicks').checked = s.blSoftNeedsClicks;
                 if (s.icloudFilter) { state.icloudFilter = s.icloudFilter; document.querySelectorAll('.icloud-switcher .switcher-btn').forEach(b => b.classList.toggle('active', b.dataset.value === s.icloudFilter)); }
                 if (s.aggMode) { state.aggMode = s.aggMode; document.querySelectorAll('.agg-switcher .switcher-btn').forEach(b => b.classList.toggle('active', b.dataset.agg === s.aggMode)); }
                 if (s.customEnabled) $('custom-enabled').checked = s.customEnabled;
@@ -981,6 +1097,7 @@
                     if (s.exportChecks.custom !== undefined) $('chk-custom').checked = s.exportChecks.custom;
                     if (s.exportChecks.cidr !== undefined) $('chk-cidr').checked = s.exportChecks.cidr;
                 }
+                if (s.avgPayout) $('avg-payout').value = s.avgPayout;
                 showToast('הגדרות נטענו מהזיכרון', 'info');
             } catch(e) { /* silent fail */ }
         }
@@ -1034,8 +1151,6 @@
             visibleKpis: ['pure', 'gold', 'potential', 'ignore', 'blacklist', 'testing'],
             hasHierarchy: false, levelColumn: null, maxLevel: 1, ipColumn: '',
             customEnabled: false, identifierType: 'auto', detectedType: null,
-            compareMode: false, compareData: null,
-            compareResults: { new: [], improved: [], declined: [], gone: [] },
             searchQuery: '', osColumn: null, ispColumn: null, extraColumns: [],
             sortColumn: null, sortDirection: 'desc',
             icloudFilter: 'all', aggMode: 'split',
@@ -1044,7 +1159,8 @@
             blCalc: 'median',
             blCleanThreshold: 0,
             blJenksHard: 0,
-            blJenksSoft: 0
+            blJenksSoft: 0,
+            manualTiers: false
         };
         
         const ICLOUD_RANGES = ['104.28', '172.226', '172.225', '172.224', '146.75', '140.248'];
@@ -1206,22 +1322,42 @@
             return breaks;
         }
         
-        function autoDetectThresholds() {
+        function jenksGVF(data, breaks) {
+            // Goodness of Variance Fit: 1.0 = perfect separation, 0.0 = no separation
+            if (!data.length || !breaks.length) return 0;
+            const sorted = [...data].sort((a, b) => a - b);
+            const mean = sorted.reduce((s, v) => s + v, 0) / sorted.length;
+            const sdam = sorted.reduce((s, v) => s + (v - mean) ** 2, 0); // total variance
+            if (sdam === 0) return 1;
+            
+            // Assign each value to a class based on breaks
+            let sdcm = 0;
+            const numClasses = breaks.length - 1;
+            for (let c = 0; c < numClasses; c++) {
+                const lo = breaks[c];
+                const hi = breaks[c + 1];
+                const classVals = sorted.filter(v => c === 0 ? v <= hi : (v > lo && v <= hi));
+                if (classVals.length === 0) continue;
+                const classMean = classVals.reduce((s, v) => s + v, 0) / classVals.length;
+                sdcm += classVals.reduce((s, v) => s + (v - classMean) ** 2, 0);
+            }
+            return 1 - (sdcm / sdam);
+        }
+        
+        function autoDetectThresholds(silent) {
             // SMART AUTO: Jenks on PROFITABLE zones → sets Pure & Gold percentiles
-            // BL stays manual (median/mean) — user controls it
             const source = state.processed || [];
-            if (!source.length) return;
+            if (!source.length) return false;
             
             const metric = $('auto-metric').value;
             const metricLabels = { score: 'Score', ppc: 'PPC', roi: 'ROI', cr: 'CR' };
-            const clickThreshold = state.clickThreshold;
             
             // Get profitable zones with conversions
-            const profitable = source.filter(r => r.conv > 0 && r.profit > 0 && r.clicks >= clickThreshold && !r.isSummary);
+            const profitable = source.filter(r => r.conv > 0 && r.profit > 0 && !r.isSummary);
             
             if (profitable.length < 10) {
-                showToast('צריך לפחות 10 זונים רווחיים (' + profitable.length + ' נמצאו)', 'warn');
-                return;
+                if (!silent) showToast('צריך לפחות 10 זונים רווחיים (' + profitable.length + ' נמצאו)', 'warn');
+                return false;
             }
             
             const getValue = (r) => {
@@ -1236,6 +1372,7 @@
             // Jenks 3-class on profitable: [Potential | Gold | Pure]
             const values = profitable.map(r => getValue(r)).sort((a, b) => a - b);
             const breaks = jenksBreaks(values, 3);
+            const gvf = jenksGVF(values, breaks);
             const goldBreak = breaks[1];
             const pureBreak = breaks[2];
             
@@ -1253,13 +1390,17 @@
             $('gold-pct-num').value = goldPct;
             $('gold-pct').value = Math.min(70, goldPct);
             
-            // P25 quality gate stats (same as classifyRanges computes)
+            // P25 quality gate stats
             const sortedROI = profitable.map(r => r.roi).sort((a, b) => a - b);
             const sortedScores = profitable.map(r => r.score).sort((a, b) => a - b);
             const p25ROI = Math.max(100, sortedROI[Math.floor(sortedROI.length * 0.25)]);
             const p25Score = sortedScores[Math.floor(sortedScores.length * 0.25)];
             const potentialOK = profitable.filter(r => r.roi >= p25ROI && r.score >= p25Score).length;
             const watchCount = profitable.length - potentialOK;
+            
+            // GVF quality label
+            const gvfPct = (gvf * 100).toFixed(0);
+            const gvfLabel = gvf >= 0.8 ? '🟢 חיתוך חזק' : gvf >= 0.6 ? '🟡 חיתוך סביר' : '🔴 חיתוך חלש — שקול ידני';
             
             // Display
             const fmtVal = (v) => {
@@ -1269,20 +1410,24 @@
                 return v.toFixed(2);
             };
             
+            const totalZones = source.filter(r => !r.isSummary).length;
             const summaryParts = [
+                '📊 Jenks Fit: ' + gvfPct + '% — ' + gvfLabel,
                 '💎 Pure: top ' + purePct + '% (' + metricLabels[metric] + ' ≥ ' + fmtVal(pureBreak) + ')',
                 '🥇 Gold: top ' + goldPct + '% (' + metricLabels[metric] + ' ≥ ' + fmtVal(goldBreak) + ')',
-                '🌱 Potential: ROI ≥ ' + p25ROI.toFixed(0) + '% & Score ≥ ' + p25Score.toFixed(2) + ' (' + potentialOK + ' zones)',
-                watchCount > 0 ? '👀 Watch: ' + watchCount + ' marginal zones (below P25 quality gate)' : '',
-                '📊 ' + profitable.length + ' רווחיים מתוך ' + source.filter(r => !r.isSummary).length + ' סה״כ'
+                '🌱 Potential: P25 quality gate — ' + potentialOK + ' zones עברו סף',
+                watchCount > 0 ? '⚠️ Poor: ' + watchCount + ' zones רווחיים מתחת לסף' : '',
+                '📊 ' + profitable.length + ' רווחיים מתוך ' + totalZones + ' סה״כ'
             ].filter(Boolean);
             
             $('auto-thresh-info').classList.remove('hidden');
             $('auto-thresh-text').innerHTML = summaryParts.join('<br>');
             
-            showToast('🤖 Smart Auto (' + metricLabels[metric] + '): Pure ' + purePct + '% | Gold ' + goldPct + '% | Potential ' + potentialOK + ' | Watch ' + watchCount, 'success', 5000);
+            if (!silent) {
+                showToast('⚡ Auto Tiers (' + metricLabels[metric] + '): Pure ' + purePct + '% | Gold ' + goldPct + '%', 'success', 3000);
+            }
             
-            processData();
+            return true; // thresholds were updated
         }
         
         function calculateClickThreshold() {
@@ -1330,6 +1475,7 @@
                         state.hasHierarchy = levelIdx !== -1;
                         setupMapping();
                         setupFilters();
+                        state.manualTiers = false;
                         setTimeout(() => processData(), 10);
                     } catch (err) {
                         console.error('Error processing file:', err);
@@ -1426,8 +1572,13 @@
             const finalType = nameHint || state.detectedType;
             const detectedEl = $('detected-type');
             if (finalType && finalType !== 'unknown') {
-                detectedEl.innerHTML = '✓ זוהה: ' + getIdentifierTypeLabel(finalType) + ' <span class="text-slate-400">(' + escapeHtml(colName) + ')</span>';
+                const icons = { ip: 'globe', zone: 'map-pin', subid: 'crosshair', mixed: 'shuffle' };
+                const labels = { ip: 'IP', zone: 'Zone', subid: 'SubID', mixed: 'Mixed' };
+                const typeName = labels[finalType] || finalType;
+                const iconName = icons[finalType] || 'help-circle';
+                $('detected-type-badge').innerHTML = '<i data-lucide="' + iconName + '" style="width:13px;height:13px;color:#3b82f6;"></i> <span>זוהה: <strong>' + typeName + '</strong> (' + escapeHtml(colName) + ')</span>';
                 detectedEl.classList.remove('hidden');
+                lucide.createIcons();
                 if ($('identifier-type').value === 'auto') {
                     if (finalType === 'subid') $('ip-level').value = '1';
                     else if (finalType === 'zone') $('ip-level').value = '2';
@@ -1499,14 +1650,6 @@
 
         function processData() {
             try {
-                if (state.compareMode) {
-                    state.compareMode = false; state.compareData = null;
-                    state.compareResults = { new: [], improved: [], declined: [], gone: [] };
-                    $('compare-panel').classList.add('hidden');
-                    $('btn-clear-compare').classList.add('hidden');
-                    $('show-changes-box').classList.add('hidden');
-                }
-                
                 $('global-stats').innerHTML = '<span class="text-amber-500">🔄 מעבד ' + state.rawData.length.toLocaleString() + ' שורות...</span>';
                 const cols = { ip: +$('col-ip').value, clicks: +$('col-clicks').value, conv: +$('col-conv').value, rev: +$('col-rev').value, cost: +$('col-cost').value };
                 state.ipColumn = state.headers[cols.ip];
@@ -1580,7 +1723,10 @@
         }
 
         // ═══════════════════════════════════════════════════
-        // IMPROVED BLACKLIST - Severity tiers + fix circular dependency
+        // BLACKLIST + CLASSIFICATION
+        // BL Hard: 0 conv (enough clicks) OR conv>0 but rev=0
+        // BL Soft: conv>0, rev>0, profit<0 (losing money)
+        // Poor: enough clicks + below metric threshold (uses controls)
         // ═══════════════════════════════════════════════════
         function classifyRanges(data, medianPPC, medianCR, campaignAvgCR, campaignAvgPPC, totalCost, totalProfit, medianROI) {
             const purePct = +$('pure-pct-num').value || 10;
@@ -1589,54 +1735,39 @@
             const medROI = medianROI || state.medianROI || 100;
             const blMode = state.blMode;
             const blMult = parseFloat($('bl-threshold-mult').value) || 0.5;
-            const blSoftRoiThreshold = parseFloat($('bl-soft-roi').value) || -30;
 
-            // *** Calculate BL threshold from profitable rows only ***
-            // Generic: works for ppc, cr, roi, score
+            // STEP 1: Calculate scores FIRST
+            data = data.map(r => ({ ...r, score: calculateScore(r, medianPPC, medianCR, medROI) }));
+
+            // STEP 2: Calculate metric threshold for Poor classification
             const profitableRows = data.filter(r => r.conv > 0 && r.profit > 0);
             
             const getBlMetric = (r) => {
                 if (blMode === 'ppc') return r.ppc;
                 if (blMode === 'cr') return r.cr;
                 if (blMode === 'roi') return r.roi;
-                return r.score; // score
+                return r.score;
             };
             
             let cleanThreshold = 0;
-            let jenksHard = 0, jenksSoft = 0;
             
             if (profitableRows.length > 0) {
-                if (state.blCalc === 'median') {
-                    const sorted = profitableRows.map(r => getBlMetric(r)).sort((a, b) => a - b);
-                    cleanThreshold = sorted[Math.floor(sorted.length / 2)];
-                } else if (state.blCalc === 'mean') {
-                    cleanThreshold = profitableRows.reduce((s, r) => s + getBlMetric(r), 0) / profitableRows.length;
-                } else if (state.blCalc === 'jenks') {
-                    // Jenks: calculate from losing zones
-                    const losers = data.filter(r => r.clicks >= clickThreshold && r.conv > 0 && r.profit < 0);
-                    if (losers.length >= 8) {
-                        const vals = losers.map(r => getBlMetric(r)).sort((a, b) => a - b);
-                        const br = jenksBreaks(vals, 2);
-                        jenksHard = br[1]; jenksSoft = br[2];
-                        // Sanity cap: don't exceed 30%/60% of profitable median
-                        const profSorted = profitableRows.map(r => getBlMetric(r)).sort((a, b) => a - b);
-                        const profMed = profSorted[Math.floor(profSorted.length / 2)];
-                        if (profMed > 0) {
-                            jenksHard = Math.min(jenksHard, profMed * 0.3);
-                            jenksSoft = Math.min(jenksSoft, profMed * 0.6);
-                        }
-                    } else {
-                        // Fallback to median × mult
-                        const sorted = profitableRows.map(r => getBlMetric(r)).sort((a, b) => a - b);
-                        cleanThreshold = sorted[Math.floor(sorted.length / 2)];
-                    }
+                const metricVals = profitableRows.map(r => getBlMetric(r)).sort((a, b) => a - b);
+                const calcMedian = metricVals[Math.floor(metricVals.length / 2)];
+                const calcMean = metricVals.reduce((s, v) => s + v, 0) / metricVals.length;
+                
+                if (state.blCalc === 'mean') {
+                    cleanThreshold = calcMean;
+                } else {
+                    cleanThreshold = calcMedian;
                 }
+                console.log('[BL] blCalc=' + state.blCalc + ' blMode=' + blMode + ' median=' + calcMedian.toFixed(6) + ' mean=' + calcMean.toFixed(6) + ' → threshold=' + cleanThreshold.toFixed(6) + ' × ' + blMult + ' = ' + (cleanThreshold * blMult).toFixed(6) + ' (' + profitableRows.length + ' profitable rows)');
             }
-            // Store for display
+            if (isNaN(cleanThreshold)) cleanThreshold = 0;
+            
             state.blCleanThreshold = cleanThreshold;
-            state.blJenksHard = jenksHard;
-            state.blJenksSoft = jenksSoft;
-            const jenksActive = state.blCalc === 'jenks' && (jenksHard > 0 || jenksSoft > 0);
+            state.blJenksHard = 0;
+            state.blJenksSoft = 0;
 
             const custConvMin = parseFloat($('cust-conv-min').value) || 0;
             const custConvMax = $('cust-conv-max').value !== '' ? parseFloat($('cust-conv-max').value) : Infinity;
@@ -1651,8 +1782,7 @@
             const custPpcMin = parseFloat($('cust-ppc-min').value) || 0;
             const custPpcMax = $('cust-ppc-max').value !== '' ? parseFloat($('cust-ppc-max').value) : Infinity;
 
-            data = data.map(r => ({ ...r, score: calculateScore(r, medianPPC, medianCR, medROI) }));
-
+            // STEP 3: Pure/Gold/Potential thresholds from percentiles
             function percentileThreshold(pool, pct) {
                 if (!pool.length) return Infinity;
                 const idx = Math.max(0, Math.min(pool.length - 1, Math.ceil(pool.length * pct / 100) - 1));
@@ -1664,9 +1794,8 @@
             const pureThreshold = percentileThreshold(purePool, purePct);
             const goldThreshold = percentileThreshold(goldPool, goldPct);
             
-            // P25 Quality Gate for Potential: always-on, data-driven floor
             const potentialPool = data.filter(r => r.conv >= 1 && r.profit > 0);
-            let potentialMinROI = 100; // absolute minimum
+            let potentialMinROI = 100;
             let potentialMinScore = 0;
             if (potentialPool.length >= 10) {
                 const sortedROI = potentialPool.map(r => r.roi).sort((a, b) => a - b);
@@ -1675,64 +1804,24 @@
                 potentialMinScore = sortedScores[Math.floor(sortedScores.length * 0.25)];
             }
 
+            // STEP 4: Classify each zone
             return data.map(r => {
                 let category, action, blSeverity = null;
                 const hasEnoughClicks = r.clicks >= clickThreshold;
                 
-                // === BL SEVERITY TIERS ===
-                const blCond_ZeroConv = r.conv === 0;
-                const blCond_DeepNegROI = r.cost > 0 && r.roi < -50;
+                // === BL RULES ===
+                // Hard: enough clicks + (0 conv OR conv with $0 revenue)
+                const isBLHard = hasEnoughClicks && (r.conv === 0 || (r.conv > 0 && r.rev <= 0));
+                // Soft: has conv + has revenue + losing money
+                const isBLSoft = !isBLHard && r.conv > 0 && r.rev > 0 && r.profit < 0;
+                // Testing: 0 conv, not enough clicks
+                const isTesting = r.conv === 0 && !hasEnoughClicks;
                 
-                // Generic BL metric check
-                let blCond_PoorPerf = false;
-                let blCond_JenksHard = false;
-                let blCond_JenksSoft = false;
-                const blVal = getBlMetric(r);
-                
-                if (r.conv > 0) {
-                    if (jenksActive) {
-                        // Jenks: profit < 0 required for BL (profit safety valve)
-                        blCond_JenksHard = blVal < jenksHard && r.profit < 0;
-                        blCond_JenksSoft = blVal >= jenksHard && blVal < jenksSoft && r.profit < 0;
-                    } else {
-                        // Median/Mean: threshold × multiplier
-                        blCond_PoorPerf = blVal < (cleanThreshold * blMult);
-                    }
-                }
-                
-                // Soft BL: negative profit but not catastrophic
-                const blCond_NegProfit = r.profit < 0;
-                const isDeepNeg = r.cost > 0 && r.roi < blSoftRoiThreshold;
-                
-                const isTesting = r.conv === 0 && r.clicks < clickThreshold;
-
-                // Determine BL tier
-                let isBlacklist = false;
-                let isBlacklistSoft = false;
-                let isWatch = false;
-                
-                if (hasEnoughClicks) {
-                    if (blCond_ZeroConv || blCond_DeepNegROI) {
-                        isBlacklist = true;
-                        blSeverity = 'hard';
-                    } else if (blCond_JenksHard) {
-                        // Jenks: bottom cluster + negative profit (already in condition)
-                        isBlacklist = true;
-                        blSeverity = 'hard';
-                    } else if (blCond_JenksSoft) {
-                        // Jenks: mid-low cluster + negative profit (already in condition)
-                        isBlacklistSoft = true;
-                        blSeverity = 'soft';
-                    } else if (blCond_NegProfit && isDeepNeg) {
-                        isBlacklistSoft = true;
-                        blSeverity = 'soft';
-                    } else if (blCond_PoorPerf) {
-                        isWatch = true;
-                        blSeverity = 'watch';
-                    } else if (blCond_NegProfit) {
-                        isWatch = true;
-                        blSeverity = 'watch';
-                    }
+                // Poor: enough clicks + conv > 0 + below metric threshold × multiplier
+                let isPoor = false;
+                if (hasEnoughClicks && r.conv > 0 && !isBLHard && !isBLSoft) {
+                    const blVal = getBlMetric(r);
+                    isPoor = blVal < (cleanThreshold * blMult);
                 }
 
                 const crPercent = r.cr * 100;
@@ -1744,29 +1833,31 @@
                     crPercent >= custCrMin && crPercent <= custCrMax &&
                     r.ppc >= custPpcMin && r.ppc <= custPpcMax;
 
-                // Wilson confidence
                 const wilson = wilsonScore(r.conv, r.clicks);
 
-                if (isBlacklist) { category = 'blacklist'; action = '🔴 Block'; }
-                else if (isBlacklistSoft) { category = 'blacklist-soft'; action = '🟠 Review & Block'; }
-                else if (isWatch) { category = 'watch'; action = '👀 Monitor'; }
-                else if (isTesting) { category = 'testing'; action = 'Wait'; }
-                else if (matchesCustom) { category = 'custom'; action = 'Custom'; }
-                else if (r.conv >= 3 && r.profit > 0 && r.score >= pureThreshold) { category = 'pure'; action = 'Bid +30%'; }
-                else if (r.conv >= 2 && r.profit > 0 && r.score >= goldThreshold) { category = 'gold'; action = 'Bid +15%'; }
-                else if (r.conv >= 1 && r.profit > 0 && r.roi >= potentialMinROI && r.score >= potentialMinScore) { category = 'potential'; action = 'Bid +5-10%'; }
-                else if (r.conv >= 1) { category = 'watch'; action = '👀 Monitor'; }
-                else { category = 'ignore'; action = 'RON'; }
+                // === FINAL CLASSIFICATION ===
+                // BL Hard → BL Soft → Testing → Custom → Pure → Gold → Potential → Poor → Watch
+                if (isBLHard) { category = 'blacklist'; action = '⛔ Block'; blSeverity = 'hard'; }
+                else if (isBLSoft) { category = 'blacklist-soft'; action = '🟠 Review'; blSeverity = 'soft'; }
+                else if (isTesting) { category = 'testing'; action = '🔬 Wait'; }
+                else if (matchesCustom) { category = 'custom'; action = '🎯 Custom'; }
+                else if (r.conv >= 3 && r.profit > 0 && r.score >= pureThreshold) { category = 'pure'; action = '💎 Scale'; }
+                else if (r.conv >= 2 && r.profit > 0 && r.score >= goldThreshold) { category = 'gold'; action = '🥇 Increase'; }
+                else if (r.conv >= 1 && r.profit > 0 && r.roi >= potentialMinROI && r.score >= potentialMinScore) { category = 'potential'; action = '🌱 Grow'; }
+                else if (isPoor) { category = 'watch'; action = '⚠️ Monitor'; }
+                else { category = 'ignore'; action = '👀 Watch'; }
 
-                return { ...r, category, action, matchesCustom, isBlacklist, isBlacklistSoft, isWatch, isTesting, blSeverity, wilson,
-                    blReason: (isBlacklist || isBlacklistSoft || isWatch) ? 
-                        (blCond_ZeroConv ? 'zero_conv' : blCond_DeepNegROI ? 'deep_neg_roi' : blCond_JenksHard ? 'jenks_hard' : blCond_JenksSoft ? 'jenks_soft' : blCond_NegProfit ? 'neg_profit' : 'poor_' + blMode) : null };
+                const blReason = isBLHard ? (r.conv === 0 ? 'zero_conv' : 'zero_revenue') : isBLSoft ? 'negative_profit' : isPoor ? 'below_threshold' : null;
+
+                return { ...r, category, action, matchesCustom,
+                    isBlacklist: isBLHard, isBlacklistSoft: isBLSoft, isWatch: category === 'watch',
+                    isTesting, blSeverity, wilson, blReason };
             });
         }
 
         function assignVolumeTiers(data) {
             // Assign High/Mid/Low volume tier within each category based on clicks terciles
-            const volCategories = ['pure', 'gold', 'potential', 'watch', 'blacklist', 'blacklist-soft', 'testing'];
+            const volCategories = ['pure', 'gold', 'potential', 'watch', 'ignore', 'blacklist', 'blacklist-soft', 'testing'];
             const groups = {};
             volCategories.forEach(cat => { groups[cat] = []; });
             data.forEach((r, i) => { if (groups[r.category]) groups[r.category].push(i); });
@@ -1813,7 +1904,10 @@
                 ...r, identifier: r.identifier || 'Unknown',
                 roi: r.cost > 0 ? (r.profit / r.cost) * 100 : (r.profit > 0 ? 999 : 0),
                 cr: r.clicks > 0 ? r.conv / r.clicks : 0,
-                ppc: r.clicks > 0 ? r.profit / r.clicks : 0
+                ppc: r.clicks > 0 ? r.profit / r.clicks : 0,
+                cpa: r.conv > 0 ? r.cost / r.conv : 0,
+                ap: r.conv > 0 ? r.rev / r.conv : 0,
+                cpc: r.clicks > 0 ? r.cost / r.clicks : 0
             }));
             
             const getAggKey = (r) => {
@@ -1838,11 +1932,12 @@
             state.aggregatedData = Object.values(grouped).map(g => {
                 const finalExtraData = { ...g.extraData };
                 state.extraColumns.forEach(col => { if (g._extraSets[col] && g._extraSets[col].size > 1) finalExtraData[col] = 'מעורב (' + g._extraSets[col].size + ')'; });
-                return { ...g, extraData: finalExtraData, roi: g.cost > 0 ? (g.profit / g.cost) * 100 : (g.profit > 0 ? 999 : 0), cr: g.clicks > 0 ? g.conv / g.clicks : 0, ppc: g.clicks > 0 ? g.profit / g.clicks : 0 };
+                return { ...g, extraData: finalExtraData, roi: g.cost > 0 ? (g.profit / g.cost) * 100 : (g.profit > 0 ? 999 : 0), cr: g.clicks > 0 ? g.conv / g.clicks : 0, ppc: g.clicks > 0 ? g.profit / g.clicks : 0, cpc: g.clicks > 0 ? g.cost / g.clicks : 0, cpa: g.conv > 0 ? g.cost / g.conv : 0, ap: g.conv > 0 ? g.rev / g.conv : 0 };
             });
 
             const totalClicks = state.aggregatedData.reduce((s, r) => s + r.clicks, 0);
             const totalConv = state.aggregatedData.reduce((s, r) => s + r.conv, 0);
+            const totalRev = state.aggregatedData.reduce((s, r) => s + r.rev, 0);
             const totalProfit = state.aggregatedData.reduce((s, r) => s + r.profit, 0);
             const totalCost = state.aggregatedData.reduce((s, r) => s + r.cost, 0);
             const campaignAvgCR = totalClicks > 0 ? totalConv / totalClicks : 0;
@@ -1864,48 +1959,120 @@
             $('med-ppc').textContent = '$' + state.medianPPC.toFixed(4);
             $('med-cr').textContent = (state.medianCR * 100).toFixed(3) + '%';
             calculateClickThreshold();
+            
+            // Auto-calculate campaign AP (payout) if not manually set
+            const campaignAP = totalConv > 0 ? totalRev / totalConv : 0;
+            state.campaignAP = campaignAP;
+            if (campaignAP > 0 && (parseFloat($('avg-payout').value) === 0 || !$('avg-payout').dataset.manual)) {
+                $('avg-payout').value = campaignAP.toFixed(2);
+                $('payout-info').textContent = 'AP ממוצע: $' + campaignAP.toFixed(2) + ' (Rev $' + totalRev.toFixed(0) + ' / ' + totalConv + ' conv)';
+            }
 
             let processed = classifyRanges(state.aggregatedData, medianPPC, medianCR, campaignAvgCR, campaignAvgPPC, totalCost, totalProfit, medianROI);
             processed = detectAnomalies(processed, campaignAvgCR);
             processed = assignVolumeTiers(processed);
+            
+            // AUTO TIERS: auto-detect optimal Pure%/Gold% thresholds, then re-classify
+            // Skip if user has manually set Pure/Gold values
+            state.processed = processed;
+            if (!state.manualTiers && autoDetectThresholds(true)) {
+                processed = classifyRanges(state.aggregatedData, medianPPC, medianCR, campaignAvgCR, campaignAvgPPC, totalCost, totalProfit, medianROI);
+                processed = detectAnomalies(processed, campaignAvgCR);
+                processed = assignVolumeTiers(processed);
+            }
+            
+            // Break-even per zone (if campaign payout is set)
+            const campaignPayout = parseFloat($('avg-payout') ? $('avg-payout').value : 0) || 0;
+            if (campaignPayout > 0) {
+                processed = processed.map(r => {
+                    if (r.isSummary || r.clicks === 0) return { ...r, breakEven: null };
+                    const cpc = r.cost / r.clicks;
+                    const expectedPerClick = r.cr * campaignPayout;
+                    const netPerClick = expectedPerClick - cpc;
+                    let beClicks = null;
+                    let beStatus = 'neutral';
+                    if (r.conv === 0) {
+                        // No conversions yet - calculate how many clicks to first expected conversion
+                        beClicks = campaignPayout > 0 ? Math.ceil(r.cost / (campaignPayout * (campaignAvgCR || 0.001))) : null;
+                        beStatus = 'unknown';
+                    } else if (netPerClick > 0.0001) {
+                        // Zone earns per click - it's sustainable
+                        if (r.profit < 0) {
+                            beClicks = Math.ceil(Math.abs(r.profit) / netPerClick);
+                            beStatus = 'recovering';
+                        } else {
+                            beClicks = 0;
+                            beStatus = 'safe';
+                        }
+                    } else if (netPerClick < -0.0001) {
+                        // Zone loses per click
+                        if (r.profit > 0) {
+                            beClicks = Math.ceil(r.profit / Math.abs(netPerClick));
+                            beStatus = 'declining';
+                        } else {
+                            beClicks = -1;
+                            beStatus = 'sinking';
+                        }
+                    } else {
+                        beStatus = r.profit >= 0 ? 'safe' : 'sinking';
+                    }
+                    return { ...r, breakEven: { clicks: beClicks, status: beStatus, netPerClick: netPerClick, cpc: cpc, expectedPerClick: expectedPerClick } };
+                });
+            }
             state.processed = processed;
             state.processedRaw = null;
             
-            // Update BL threshold display
+            // Update BL threshold display — show both values for transparency
             const blMult = parseFloat($('bl-threshold-mult').value) || 0.5;
-            const blCalcLabel = state.blCalc === 'median' ? 'מחציון' : state.blCalc === 'mean' ? 'ממוצע' : 'Jenks Auto';
+            const blCalcLabel = state.blCalc === 'mean' ? 'ממוצע' : 'מחציון';
             const blDisplay = $('bl-current-threshold-display');
             const blCalcLabelEl = $('bl-calc-label');
             if (blCalcLabelEl) blCalcLabelEl.textContent = blCalcLabel;
             
             const blModeLabel = state.blMode === 'ppc' ? 'PPC' : state.blMode === 'cr' ? 'CR' : state.blMode === 'roi' ? 'ROI' : 'Score';
             const fmtBlVal = (v) => {
-                if (state.blMode === 'ppc') return '$' + v.toFixed(4);
-                if (state.blMode === 'cr') return (v * 100).toFixed(3) + '%';
-                if (state.blMode === 'roi') return v.toFixed(0) + '%';
-                return v.toFixed(3);
+                if (isNaN(v) || v === undefined || v === null) return '0';
+                if (state.blMode === 'ppc') return '$' + v.toFixed(6);
+                if (state.blMode === 'cr') return (v * 100).toFixed(4) + '%';
+                if (state.blMode === 'roi') return v.toFixed(1) + '%';
+                return v.toFixed(5);
             };
             
-            const blJenksInfo = $('bl-jenks-info');
-            if (state.blCalc === 'jenks' && (state.blJenksHard > 0 || state.blJenksSoft > 0)) {
-                if (blDisplay) blDisplay.textContent = 'Hard: ' + blModeLabel + ' < ' + fmtBlVal(state.blJenksHard) + ' | Soft: < ' + fmtBlVal(state.blJenksSoft);
-                if (blJenksInfo) {
-                    blJenksInfo.classList.remove('hidden');
-                    $('bl-jenks-text').textContent = 'Hard < ' + fmtBlVal(state.blJenksHard) + ' | Soft < ' + fmtBlVal(state.blJenksSoft);
-                }
-            } else {
-                if (blJenksInfo) blJenksInfo.classList.add('hidden');
-                if (blDisplay && state.blCleanThreshold !== undefined) {
-                    blDisplay.textContent = blModeLabel + ' < ' + fmtBlVal(state.blCleanThreshold * blMult) + ' (' + blCalcLabel + ': ' + fmtBlVal(state.blCleanThreshold) + ')';
-                }
+            // Calculate BOTH median and mean for display
+            const profRows = processed.filter(r => r.conv > 0 && r.profit > 0 && !r.isSummary);
+            const getMetric = (r) => {
+                if (state.blMode === 'ppc') return r.ppc;
+                if (state.blMode === 'cr') return r.cr;
+                if (state.blMode === 'roi') return r.roi;
+                return r.score;
+            };
+            let dispMedian = 0, dispMean = 0;
+            if (profRows.length > 0) {
+                const vals = profRows.map(r => getMetric(r)).sort((a, b) => a - b);
+                dispMedian = vals[Math.floor(vals.length / 2)];
+                dispMean = vals.reduce((s, v) => s + v, 0) / vals.length;
+            }
+            
+            const hardCount = processed.filter(r => r.isBlacklist).length;
+            const softCount = processed.filter(r => r.isBlacklistSoft).length;
+            const poorCount = processed.filter(r => r.isWatch).length;
+            console.log('[BL Display] blCalc=' + state.blCalc + ' threshold=' + (state.blCleanThreshold).toFixed(6) + ' ×' + blMult + '=' + (state.blCleanThreshold * blMult).toFixed(6) + ' | Hard=' + hardCount + ' Soft=' + softCount + ' Poor=' + poorCount);
+            
+            if (blDisplay) {
+                const activeVal = state.blCalc === 'mean' ? dispMean : dispMedian;
+                blDisplay.innerHTML = '<div>' + blModeLabel + ' Poor סף: <strong>' + fmtBlVal(activeVal * blMult) + '</strong> (' + blCalcLabel + ' × ' + blMult + ')</div>' +
+                    '<div class="text-[9px] text-slate-500 mt-0.5">מחציון: ' + fmtBlVal(dispMedian) + ' | ממוצע: ' + fmtBlVal(dispMean) + ' | ' + profRows.length + ' zones רווחיים</div>' +
+                    '<div class="mt-1">⛔' + hardCount + ' 🟠' + softCount + ' ⚠️' + poorCount + '</div>';
             }
 
             applyViewFilter();
             renderKPIs();
             renderTable();
             renderGlobalStats();
+            updateActionSummary();
+            updateSavingsBanner();
             updateMiniDashboard();
-            enableCompareButton();
+            enableButtons();
             updateMacroWarning();
         }
         
@@ -1925,20 +2092,6 @@
                 processedRaw = detectAnomalies(processedRaw, rawCampaignAvgCR);
                 processedRaw = assignVolumeTiers(processedRaw);
                 state.processedRaw = processedRaw;
-                
-                if (state.compareMode && state.compareData) {
-                    state.processedRaw.forEach(r => {
-                        const old = state.compareData.get(r.identifier);
-                        if (!old) { r.compareStatus = 'new'; r.profitChange = 0; }
-                        else {
-                            const profitChange = old.profit - r.profit;
-                            r.profitChange = profitChange; r.oldProfit = old.profit; r.oldRoi = old.roi; r.oldCr = old.cr;
-                            if (profitChange > 0.5) r.compareStatus = 'improved';
-                            else if (profitChange < -0.5) r.compareStatus = 'declined';
-                            else r.compareStatus = 'same';
-                        }
-                    });
-                }
             }
             
             const sourceData = state.aggMode === 'split' ? state.processedRaw : state.processed;
@@ -1948,7 +2101,7 @@
                 const summaries = state.summaryRows.map(r => ({
                     ...r, identifier: r.identifier || buildIdentifier(r),
                     roi: r.cost > 0 ? (r.profit / r.cost) * 100 : 0, cr: r.clicks > 0 ? r.conv / r.clicks : 0,
-                    ppc: r.clicks > 0 ? r.profit / r.clicks : 0,
+                    ppc: r.clicks > 0 ? r.profit / r.clicks : 0, cpc: r.clicks > 0 ? r.cost / r.clicks : 0, cpa: r.conv > 0 ? r.cost / r.conv : 0, ap: r.conv > 0 ? r.rev / r.conv : 0,
                     score: 0, category: 'summary', action: '-', isSummary: true
                 }));
                 finalData = [...summaries, ...finalData];
@@ -1956,15 +2109,6 @@
 
             if (view === 'winners') finalData = finalData.filter(r => ['pure', 'gold'].includes(r.category));
             else if (view === 'relevant') finalData = finalData.filter(r => ['pure', 'gold', 'potential'].includes(r.category));
-            else if (view === 'relevant_high') finalData = finalData.filter(r => ['pure', 'gold', 'potential'].includes(r.category) && r.volumeTier === 'high');
-            else if (view === 'relevant_mid') finalData = finalData.filter(r => ['pure', 'gold', 'potential'].includes(r.category) && r.volumeTier === 'mid');
-            else if (view === 'relevant_low') finalData = finalData.filter(r => ['pure', 'gold', 'potential'].includes(r.category) && r.volumeTier === 'low');
-            else if (view === 'pure_high') finalData = finalData.filter(r => r.category === 'pure' && r.volumeTier === 'high');
-            else if (view === 'pure_mid') finalData = finalData.filter(r => r.category === 'pure' && r.volumeTier === 'mid');
-            else if (view === 'pure_low') finalData = finalData.filter(r => r.category === 'pure' && r.volumeTier === 'low');
-            else if (view === 'gold_high') finalData = finalData.filter(r => r.category === 'gold' && r.volumeTier === 'high');
-            else if (view === 'gold_mid') finalData = finalData.filter(r => r.category === 'gold' && r.volumeTier === 'mid');
-            else if (view === 'gold_low') finalData = finalData.filter(r => r.category === 'gold' && r.volumeTier === 'low');
             else if (view === 'relevant_plus') finalData = finalData.filter(r => ['pure', 'gold', 'potential', 'testing'].includes(r.category));
             else if (view === 'custom') finalData = finalData.filter(r => r.matchesCustom);
             else if (view === 'blacklist') finalData = finalData.filter(r => r.category === 'blacklist');
@@ -1972,9 +2116,6 @@
             else if (view === 'watch') finalData = finalData.filter(r => r.category === 'watch');
             else if (view === 'all-bl') finalData = finalData.filter(r => ['blacklist', 'blacklist-soft', 'watch'].includes(r.category));
             else if (view === 'anomaly') finalData = finalData.filter(r => r.anomalies && r.anomalies.length > 0);
-            else if (view === 'compare-new') finalData = finalData.filter(r => r.compareStatus === 'new');
-            else if (view === 'compare-improved') finalData = finalData.filter(r => r.compareStatus === 'improved');
-            else if (view === 'compare-declined') finalData = finalData.filter(r => r.compareStatus === 'declined');
             else if (view !== 'all') finalData = finalData.filter(r => r.category === view);
             
             if (minScore > 0) finalData = finalData.filter(r => r.score >= minScore || r.isSummary);
@@ -1988,6 +2129,7 @@
             else if (volFilter === 'mid') finalData = finalData.filter(r => r.volumeTier === 'mid' || r.isSummary);
             else if (volFilter === 'low') finalData = finalData.filter(r => r.volumeTier === 'low' || r.isSummary);
             else if (volFilter === 'high-mid') finalData = finalData.filter(r => r.volumeTier === 'high' || r.volumeTier === 'mid' || r.isSummary);
+            else if (volFilter === 'low-mid') finalData = finalData.filter(r => r.volumeTier === 'low' || r.volumeTier === 'mid' || r.isSummary);
             
             state.filtered = finalData.sort((a, b) => {
                 if (a.isSummary && !b.isSummary) return -1;
@@ -2008,6 +2150,9 @@
                         case 'roi': valA = a.roi; valB = b.roi; break;
                         case 'cr': valA = a.cr; valB = b.cr; break;
                         case 'ppc': valA = a.ppc; valB = b.ppc; break;
+                        case 'cpc': valA = a.cpc || 0; valB = b.cpc || 0; break;
+                        case 'cpa': valA = a.cpa || 0; valB = b.cpa || 0; break;
+                        case 'ap': valA = a.ap || 0; valB = b.ap || 0; break;
                         default: valA = a.score; valB = b.score;
                     }
                     if (typeof valA === 'string') { const cmp = valA.localeCompare(valB); return state.sortDirection === 'asc' ? cmp : -cmp; }
@@ -2077,7 +2222,7 @@
             });
         });
         
-        $('ip-level').addEventListener('change', () => { processData(); });
+        $('ip-level').addEventListener('change', () => { state.manualTiers = false; processData(); });
         $('identifier-type').addEventListener('change', () => { 
             state.identifierType = $('identifier-type').value;
             if (state.identifierType !== 'auto') {
@@ -2087,41 +2232,54 @@
             }
             processData(); 
         });
-        $('col-ip').addEventListener('change', () => { detectAndUpdateIdentifierType(); processData(); });
+        $('col-ip').addEventListener('change', () => { state.manualTiers = false; detectAndUpdateIdentifierType(); processData(); });
         $('custom-enabled').addEventListener('change', () => { processData(); });
+        $('avg-payout').addEventListener('input', () => { $('avg-payout').dataset.manual = '1'; saveSettings(); processData(); });
+        
+        function autoCalcPayout() {
+            $('avg-payout').dataset.manual = '';
+            if (state.campaignAP > 0) {
+                $('avg-payout').value = state.campaignAP.toFixed(2);
+                $('payout-info').textContent = 'AP ממוצע: $' + state.campaignAP.toFixed(2) + ' (אוטומטי)';
+                showToast('Payout = Campaign AP: $' + state.campaignAP.toFixed(2), 'success');
+            }
+            processData();
+        }
 
         function setBlMode(mode) {
+            console.log('[BL] setBlMode: ' + state.blMode + ' → ' + mode);
             state.blMode = mode;
             document.querySelectorAll('.bl-mode-btn[data-blmode]').forEach(btn => btn.classList.toggle('active', btn.dataset.blmode === mode));
             state.processedRaw = null;
             processFullPipeline();
             saveSettings();
+            showToast('BL מצב: ' + mode.toUpperCase(), 'info', 1500);
         }
         
         function setBlCalc(calc) {
+            // Only median and mean supported now
+            if (calc === 'jenks') calc = 'median';
+            console.log('[BL] setBlCalc: ' + state.blCalc + ' → ' + calc);
             state.blCalc = calc;
-            if (calc !== 'jenks') {
-                const blJenksInfo = $('bl-jenks-info');
-                if (blJenksInfo) blJenksInfo.classList.add('hidden');
-            }
             document.querySelectorAll('.bl-mode-btn[data-blcalc]').forEach(btn => btn.classList.toggle('active', btn.dataset.blcalc === calc));
             state.processedRaw = null;
             processFullPipeline();
             saveSettings();
+            showToast('BL חישוב: ' + (calc === 'mean' ? 'ממוצע' : 'מחציון'), 'info', 1500);
         }
 
         function renderKPIs() {
             const sourceData = state.aggMode === 'split' ? (state.processedRaw || []) : (state.processed || []);
             
             const categories = [
-                { key: 'blacklist', name: 'BLACKLIST', icon: '🚫', cls: 'kpi-blacklist', lblCls: 'text-red-600' },
-                { key: 'blacklist-soft', name: 'BL SOFT', icon: '🟠', cls: 'kpi-blacklist', lblCls: 'text-orange-600' },
-                { key: 'ignore', name: 'IGNORE', icon: '😐', cls: 'kpi-ignore', lblCls: 'text-slate-500' },
-                { key: 'potential', name: 'POTENTIAL', icon: '🌱', cls: 'kpi-potential', lblCls: 'text-emerald-600' },
-                { key: 'gold', name: 'GOLD', icon: '🥇', cls: 'kpi-gold', lblCls: 'text-amber-600' },
-                { key: 'pure', name: 'PURE', icon: '💎', cls: 'kpi-pure', lblCls: 'text-amber-700' },
-                { key: 'watch', name: 'WATCH', icon: '👀', cls: 'kpi-testing', lblCls: 'text-blue-500' },
-                { key: 'testing', name: state.customEnabled ? 'CUSTOM' : 'TESTING', icon: state.customEnabled ? '🎯' : '🔬', cls: 'kpi-testing', lblCls: 'text-blue-600' }
+                { key: 'pure', name: 'PURE', icon: '💎', cls: 'kpi-pure', lblCls: 'text-blue-700', tip: 'Top performers — ≥3 conv, profitable, highest score. Scale aggressively.', tipHe: '💎 הטופ! ≥3 המרות, רווחיים, סקור גבוה. הגדל תקציב בצורה אגרסיבית' },
+                { key: 'gold', name: 'GOLD', icon: '🥇', cls: 'kpi-gold', lblCls: 'text-amber-600', tip: 'Strong performers — ≥2 conv, profitable, high score. Increase bids.', tipHe: '🥇 חזקים! ≥2 המרות, רווחיים. העלה הצעות מחיר' },
+                { key: 'potential', name: 'POTENTIAL', icon: '🌱', cls: 'kpi-potential', lblCls: 'text-emerald-600', tip: 'Promising zones — profitable with good ROI & score. Room to grow.', tipHe: '🌱 מבטיחים - רווחיים עם ROI טוב. יש מקום לצמוח' },
+                { key: 'ignore', name: 'WATCH', icon: '👀', cls: 'kpi-ignore', lblCls: 'text-slate-500', tip: 'Profitable but below quality gates. Keep running, monitor performance.', tipHe: '👀 רווחיים אבל מתחת לשערי איכות. המשך להריץ, עקוב' },
+                { key: 'testing', name: state.customEnabled ? 'CUSTOM' : 'TESTING', icon: state.customEnabled ? '🎯' : '🔬', cls: 'kpi-testing', lblCls: 'text-blue-600', tip: '0 conversions, not enough clicks to judge. Still collecting data.', tipHe: '🔬 0 המרות, לא מספיק קליקים לשפוט. עדיין אוספים נתונים' },
+                { key: 'watch', name: 'POOR', icon: '⚠️', cls: 'kpi-poor', lblCls: 'text-orange-600', tip: 'Has conversions & profit > 0 but doesn\'t meet Potential thresholds. Consider reducing bids.', tipHe: '⚠️ יש המרות ורווח אבל מתחת לסף. שקול הורדת הצעות' },
+                { key: 'blacklist-soft', name: 'BL SOFT', icon: '🟠', cls: 'kpi-bl-soft', lblCls: 'text-red-500', tip: 'Has conversions + revenue but losing money (profit < 0). Review & consider blocking.', tipHe: '🟠 יש המרות והכנסה אבל מפסידים כסף. בדוק מקרוב' },
+                { key: 'blacklist', name: 'BL HARD', icon: '⛔', cls: 'kpi-blacklist', lblCls: 'text-red-700', tip: 'Zero conversions (enough clicks) or conversions with $0 revenue. Block immediately.', tipHe: '⛔ אפס המרות או הכנסה 0 - חסום מיד!' }
             ];
             let html = '';
             categories.forEach(cat => {
@@ -2142,7 +2300,7 @@
                     // Header: count + label
                     '<div class="kpi-card-header">' +
                         '<span class="kpi-card-count">' + s.count.toLocaleString() + '</span>' +
-                        '<span class="kpi-card-label ' + cat.lblCls + '">' + cat.name + ' ' + cat.icon + '</span>' +
+                        '<span class="kpi-card-label ' + cat.lblCls + ' kpi-label-hover" data-tiphe="' + cat.tipHe + '">' + cat.name + ' ' + cat.icon + '</span>' +
                     '</div>' +
                     // Top row: PPC + Clicks in bordered boxes
                     '<div class="kpi-top-row">' +
@@ -2184,15 +2342,32 @@
             const ppc = clicks > 0 ? (profit / clicks) : 0;
             const anomalyCount = data.filter(r => r.anomalies && r.anomalies.length > 0).length;
             const pill = (l, v, c) => '<div class="g-item"><span class="g-lbl">' + l + '</span><span class="g-val ' + c + '">' + v + '</span></div>';
-            $('global-stats').innerHTML = pill('מזהים', data.length.toLocaleString(), '') + pill('Clicks', formatNum(clicks), 'text-blue-600') + pill('Conv', conv.toLocaleString(), '') + pill('Revenue', '$' + formatNum(rev), 'text-green-600') + pill('Cost', '$' + formatNum(cost), 'text-slate-500') + pill('Profit', '$' + formatNum(profit), profit >= 0 ? 'text-green-600' : 'text-red-500') + pill('ROI', roi.toFixed(0) + '%', roi >= 0 ? 'text-green-600' : 'text-red-500') + pill('CR', cr.toFixed(3) + '%', 'text-blue-600') + pill('PPC', '$' + ppc.toFixed(4), 'text-amber-600') + (anomalyCount > 0 ? pill('🚨', anomalyCount.toString(), 'text-red-500') : '');
+            const ap = conv > 0 ? (rev / conv) : 0;
+            const cpc = clicks > 0 ? (cost / clicks) : 0;
+            const cpa = conv > 0 ? (cost / conv) : 0;
+            $('global-stats').innerHTML = pill('מזהים', data.length.toLocaleString(), '') + pill('Clicks', formatNum(clicks), 'text-blue-600') + pill('Conv', conv.toLocaleString(), '') + pill('Revenue', '$' + formatNum(rev), 'text-green-600') + pill('Cost', '$' + formatNum(cost), 'text-slate-500') + pill('Profit', '$' + formatNum(profit), profit >= 0 ? 'text-green-600' : 'text-red-500') + pill('ROI', roi.toFixed(0) + '%', roi >= 0 ? 'text-green-600' : 'text-red-500') + pill('CR', cr.toFixed(3) + '%', 'text-blue-600') + pill('PPC', '$' + ppc.toFixed(4), 'text-amber-600') + pill('CPC', '$' + cpc.toFixed(4), 'text-slate-600') + pill('CPA', '$' + cpa.toFixed(2), 'text-orange-600') + pill('AP', '$' + ap.toFixed(2), 'text-green-700') + (anomalyCount > 0 ? pill('🚨', anomalyCount.toString(), 'text-red-500') : '');
         }
 
         function renderTable() {
             const start = (state.page - 1) * state.pageSize;
             const pageData = state.filtered.slice(start, start + state.pageSize);
             const showLevel = state.hasHierarchy;
-            const showChanges = state.compareMode && $('chk-show-changes').checked;
             const showExtraCols = state.extraColumns && state.extraColumns.length > 0;
+            
+            // Dynamic extra column headers
+            document.querySelectorAll('.extra-col-th').forEach(el => el.remove());
+            if (showExtraCols) {
+                const refTh = document.querySelector('th[data-sort="category"]');
+                if (refTh) {
+                    state.extraColumns.slice().reverse().forEach(col => {
+                        const th = document.createElement('th');
+                        th.className = 'text-center extra-col-th';
+                        th.style.fontSize = '11px';
+                        th.textContent = col;
+                        refTh.parentNode.insertBefore(th, refTh);
+                    });
+                }
+            }
             
             const totals = { clicks: 0, conv: 0, rev: 0, cost: 0, profit: 0 };
             state.filtered.forEach(r => { if (!r.isSummary) { totals.clicks += r.clicks; totals.conv += r.conv; totals.rev += r.rev; totals.cost += r.cost; totals.profit += r.profit; } });
@@ -2201,57 +2376,44 @@
             totals.ppc = totals.clicks > 0 ? (totals.profit / totals.clicks) : 0;
             const extraColsPlaceholders = state.extraColumns.map(() => '<th class="summary-cell"></th>').join('');
             
-            $('table-summary-row').innerHTML = '<th class="summary-cell text-center text-slate-400">-</th>' +
+            $('table-summary-row').innerHTML = '<th class="summary-cell text-center" style="color:#64748b;">-</th>' +
                 (showLevel ? '<th class="summary-cell"></th>' : '') +
-                '<th class="summary-cell text-right text-indigo-700">סה"כ (' + state.filtered.length + ')</th>' +
+                '<th class="summary-cell text-right" style="font-weight:900;color:#374151;">סה"כ ' + state.filtered.length + ' זונים</th>' +
                 extraColsPlaceholders +
                 '<th class="summary-cell"></th><th class="summary-cell"></th><th class="summary-cell"></th>' +
-                '<th class="summary-cell text-center text-indigo-900">' + totals.clicks.toLocaleString() + '</th>' +
-                '<th class="summary-cell text-center text-indigo-900">' + totals.conv.toLocaleString() + '</th>' +
-                '<th class="summary-cell text-center text-green-700">$' + formatNum(totals.rev) + '</th>' +
-                '<th class="summary-cell text-center text-slate-500">$' + formatNum(totals.cost) + '</th>' +
-                '<th class="summary-cell text-center ' + (totals.profit >= 0 ? 'text-green-700' : 'text-red-600') + '">$' + formatNum(totals.profit) + '</th>' +
-                '<th class="summary-cell text-center ' + (totals.roi >= 0 ? 'text-green-700' : 'text-red-600') + '">' + totals.roi.toFixed(0) + '%</th>' +
-                '<th class="summary-cell text-center text-blue-700">' + totals.cr.toFixed(3) + '%</th>' +
-                '<th class="summary-cell text-center text-amber-700">$' + totals.ppc.toFixed(4) + '</th>';
+                '<th class="summary-cell text-center" style="color:#1e293b;">' + totals.clicks.toLocaleString() + '</th>' +
+                '<th class="summary-cell text-center" style="color:#1e293b;">' + totals.conv.toLocaleString() + '</th>' +
+                '<th class="summary-cell text-center" style="color:#16a34a;">$' + formatNum(totals.rev) + '</th>' +
+                '<th class="summary-cell text-center" style="color:#64748b;">$' + formatNum(totals.cost) + '</th>' +
+                '<th class="summary-cell text-center" style="color:' + (totals.profit >= 0 ? '#16a34a' : '#dc2626') + ';">$' + formatNum(totals.profit) + '</th>' +
+                '<th class="summary-cell text-center" style="color:' + (totals.roi >= 0 ? '#16a34a' : '#dc2626') + ';">' + totals.roi.toFixed(0) + '%</th>' +
+                '<th class="summary-cell text-center" style="color:#2563eb;">' + totals.cr.toFixed(3) + '%</th>' +
+                '<th class="summary-cell text-center" style="color:#d97706;">$' + totals.ppc.toFixed(4) + '</th>' +
+                '<th class="summary-cell text-center" style="color:#64748b;">$' + (totals.clicks > 0 ? (totals.cost / totals.clicks).toFixed(4) : '0') + '</th>' +
+                '<th class="summary-cell text-center" style="color:#ea580c;">' + (totals.conv > 0 ? '$' + (totals.cost / totals.conv).toFixed(2) : '-') + '</th>' +
+                '<th class="summary-cell text-center" style="color:#7c3aed;">' + (totals.conv > 0 ? '$' + (totals.rev / totals.conv).toFixed(2) : '-') + '</th>';
 
             const catConfig = {
                 pure: { badge: 'badge-pure', row: 'row-pure', label: '💎 PURE' },
                 gold: { badge: 'badge-gold', row: 'row-gold', label: '🥇 GOLD' },
                 potential: { badge: 'badge-potential', row: 'row-potential', label: '🌱 POTENTIAL' },
-                ignore: { badge: 'badge-ignore', row: '', label: '😐 IGNORE' },
-                blacklist: { badge: 'badge-blacklist', row: 'row-blacklist', label: '🔴 BL HARD' },
+                ignore: { badge: 'badge-ignore', row: 'row-ignore', label: '👀 WATCH' },
+                blacklist: { badge: 'badge-blacklist', row: 'row-blacklist', label: '⛔ BL HARD' },
                 'blacklist-soft': { badge: 'badge-blacklist-soft', row: 'row-blacklist-soft', label: '🟠 BL SOFT' },
-                watch: { badge: 'badge-watch', row: 'row-watch', label: '👀 WATCH' },
+                watch: { badge: 'badge-watch', row: 'row-watch', label: '⚠️ POOR' },
                 testing: { badge: 'badge-testing', row: 'row-testing', label: '🔬 TESTING' },
                 custom: { badge: 'badge-custom', row: 'row-custom', label: '🎯 CUSTOM' },
                 summary: { badge: 'badge-summary', row: 'row-summary', label: '📊 SUMMARY' }
             };
-            const compareBadges = {
-                'new': '<span class="compare-badge badge-new ml-1">✨</span>',
-                'improved': '<span class="compare-badge badge-improved ml-1">📈</span>',
-                'declined': '<span class="compare-badge badge-declined ml-1">📉</span>'
-            };
-            function makeDelta(current, old, prefix, suffix, decimals) {
-                if (!showChanges || old === undefined) return '';
-                const delta = current - old;
-                if (Math.abs(delta) < 0.01) return '';
-                const cls = delta >= 0 ? 'delta-positive' : 'delta-negative';
-                const sign = delta >= 0 ? '+' : '';
-                return '<div class="change-delta ' + cls + '">' + sign + prefix + delta.toFixed(decimals) + suffix + '</div>';
-            }
 
             let html = '';
             pageData.forEach((r, i) => {
                 const cfg = catConfig[r.category] || catConfig.ignore;
-                const scoreCls = r.score > 5 ? 'score-high' : r.score > 1 ? 'score-mid' : 'score-low';
+                const safeScore = r.score || 0;
+                const scoreCls = safeScore > 5 ? 'score-high' : safeScore > 1 ? 'score-mid' : 'score-low';
                 const levelCls = r.level === 1 ? 'level-1' : r.level === 2 ? 'level-2' : 'level-3';
                 const displayId = highlightSafe(r.identifier, state.searchQuery);
-                const cmpBadge = state.compareMode && r.compareStatus ? (compareBadges[r.compareStatus] || '') : '';
                 const icloudBadge = isIcloudIP(r.identifier) ? '<span class="icloud-badge" title="iCloud Private Relay">☁️</span>' : '';
-                const profitDelta = r.compareStatus !== 'new' ? makeDelta(r.profit, r.oldProfit, '$', '', 2) : '';
-                const roiDelta = r.compareStatus !== 'new' ? makeDelta(r.roi, r.oldRoi, '', '%', 0) : '';
-                const crDelta = r.compareStatus !== 'new' ? makeDelta(r.cr * 100, r.oldCr * 100, '', '%', 2) : '';
                 
                 // Anomaly flags
                 let anomalyHtml = '';
@@ -2262,34 +2424,71 @@
                     });
                 }
                 
-                // Wilson CI display on CR
+                // Wilson CI display on CR - visual bar
                 let crDisplay = (r.cr * 100).toFixed(3) + '%';
                 if (r.wilson && r.conv > 0) {
-                    const ciCls = r.wilson.confidence === 'high' ? 'ci-high' : r.wilson.confidence === 'medium' ? 'ci-medium' : 'ci-low';
-                    crDisplay += ' <span class="ci-indicator ' + ciCls + '" title="CI: ' + (r.wilson.lower * 100).toFixed(3) + '%-' + (r.wilson.upper * 100).toFixed(3) + '% (' + r.wilson.confidence + ')"></span>';
+                    const ciCls = r.wilson.confidence === 'high' ? 'ci-bar-high' : r.wilson.confidence === 'medium' ? 'ci-bar-med' : 'ci-bar-low';
+                    const ciLabel = r.wilson.confidence === 'high' ? '✓' : r.wilson.confidence === 'medium' ? '~' : '?';
+                    crDisplay += ' <span class="ci-bar" title="Wilson CI: ' + (r.wilson.lower * 100).toFixed(3) + '% - ' + (r.wilson.upper * 100).toFixed(3) + '% (' + r.wilson.confidence + ')"><span class="ci-bar-inner ' + ciCls + '"></span><span style="font-size:8px;font-weight:800">' + ciLabel + '</span></span>';
                 }
                 
                 let extraCells = '';
                 if (showExtraCols) state.extraColumns.forEach(col => { extraCells += '<td class="text-center text-[11px] text-slate-600">' + escapeHtml((r.extraData && r.extraData[col]) || '-') + '</td>'; });
                 
+                // CPA & AP tooltips with Break-even
+                const payout = parseFloat($('avg-payout').value) || 0;
+                let cpaTitle = '';
+                let cpaExtra = '';
+                let apTitle = '';
+                if (r.conv > 0 && payout > 0) {
+                    // CPA vs Payout: is cost per acquisition below what you earn?
+                    if (r.cpa < payout) {
+                        cpaTitle = 'CPA $' + r.cpa.toFixed(2) + ' < Payout $' + payout.toFixed(2) + ' → רווחי (+$' + (payout - r.cpa).toFixed(2) + '/conv)';
+                        cpaExtra = ' ✓';
+                    } else if (r.cpa > payout) {
+                        cpaTitle = 'CPA $' + r.cpa.toFixed(2) + ' > Payout $' + payout.toFixed(2) + ' → הפסדי (-$' + (r.cpa - payout).toFixed(2) + '/conv)';
+                        cpaExtra = ' ✗';
+                    } else {
+                        cpaTitle = 'CPA = Payout → Break-even';
+                    }
+                    apTitle = 'AP ממוצע $' + r.ap.toFixed(2) + ' | Payout צפוי $' + payout.toFixed(2);
+                } else if (r.conv === 0 && payout > 0 && r.cost > 0) {
+                    const cpc = r.cost / r.clicks;
+                    const clicksToPayout = cpc > 0 ? Math.ceil(payout / cpc) : 0;
+                    cpaTitle = 'ניצל ' + r.clicks.toLocaleString() + ' clicks ($' + r.cost.toFixed(2) + ') | צריך המרה תוך ' + clicksToPayout.toLocaleString() + ' clicks כדי להישאר רווחי';
+                }
+                
+                // Break-even badge
+                let beBadge = '';
+                if (r.breakEven && r.breakEven.clicks !== null) {
+                    const be = r.breakEven;
+                    if (be.status === 'safe') beBadge = ' <span class="be-badge be-safe" title="Sustainable: +$' + be.netPerClick.toFixed(4) + '/click">✓ BE</span>';
+                    else if (be.status === 'recovering') beBadge = ' <span class="be-badge be-warn" title="' + be.clicks.toLocaleString() + ' clicks עד רווח | +$' + be.netPerClick.toFixed(4) + '/click">' + formatNum(be.clicks) + '→BE</span>';
+                    else if (be.status === 'declining') beBadge = ' <span class="be-badge be-warn" title="עוד ' + be.clicks.toLocaleString() + ' clicks → הפסד | -$' + Math.abs(be.netPerClick).toFixed(4) + '/click">⚠' + formatNum(be.clicks) + '</span>';
+                    else if (be.status === 'sinking') beBadge = ' <span class="be-badge be-danger" title="שוקע: -$' + Math.abs(be.netPerClick).toFixed(4) + '/click">↓↓</span>';
+                }
+                
                 html += '<tr class="' + cfg.row + '">' +
                     '<td class="text-center num-font text-slate-400">' + (start + i + 1) + '</td>' +
                     (showLevel ? '<td class="text-center"><span class="level-badge ' + levelCls + '">' + r.level + '</span></td>' : '') +
-                    '<td class="text-right font-bold text-slate-700 ' + (r.isSummary ? 'text-indigo-700' : '') + '">' + icloudBadge + displayId + cmpBadge + anomalyHtml + '</td>' +
+                    '<td class="text-right font-bold text-slate-700 ' + (r.isSummary ? 'text-indigo-700' : '') + '">' + icloudBadge + displayId + anomalyHtml + '</td>' +
                     extraCells +
                     '<td class="text-center"><span class="cat-badge ' + cfg.badge + '">' + cfg.label + '</span></td>' +
                     '<td class="text-center"><span class="vol-badge vol-' + (r.volumeTier || 'mid') + '" title="' + (r.volumeRank || '') + '/' + (r.volumeTotal || '') + ' clicks in ' + (cfg.label || r.category) + '">' + (r.volumeTier === 'high' ? '▲' : r.volumeTier === 'low' ? '▼' : '■') + '</span></td>' +
-                    '<td class="text-center"><span class="score-pill ' + scoreCls + '">' + r.score.toFixed(2) + '</span></td>' +
+                    '<td class="text-center"><span class="score-pill ' + scoreCls + '">' + safeScore.toFixed(2) + '</span></td>' +
                     '<td class="text-center num-font">' + r.clicks.toLocaleString() + '</td>' +
                     '<td class="text-center num-font font-bold">' + r.conv + '</td>' +
                     '<td class="text-center num-font text-green-600">$' + r.rev.toFixed(2) + '</td>' +
                     '<td class="text-center num-font text-slate-500">$' + r.cost.toFixed(2) + '</td>' +
-                    '<td class="text-center num-font font-bold ' + (r.profit >= 0 ? 'text-green-600' : 'text-red-500') + '">' + profitDelta + '$' + r.profit.toFixed(2) + '</td>' +
-                    '<td class="text-center num-font ' + (r.roi >= 0 ? 'text-green-600' : 'text-red-500') + '">' + roiDelta + r.roi.toFixed(0) + '%</td>' +
-                    '<td class="text-center num-font text-blue-600">' + crDelta + crDisplay + '</td>' +
-                    '<td class="text-center num-font">$' + r.ppc.toFixed(4) + '</td></tr>';
+                    '<td class="text-center num-font font-bold ' + (r.profit >= 0 ? 'text-green-600' : 'text-red-500') + '">$' + r.profit.toFixed(2) + beBadge + '</td>' +
+                    '<td class="text-center num-font ' + (r.roi >= 0 ? 'text-green-600' : 'text-red-500') + '">' + r.roi.toFixed(0) + '%</td>' +
+                    '<td class="text-center num-font text-blue-600">' + crDisplay + '</td>' +
+                    '<td class="text-center num-font">$' + r.ppc.toFixed(4) + '</td>' +
+                    '<td class="text-center num-font text-slate-600">$' + (r.cpc || 0).toFixed(4) + '</td>' +
+                    '<td class="text-center num-font text-orange-600" title="' + escapeHtml(cpaTitle) + '">' + (r.conv > 0 ? '$' + r.cpa.toFixed(2) + cpaExtra : (cpaTitle ? '⏳' : '-')) + '</td>' +
+                    '<td class="text-center num-font text-purple-600" title="' + escapeHtml(apTitle) + '">' + (r.conv > 0 ? '$' + r.ap.toFixed(2) : '-') + '</td></tr>';
             });
-            const baseCols = showLevel ? 14 : 13;
+            const baseCols = showLevel ? 17 : 16;
             const colspan = baseCols + (showExtraCols ? state.extraColumns.length : 0);
             $('table-body').innerHTML = html || '<tr><td colspan="' + colspan + '" class="text-center text-slate-400 py-8">אין נתונים</td></tr>';
             const maxPage = Math.ceil(state.filtered.length / state.pageSize) || 1;
@@ -2297,6 +2496,7 @@
             $('page-num').textContent = state.page + ' / ' + maxPage;
             updateExtraColumnHeaders();
             updateSortIndicators();
+            updateSavingsBanner();
         }
         
         function updateExtraColumnHeaders() {
@@ -2308,6 +2508,124 @@
                     const th = document.createElement('th'); th.className = 'text-center extra-col-th'; th.textContent = col;
                     categoryTh.parentNode.insertBefore(th, categoryTh);
                 });
+            }
+        }
+
+        // ═══════════════════════════════════════════════════
+        // PROJECTED SAVINGS BANNER
+        // ═══════════════════════════════════════════════════
+        function updateActionSummary() {
+            const sourceData = state.aggMode === 'split' ? (state.processedRaw || []) : (state.processed || []);
+            const el = $('action-summary');
+            if (!sourceData.length) { if (el) el.classList.add('hidden'); updateMessagesRow(); return; }
+            if (el) el.classList.remove('hidden');
+            
+            const allZones = sourceData.filter(r => !r.isSummary);
+            const blHard = allZones.filter(r => r.isBlacklist);
+            const blSoft = allZones.filter(r => r.isBlacklistSoft);
+            const blAll = [...blHard, ...blSoft];
+            const blWaste = blAll.reduce((s, r) => s + Math.max(0, -r.profit), 0);
+            const pureGold = allZones.filter(r => r.category === 'pure' || r.category === 'gold');
+            const pgProfit = pureGold.reduce((s, r) => s + r.profit, 0);
+            const potential = allZones.filter(r => r.category === 'potential');
+            const tested = allZones.filter(r => r.clicks >= state.clickThreshold);
+            const testedPct = allZones.length > 0 ? Math.round(tested.length / allZones.length * 100) : 0;
+            
+            $('act-block-count').textContent = blAll.length;
+            $('act-block-save').textContent = '$' + formatNum(blWaste);
+            $('act-scale-count').textContent = pureGold.length;
+            $('act-scale-profit').textContent = formatNum(pgProfit);
+            $('act-grow-count').textContent = potential.length;
+            $('act-total-zones').textContent = allZones.length.toLocaleString();
+            $('act-tested-pct').textContent = testedPct;
+            updateMessagesRow();
+        }
+        
+        function updateSavingsBanner() {
+            const banner = $('savings-banner');
+            if (!banner || !state.processed || !state.processed.length) { if (banner) banner.classList.add('hidden'); updateMessagesRow(); return; }
+            
+            const all = state.processed.filter(r => !r.isSummary);
+            const blZones = all.filter(r => ['blacklist', 'blacklist-soft'].includes(r.category));
+            const poorZones = all.filter(r => r.category === 'watch');
+            const blPoorZones = [...blZones, ...poorZones];
+            
+            if (blZones.length === 0 && poorZones.length === 0) { banner.classList.add('hidden'); updateMessagesRow(); return; }
+            
+            const totalClicks = all.reduce((s, r) => s + r.clicks, 0);
+            const totalConv = all.reduce((s, r) => s + r.conv, 0);
+            const totalCost = all.reduce((s, r) => s + r.cost, 0);
+            const totalRev = all.reduce((s, r) => s + r.rev, 0);
+            const totalProfit = totalRev - totalCost;
+            
+            // Row 1: BL Hard+Soft only
+            const nonBl = all.filter(r => !['blacklist', 'blacklist-soft'].includes(r.category));
+            const blWaste = blZones.reduce((s, r) => s + Math.max(0, -r.profit), 0);
+            const afterClicks1 = nonBl.reduce((s, r) => s + r.clicks, 0);
+            const afterConv1 = nonBl.reduce((s, r) => s + r.conv, 0);
+            const afterCost1 = nonBl.reduce((s, r) => s + r.cost, 0);
+            const afterRev1 = nonBl.reduce((s, r) => s + r.rev, 0);
+            const afterProfit1 = afterRev1 - afterCost1;
+            
+            const crBefore = totalClicks > 0 ? (totalConv / totalClicks * 100) : 0;
+            const crAfter1 = afterClicks1 > 0 ? (afterConv1 / afterClicks1 * 100) : 0;
+            const roiBefore = totalCost > 0 ? (totalProfit / totalCost * 100) : 0;
+            const roiAfter1 = afterCost1 > 0 ? (afterProfit1 / afterCost1 * 100) : 0;
+            
+            $('sv-bl-count').textContent = blZones.length;
+            $('sv-save-amt').textContent = '$' + formatNum(blWaste);
+            $('sv-cr-before').textContent = crBefore.toFixed(3) + '%';
+            $('sv-cr-after').textContent = crAfter1.toFixed(3) + '%';
+            $('sv-roi-before').textContent = roiBefore.toFixed(0) + '%';
+            $('sv-roi-after').textContent = roiAfter1.toFixed(0) + '%';
+            
+            // Row 2: BL + Poor
+            const nonBlPoor = all.filter(r => !['blacklist', 'blacklist-soft', 'watch'].includes(r.category));
+            const blPoorWaste = blPoorZones.reduce((s, r) => s + Math.max(0, -r.profit), 0);
+            const afterClicks2 = nonBlPoor.reduce((s, r) => s + r.clicks, 0);
+            const afterConv2 = nonBlPoor.reduce((s, r) => s + r.conv, 0);
+            const afterCost2 = nonBlPoor.reduce((s, r) => s + r.cost, 0);
+            const afterRev2 = nonBlPoor.reduce((s, r) => s + r.rev, 0);
+            const afterProfit2 = afterRev2 - afterCost2;
+            
+            const crAfter2 = afterClicks2 > 0 ? (afterConv2 / afterClicks2 * 100) : 0;
+            const roiAfter2 = afterCost2 > 0 ? (afterProfit2 / afterCost2 * 100) : 0;
+            
+            $('sv2-bl-count').textContent = blPoorZones.length;
+            $('sv2-save-amt').textContent = '$' + formatNum(blPoorWaste);
+            $('sv2-cr-before').textContent = crBefore.toFixed(3) + '%';
+            $('sv2-cr-after').textContent = crAfter2.toFixed(3) + '%';
+            $('sv2-roi-before').textContent = roiBefore.toFixed(0) + '%';
+            $('sv2-roi-after').textContent = roiAfter2.toFixed(0) + '%';
+            
+            // Payout display
+            const payout = parseFloat($('avg-payout').value) || 0;
+            const payoutEl = $('sv-payout-display');
+            if (payout > 0) {
+                const cpc = totalClicks > 0 ? totalCost / totalClicks : 0;
+                const breakEvenCR = payout > 0 && cpc > 0 ? (cpc / payout) * 100 : 0;
+                payoutEl.textContent = 'AP: $' + payout.toFixed(2) + ' | CPC: $' + cpc.toFixed(4) + ' | BE CR: ' + breakEvenCR.toFixed(3) + '%';
+                payoutEl.classList.remove('hidden');
+            } else {
+                payoutEl.classList.add('hidden');
+            }
+            
+            banner.classList.remove('hidden');
+            updateMessagesRow();
+        }
+        
+        function updateMessagesRow() {
+            const row = $('messages-row');
+            if (!row) return;
+            const act = $('action-summary');
+            const sav = $('savings-banner');
+            const actVisible = act && !act.classList.contains('hidden');
+            const savVisible = sav && !sav.classList.contains('hidden');
+            if (actVisible || savVisible) {
+                row.style.display = 'flex';
+                row.classList.remove('hidden');
+            } else {
+                row.style.display = 'none';
             }
         }
 
@@ -2390,8 +2708,8 @@
             }
             
             summaryData.push({ Section: '', Metric: '', Value: '', Note: '' });
-            summaryData.push({ Section: '👀 Watch', Metric: '', Value: '', Note: '' });
-            summaryData.push({ Section: '', Metric: 'זונים ב-Watch', Value: blWatch.length, Note: 'לא לחסום עדיין, לעקוב' });
+            summaryData.push({ Section: '👀 Poor', Metric: '', Value: '', Note: '' });
+            summaryData.push({ Section: '', Metric: 'זונים ב-Poor', Value: blWatch.length, Note: 'ביצוע חלש ביחס לקמפיין' });
             summaryData.push({ Section: '', Metric: 'זונים ב-Testing', Value: testing.length, Note: 'אין מספיק דאטה עדיין' });
             
             summaryData.push({ Section: '', Metric: '', Value: '', Note: '' });
@@ -2439,7 +2757,13 @@
                             Score: r.score.toFixed(2), Clicks: r.clicks, Conv: r.conv,
                             Revenue: r.rev.toFixed(2), Cost: r.cost.toFixed(2), Profit: r.profit.toFixed(2),
                             'ROI%': r.roi.toFixed(0), 'CR%': (r.cr * 100).toFixed(3), PPC: r.ppc.toFixed(4),
+                            CPC: (r.cpc || 0).toFixed(4),
+                            CPA: r.conv > 0 ? r.cpa.toFixed(2) : '',
+                            AP: r.conv > 0 ? r.ap.toFixed(2) : '',
                             CR_Confidence: r.wilson ? r.wilson.confidence : '',
+                            BE_Status: r.breakEven ? r.breakEven.status : '',
+                            BE_Clicks: r.breakEven && r.breakEven.clicks > 0 ? r.breakEven.clicks : '',
+                            Net_Per_Click: r.breakEven ? r.breakEven.netPerClick.toFixed(4) : '',
                             Action: r.action,
                             Anomalies: r.anomalies ? r.anomalies.map(a => a.label).join(', ') : ''
                         }));
@@ -2448,7 +2772,7 @@
                     }
                 }
             });
-            if (count) { XLSX.writeFile(wb, 'ListLab_V49_Export.xlsx'); showToast('קובץ Excel יוצא בהצלחה (' + count + ' גיליונות, כולל סיכום)', 'success'); }
+            if (count) { XLSX.writeFile(wb, 'ListLab_V52_Export.xlsx'); showToast('קובץ Excel יוצא בהצלחה (' + count + ' גיליונות, כולל סיכום)', 'success'); }
             else alert('בחר לפחות רשימה אחת');
         }
 
@@ -2471,8 +2795,8 @@
         
         function syncControls(rangeId, numId) {
             const range = $(rangeId); const num = $(numId);
-            range.addEventListener('input', () => { num.value = range.value; debouncedProcess(); });
-            num.addEventListener('input', () => { range.value = num.value; debouncedProcess(); });
+            range.addEventListener('input', () => { num.value = range.value; state.manualTiers = true; debouncedProcess(); });
+            num.addEventListener('input', () => { range.value = num.value; state.manualTiers = true; debouncedProcess(); });
         }
         syncControls('pure-pct', 'pure-pct-num');
         syncControls('gold-pct', 'gold-pct-num');
@@ -2499,14 +2823,14 @@
         
         function getCategoryMini(cat) {
             const cats = {
-                pure: '<span class="text-[9px] px-1 rounded bg-amber-100 text-amber-700">PURE</span>',
-                gold: '<span class="text-[9px] px-1 rounded bg-amber-200 text-amber-800">GOLD</span>',
-                potential: '<span class="text-[9px] px-1 rounded bg-green-100 text-green-700">POT</span>',
-                ignore: '<span class="text-[9px] px-1 rounded bg-slate-100 text-slate-600">IGN</span>',
-                blacklist: '<span class="text-[9px] px-1 rounded bg-red-100 text-red-700">BL</span>',
-                'blacklist-soft': '<span class="text-[9px] px-1 rounded bg-orange-100 text-orange-700">SOFT</span>',
-                watch: '<span class="text-[9px] px-1 rounded bg-yellow-100 text-yellow-700">WATCH</span>',
-                testing: '<span class="text-[9px] px-1 rounded bg-blue-100 text-blue-700">TEST</span>'
+                pure: '<span class="text-[9px] px-1 rounded bg-blue-100 text-blue-700 border border-blue-200">PURE</span>',
+                gold: '<span class="text-[9px] px-1 rounded bg-amber-100 text-amber-700 border border-amber-200">GOLD</span>',
+                potential: '<span class="text-[9px] px-1 rounded bg-green-100 text-green-700 border border-green-200">POT</span>',
+                ignore: '<span class="text-[9px] px-1 rounded bg-slate-100 text-slate-600 border border-slate-200">WATCH</span>',
+                blacklist: '<span class="text-[9px] px-1 rounded bg-red-200 text-red-800 border border-red-300">BL</span>',
+                'blacklist-soft': '<span class="text-[9px] px-1 rounded bg-red-100 text-red-600 border border-red-200">SOFT</span>',
+                watch: '<span class="text-[9px] px-1 rounded bg-orange-100 text-orange-700 border border-orange-200">POOR</span>',
+                testing: '<span class="text-[9px] px-1 rounded bg-blue-100 text-blue-700 border border-blue-200">TEST</span>'
             };
             return cats[cat] || '';
         }
@@ -2558,65 +2882,8 @@
         function searchIdentifier(query) { state.searchQuery = query.trim().toLowerCase(); applyFilter(); }
         $('search-input').addEventListener('input', (e) => { searchIdentifier(e.target.value); });
 
-        function enableCompareButton() { $('btn-compare').disabled = !state.processed.length; $('btn-auto-thresh').disabled = !state.processed.length; $('auto-metric').disabled = !state.processed.length; }
-        $('btn-compare').addEventListener('click', () => { $('compare-input').click(); });
-        $('btn-clear-compare').addEventListener('click', () => {
-            state.compareMode = false; state.compareData = null;
-            state.compareResults = { new: [], improved: [], declined: [], gone: [] };
-            state.processed.forEach(r => { r.compareStatus = null; r.profitChange = undefined; r.oldProfit = undefined; r.oldRoi = undefined; r.oldCr = undefined; });
-            if (state.processedRaw) state.processedRaw.forEach(r => { r.compareStatus = null; r.profitChange = undefined; r.oldProfit = undefined; r.oldRoi = undefined; r.oldCr = undefined; });
-            $('compare-panel').classList.add('hidden'); $('btn-clear-compare').classList.add('hidden'); $('show-changes-box').classList.add('hidden');
-            applyFilter();
-        });
-        $('chk-show-changes').addEventListener('change', () => { renderTable(); });
-        $('compare-input').addEventListener('change', function(e) {
-            const file = e.target.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const data = new Uint8Array(evt.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-                    if (json.length < 2) { alert('קובץ ההשוואה ריק'); return; }
-                    const ipIdx = +$('col-ip').value, clicksIdx = +$('col-clicks').value, convIdx = +$('col-conv').value, revIdx = +$('col-rev').value, costIdx = +$('col-cost').value;
-                    const compareMap = new Map();
-                    for (let i = 1; i < json.length; i++) {
-                        const row = json[i]; const id = String(row[ipIdx] || '').trim();
-                        if (!id || isInvalidIdentifier(id)) continue;
-                        const clicks = parseFloat(row[clicksIdx]) || 0, conv = parseFloat(row[convIdx]) || 0, rev = parseFloat(row[revIdx]) || 0, cost = parseFloat(row[costIdx]) || 0;
-                        const profit = rev - cost, roi = cost > 0 ? ((rev - cost) / cost) * 100 : 0, cr = clicks > 0 ? conv / clicks : 0;
-                        compareMap.set(id, { clicks, conv, rev, cost, profit, roi, cr });
-                    }
-                    state.compareData = compareMap; state.compareMode = true;
-                    const results = { new: [], improved: [], declined: [], gone: [] };
-                    const currentIds = new Set(state.processed.map(r => r.identifier));
-                    function applyCompareToRow(r) {
-                        const old = compareMap.get(r.identifier);
-                        if (!old) { r.compareStatus = 'new'; r.profitChange = 0; return 'new'; }
-                        else {
-                            const profitChange = old.profit - r.profit;
-                            r.profitChange = profitChange; r.oldProfit = old.profit; r.oldRoi = old.roi; r.oldCr = old.cr;
-                            if (profitChange > 0.5) { r.compareStatus = 'improved'; return 'improved'; }
-                            else if (profitChange < -0.5) { r.compareStatus = 'declined'; return 'declined'; }
-                            else { r.compareStatus = 'same'; return 'same'; }
-                        }
-                    }
-                    state.processed.forEach(r => { const s = applyCompareToRow(r); if (s === 'new') results.new.push(r.identifier); else if (s === 'improved') results.improved.push(r.identifier); else if (s === 'declined') results.declined.push(r.identifier); });
-                    if (state.processedRaw) state.processedRaw.forEach(r => applyCompareToRow(r));
-                    compareMap.forEach((_, id) => { if (!currentIds.has(id)) results.gone.push(id); });
-                    state.compareResults = results;
-                    $('compare-panel').classList.remove('hidden'); $('btn-clear-compare').classList.remove('hidden'); $('show-changes-box').classList.remove('hidden');
-                    $('compare-file-name').textContent = file.name;
-                    $('cmp-new').textContent = results.new.length; $('cmp-improved').textContent = results.improved.length;
-                    $('cmp-declined').textContent = results.declined.length; $('cmp-gone').textContent = results.gone.length;
-                    showToast('השוואה נטענה: ' + results.new.length + ' חדשים, ' + results.improved.length + ' השתפרו, ' + results.declined.length + ' ירדו', 'info');
-                    applyFilter();
-                } catch (err) { console.error('Compare file error:', err); alert('שגיאה בקריאת קובץ ההשוואה'); }
-            };
-            reader.readAsArrayBuffer(file);
-            e.target.value = '';
-        });
+        function enableButtons() { $('btn-auto-thresh').disabled = !state.processed.length; $('auto-metric').disabled = !state.processed.length; }
+
     </script>
 </body>
 </html>
