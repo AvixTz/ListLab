@@ -11,13 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* ═══════════════════════════════════════════════════
-           LISTLAB V52 - ENHANCED EDITION
-           Based on V48 by Nir & Yael
-           Improvements: Scoring, BL tiers, Wilson CI, 
-           localStorage, compact KPIs, shortcuts, anomaly detection
-           ═══════════════════════════════════════════════════ */
-        
+       
         body { font-family: 'Assistant', sans-serif; background: #eef0f4; height: 100vh; overflow: hidden; color: #1e293b; font-size: 14px; box-sizing: border-box; margin: 0; }
         *, *::before, *::after { box-sizing: border-box; }
         .num-font { font-family: 'Inter', sans-serif; }
@@ -344,6 +338,8 @@
                     <div id="filename" class="text-[10px] text-indigo-400 truncate mt-0.5"></div>
                 </div>
 
+                <input type="text" id="brand-memo" placeholder="סתם תזכורת..." style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:4px 8px;font-size:11px;color:#475569;outline:none;direction:rtl;background:#fafbfc;margin-bottom:2px;" onfocus="this.style.borderColor='#93c5fd'" onblur="this.style.borderColor='#e2e8f0'">
+
                 <div id="hierarchy-box" class="hidden bg-white border border-amber-200 border-r-4 rounded-lg p-2">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2 text-amber-700 text-[11px] font-bold">
@@ -375,6 +371,11 @@
                 <div class="control-box border-blue-200">
                     <div class="text-[11px] font-bold text-slate-700 mb-2 flex items-center gap-1.5">
                         <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-500"></i> מזהה וסף קליקים
+                        <span id="detected-type" class="hidden" style="margin-right:auto;">
+                            <span id="detected-type-badge" style="display:inline-flex;align-items:center;gap:4px;background:#dbeafe;color:#1e40af;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;border:1px solid #93c5fd;">
+                                <span id="detected-type-text">זוהה: IP</span>
+                            </span>
+                        </span>
                     </div>
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <div>
@@ -389,12 +390,6 @@
                             <label class="text-[10px] text-slate-500 mb-0.5 block">עמודת מזהה:</label>
                             <select id="col-ip" class="w-full text-[11px] border border-gray-200 rounded-lg p-1.5 font-medium bg-white"></select>
                         </div>
-                    </div>
-                    <div id="detected-type" class="text-center mb-2 hidden">
-                        <span id="detected-type-badge" style="display:inline-flex;align-items:center;gap:5px;background:#dbeafe;color:#1e40af;font-size:11px;font-weight:700;padding:4px 14px;border-radius:14px;border:1px solid #93c5fd;">
-                            <i data-lucide="globe" class="w-3.5 h-3.5" style="color:#3b82f6;"></i>
-                            <span id="detected-type-text">זוהה: IP (IP Address)</span>
-                        </span>
                     </div>
                     <select id="identifier-type" class="hidden">
                         <option value="auto">🔍 אוטומטי</option>
@@ -1572,11 +1567,11 @@
             const finalType = nameHint || state.detectedType;
             const detectedEl = $('detected-type');
             if (finalType && finalType !== 'unknown') {
-                const icons = { ip: 'globe', zone: 'map-pin', subid: 'crosshair', mixed: 'shuffle' };
+                const icons = { ip: '🌐', zone: '📍', subid: '🎯', mixed: '🔀' };
                 const labels = { ip: 'IP', zone: 'Zone', subid: 'SubID', mixed: 'Mixed' };
                 const typeName = labels[finalType] || finalType;
-                const iconName = icons[finalType] || 'help-circle';
-                $('detected-type-badge').innerHTML = '<i data-lucide="' + iconName + '" style="width:13px;height:13px;color:#3b82f6;"></i> <span>זוהה: <strong>' + typeName + '</strong> (' + escapeHtml(colName) + ')</span>';
+                const ico = icons[finalType] || '❓';
+                $('detected-type-badge').innerHTML = ico + ' <span>זוהה: <strong>' + typeName + '</strong> (' + escapeHtml(colName) + ')</span>';
                 detectedEl.classList.remove('hidden');
                 lucide.createIcons();
                 if ($('identifier-type').value === 'auto') {
@@ -1642,8 +1637,10 @@
             const f = state.activeFilters.find(x => x.id === fid);
             f.values = vals;
             const lbl = $('l-' + fid);
-            lbl.innerText = vals.length ? vals.length + ' נבחרו' : '(הכל)';
+            lbl.innerText = vals.length ? vals.join(', ') : '(הכל)';
+            lbl.title = vals.length ? vals.join(', ') : '';
             lbl.className = vals.length ? 'text-blue-600 font-bold' : '';
+            lbl.style.cssText = vals.length ? 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;display:inline-block;' : '';
             togglePopup(fid);
             processData(); 
         }
