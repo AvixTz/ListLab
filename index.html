@@ -1454,7 +1454,7 @@
         function loadFile(file) {
             if (!file) return;
             const sizeMB = file.size / (1024 * 1024);
-            if (sizeMB > 50) { alert('קובץ גדול מדי (מעל 50MB)'); return; }
+            if (sizeMB > 75) { alert('קובץ גדול מדי (מעל 75MB)'); return; }
             $('filename').innerHTML = '<span class="animate-pulse">⏳ טוען ' + escapeHtml(file.name) + ' (' + sizeMB.toFixed(1) + 'MB)...</span>';
             $('global-stats').innerHTML = '<span class="text-amber-500 animate-pulse">🔄 מעבד נתונים...</span>';
             setTimeout(() => {
