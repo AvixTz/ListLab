@@ -629,7 +629,7 @@
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-cidr" class="chk-input"> CIDR</label>
                     </div>
                     <button onclick="exportData()" class="w-full bg-indigo-600 text-white py-1.5 rounded-lg text-xs font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 transition-colors shadow-sm">
-                        <i data-lucide="download" class="w-3.5 h-3.5"></i> ייצוא Excel <span class="shortcut-key text-indigo-300">E</span>
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i> הורדה TXT <span class="shortcut-key text-indigo-300">E</span>
                     </button>
                 </div>
 
@@ -2636,108 +2636,9 @@
         }
 
         function exportData() {
-            const wb = XLSX.utils.book_new();
             const useCidr = $('chk-cidr').checked;
             const source = state.aggMode === 'split' ? (state.processedRaw || []) : (state.processed || []);
-            
-            // === BUILD SUMMARY SHEET FIRST ===
-            const allNonSummary = source.filter(r => !r.isSummary);
-            const blHard = allNonSummary.filter(r => r.category === 'blacklist');
-            const blSoft = allNonSummary.filter(r => r.category === 'blacklist-soft');
-            const blWatch = allNonSummary.filter(r => r.category === 'watch');
-            const allBL = [...blHard, ...blSoft];
-            const pure = allNonSummary.filter(r => r.category === 'pure');
-            const gold = allNonSummary.filter(r => r.category === 'gold');
-            const potential = allNonSummary.filter(r => r.category === 'potential');
-            const testing = allNonSummary.filter(r => r.category === 'testing');
-            const winners = [...pure, ...gold];
-            
-            const sum = (arr, key) => arr.reduce((s, r) => s + r[key], 0);
-            const totalProfit = sum(allNonSummary, 'profit');
-            const totalCost = sum(allNonSummary, 'cost');
-            const totalRev = sum(allNonSummary, 'rev');
-            const totalClicks = sum(allNonSummary, 'clicks');
-            const totalConv = sum(allNonSummary, 'conv');
-            
-            const blWaste = Math.abs(sum(allBL, 'profit'));
-            const winnersProfit = sum(winners, 'profit');
-            const potentialProfit = sum(potential, 'profit');
-            
-            const summaryData = [
-                { Section: '📊 סיכום כללי', Metric: '', Value: '', Note: '' },
-                { Section: '', Metric: 'סה"כ מזהים', Value: allNonSummary.length, Note: '' },
-                { Section: '', Metric: 'סה"כ קליקים', Value: totalClicks, Note: '' },
-                { Section: '', Metric: 'סה"כ המרות', Value: totalConv, Note: '' },
-                { Section: '', Metric: 'סה"כ הכנסה', Value: '$' + totalRev.toFixed(2), Note: '' },
-                { Section: '', Metric: 'סה"כ עלות', Value: '$' + totalCost.toFixed(2), Note: '' },
-                { Section: '', Metric: 'סה"כ רווח', Value: '$' + totalProfit.toFixed(2), Note: totalProfit >= 0 ? '✅ רווחי' : '❌ הפסד' },
-                { Section: '', Metric: 'ROI', Value: totalCost > 0 ? (totalProfit / totalCost * 100).toFixed(1) + '%' : 'N/A', Note: '' },
-                { Section: '', Metric: 'CR', Value: totalClicks > 0 ? (totalConv / totalClicks * 100).toFixed(3) + '%' : 'N/A', Note: '' },
-                { Section: '', Metric: 'PPC', Value: totalClicks > 0 ? '$' + (totalProfit / totalClicks).toFixed(4) : 'N/A', Note: '' },
-                { Section: '', Metric: '', Value: '', Note: '' },
-                { Section: '🔴 חסום ותחסוך', Metric: '', Value: '', Note: '' },
-                { Section: '', Metric: 'זונים לחסימה (Hard+Soft)', Value: allBL.length, Note: '' },
-                { Section: '', Metric: 'הפסד מצטבר מ-BL', Value: '$' + blWaste.toFixed(2), Note: 'חסום → חסוך סכום זה' },
-                { Section: '', Metric: 'קליקים מבוזבזים', Value: sum(allBL, 'clicks').toLocaleString(), Note: Math.round(sum(allBL, 'clicks') / totalClicks * 100) + '% מהתנועה' },
-                { Section: '', Metric: 'עלות מבוזבזת', Value: '$' + sum(allBL, 'cost').toFixed(2), Note: '' },
-            ];
-            
-            // Top 5 biggest BL losers
-            const topLosers = [...allBL].sort((a, b) => a.profit - b.profit).slice(0, 5);
-            if (topLosers.length) {
-                summaryData.push({ Section: '', Metric: '', Value: '', Note: '' });
-                summaryData.push({ Section: '', Metric: '⚡ TOP הפסדים לחסימה מיידית:', Value: '', Note: '' });
-                topLosers.forEach((r, i) => {
-                    summaryData.push({ Section: '', Metric: (i + 1) + '. ' + r.identifier, Value: '$' + r.profit.toFixed(2), Note: r.clicks.toLocaleString() + ' clicks, ' + r.conv + ' conv' });
-                });
-            }
-            
-            summaryData.push({ Section: '', Metric: '', Value: '', Note: '' });
-            summaryData.push({ Section: '🟢 העלה bid ותרוויח יותר', Metric: '', Value: '', Note: '' });
-            summaryData.push({ Section: '', Metric: 'Pure + Gold זונים', Value: winners.length, Note: '' });
-            summaryData.push({ Section: '', Metric: 'רווח נוכחי מ-Winners', Value: '$' + winnersProfit.toFixed(2), Note: '' });
-            summaryData.push({ Section: '', Metric: 'רווח מ-Potential', Value: '$' + potentialProfit.toFixed(2), Note: potential.length + ' זונים שאפשר לקדם' });
-            
-            // Top 5 winners to scale
-            const topWinners = [...winners].sort((a, b) => b.profit - a.profit).slice(0, 5);
-            if (topWinners.length) {
-                summaryData.push({ Section: '', Metric: '', Value: '', Note: '' });
-                summaryData.push({ Section: '', Metric: '⚡ TOP רווחיים להגדלת bid:', Value: '', Note: '' });
-                topWinners.forEach((r, i) => {
-                    summaryData.push({ Section: '', Metric: (i + 1) + '. ' + r.identifier, Value: '+$' + r.profit.toFixed(2), Note: 'ROI ' + r.roi.toFixed(0) + '%, CR ' + (r.cr * 100).toFixed(3) + '%' });
-                });
-            }
-            
-            summaryData.push({ Section: '', Metric: '', Value: '', Note: '' });
-            summaryData.push({ Section: '👀 Poor', Metric: '', Value: '', Note: '' });
-            summaryData.push({ Section: '', Metric: 'זונים ב-Poor', Value: blWatch.length, Note: 'ביצוע חלש ביחס לקמפיין' });
-            summaryData.push({ Section: '', Metric: 'זונים ב-Testing', Value: testing.length, Note: 'אין מספיק דאטה עדיין' });
-            
-            summaryData.push({ Section: '', Metric: '', Value: '', Note: '' });
-            // Calculate projected CRs
-            const currentCR = totalClicks > 0 ? (totalConv / totalClicks * 100) : 0;
-            const afterBlockClicks = totalClicks - sum(allBL, 'clicks');
-            const afterBlockConv = totalConv - sum(allBL, 'conv');
-            const afterBlockCR = afterBlockClicks > 0 ? (afterBlockConv / afterBlockClicks * 100) : 0;
-            const afterBlockProfit = totalProfit + blWaste;
-            const afterBlockCost = totalCost - sum(allBL, 'cost');
-            const afterBlockROI = afterBlockCost > 0 ? (afterBlockProfit / afterBlockCost * 100) : 0;
-            
-            const wlClicks = sum(winners, 'clicks');
-            const wlConv = sum(winners, 'conv');
-            const wlCR = wlClicks > 0 ? (wlConv / wlClicks * 100) : 0;
-            const wlCost = sum(winners, 'cost');
-            const wlROI = wlCost > 0 ? (winnersProfit / wlCost * 100) : 0;
-            
-            summaryData.push({ Section: '💡 השורה התחתונה', Metric: '', Value: '', Note: '' });
-            summaryData.push({ Section: '', Metric: 'חסום ' + allBL.length + ' זונים', Value: '→ חסוך $' + blWaste.toFixed(2), Note: 'CR: ' + currentCR.toFixed(3) + '% → ' + afterBlockCR.toFixed(3) + '%  |  ROI: ' + afterBlockROI.toFixed(0) + '%' });
-            summaryData.push({ Section: '', Metric: 'WL על ' + winners.length + ' זונים בלבד', Value: '→ רווח $' + winnersProfit.toFixed(2), Note: 'CR: ' + wlCR.toFixed(3) + '%  |  ROI: ' + wlROI.toFixed(0) + '%' });
-            
-            const summaryWs = XLSX.utils.json_to_sheet(summaryData);
-            summaryWs['!cols'] = [{ wch: 22 }, { wch: 35 }, { wch: 20 }, { wch: 35 }];
-            XLSX.utils.book_append_sheet(wb, summaryWs, 'סיכום');
-            
-            // === CATEGORY SHEETS ===
+
             const exports = [
                 { id: 'chk-pure', name: 'Pure', pick: r => r.category === 'pure' },
                 { id: 'chk-gold', name: 'Gold', pick: r => r.category === 'gold' },
@@ -2745,35 +2646,28 @@
                 { id: 'chk-bl', name: 'Blacklist', pick: r => ['blacklist', 'blacklist-soft'].includes(r.category) },
                 { id: 'chk-custom', name: 'Custom', pick: r => r.matchesCustom || r.category === 'custom' }
             ];
-            let count = 1; // Already have summary
+            let count = 0;
             exports.forEach(exp => {
                 if ($(exp.id).checked) {
                     const rows = source.filter(r => !r.isSummary && exp.pick(r));
                     if (rows.length) {
-                        const data = rows.map(r => ({
-                            Identifier: useCidr ? toCIDR(r.identifier) : r.identifier,
-                            Category: r.category,
-                            Volume: (r.volumeTier || 'mid').toUpperCase(),
-                            BL_Severity: r.blSeverity || '',
-                            Score: r.score.toFixed(2), Clicks: r.clicks, Conv: r.conv,
-                            Revenue: r.rev.toFixed(2), Cost: r.cost.toFixed(2), Profit: r.profit.toFixed(2),
-                            'ROI%': r.roi.toFixed(0), 'CR%': (r.cr * 100).toFixed(3), PPC: r.ppc.toFixed(4),
-                            CPC: (r.cpc || 0).toFixed(4),
-                            CPA: r.conv > 0 ? r.cpa.toFixed(2) : '',
-                            AP: r.conv > 0 ? r.ap.toFixed(2) : '',
-                            CR_Confidence: r.wilson ? r.wilson.confidence : '',
-                            BE_Status: r.breakEven ? r.breakEven.status : '',
-                            BE_Clicks: r.breakEven && r.breakEven.clicks > 0 ? r.breakEven.clicks : '',
-                            Net_Per_Click: r.breakEven ? r.breakEven.netPerClick.toFixed(4) : '',
-                            Action: r.action,
-                            Anomalies: r.anomalies ? r.anomalies.map(a => a.label).join(', ') : ''
-                        }));
-                        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), exp.name);
+                        const ids = rows.map(r => useCidr ? toCIDR(r.identifier) : r.identifier);
+                        const uniqueIds = [...new Set(ids)];
+                        const text = uniqueIds.join('\n');
+                        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = exp.name + '.txt';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
                         count++;
                     }
                 }
             });
-            if (count) { XLSX.writeFile(wb, 'ListLab_V52_Export.xlsx'); showToast('קובץ Excel יוצא בהצלחה (' + count + ' גיליונות, כולל סיכום)', 'success'); }
+            if (count) { showToast('הורדו ' + count + ' קבצי TXT', 'success'); }
             else alert('בחר לפחות רשימה אחת');
         }
 
