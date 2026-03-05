@@ -626,7 +626,7 @@
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-potential" checked class="chk-input"> Potential</label>
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-bl" class="chk-input"> Blacklist</label>
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-custom" class="chk-input"> Custom</label>
-                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-cidr" class="chk-input"> CIDR</label>
+                        <label class="flex items-center gap-1 cursor-pointer font-bold text-indigo-600"><input type="checkbox" id="chk-cidr" checked class="chk-input"> CIDR</label>
                     </div>
                     <button onclick="exportData()" class="w-full bg-indigo-600 text-white py-1.5 rounded-lg text-xs font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 transition-colors shadow-sm">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i> הורדה TXT <span class="shortcut-key text-indigo-300">E</span>
@@ -2674,29 +2674,32 @@
                 { id: 'chk-bl', name: 'Blacklist', pick: r => ['blacklist', 'blacklist-soft'].includes(r.category) },
                 { id: 'chk-custom', name: 'Custom', pick: r => r.matchesCustom || r.category === 'custom' }
             ];
-            let count = 0;
+            const allIds = [];
+            const selectedNames = [];
             exports.forEach(exp => {
                 if ($(exp.id).checked) {
                     const rows = source.filter(r => !r.isSummary && exp.pick(r));
                     if (rows.length) {
                         const ids = rows.map(r => useCidr ? toExportCIDR(r.identifier) : r.identifier);
-                        const uniqueIds = [...new Set(ids)];
-                        const text = uniqueIds.join('\n');
-                        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = exp.name + '.txt';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                        count++;
+                        allIds.push(...ids);
+                        selectedNames.push(exp.name);
                     }
                 }
             });
-            if (count) { showToast('הורדו ' + count + ' קבצי TXT', 'success'); }
-            else alert('בחר לפחות רשימה אחת');
+            if (selectedNames.length) {
+                const uniqueIds = [...new Set(allIds)];
+                const text = uniqueIds.join('\n');
+                const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = selectedNames.join('_') + '.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('הורדו ' + uniqueIds.length + ' מזהים (' + selectedNames.join(', ') + ')', 'success');
+            } else alert('בחר לפחות רשימה אחת');
         }
 
         function copyIPs() {
