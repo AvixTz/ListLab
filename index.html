@@ -2652,6 +2652,7 @@
 
         function exportData() {
             const useCidr = $('chk-cidr').checked || $('chk-copy-cidr').checked;
+            console.log('[Export] useCidr:', useCidr, 'chk-cidr:', $('chk-cidr').checked, 'chk-copy-cidr:', $('chk-copy-cidr').checked);
             // Always use raw (split-level) data for export so every IP is included
             let source = state.processedRaw;
             if (!source && state.rawDetailRows && state.rawDetailRows.length > 0) {
@@ -2688,6 +2689,7 @@
             });
             if (selectedNames.length) {
                 const uniqueIds = [...new Set(allIds)];
+                console.log('[Export] Selected:', selectedNames, 'Total IDs:', allIds.length, 'Unique:', uniqueIds.length, 'Sample:', uniqueIds.slice(0, 3));
                 const text = uniqueIds.join('\n');
                 const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
