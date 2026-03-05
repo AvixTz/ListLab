@@ -1239,6 +1239,21 @@
             return labels[type] || type;
         }
 
+        function toExportCIDR(identifier) {
+            const str = String(identifier).trim();
+            if (str.includes('/')) return str;
+            // Full IP: 1.2.3.4 → 1.2.3.0/24
+            if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(str)) {
+                const parts = str.split('.');
+                return parts[0] + '.' + parts[1] + '.' + parts[2] + '.0/24';
+            }
+            // 3-octet: 1.2.3 → 1.2.3.0/24
+            if (/^\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(str)) {
+                return str + '.0/24';
+            }
+            return str;
+        }
+
         function toCIDR(identifier) {
             const str = String(identifier).trim();
             const ipLevel = parseInt($('ip-level').value);
@@ -2664,7 +2679,7 @@
                 if ($(exp.id).checked) {
                     const rows = source.filter(r => !r.isSummary && exp.pick(r));
                     if (rows.length) {
-                        const ids = rows.map(r => useCidr ? toCIDR(r.identifier) : r.identifier);
+                        const ids = rows.map(r => useCidr ? toExportCIDR(r.identifier) : r.identifier);
                         const uniqueIds = [...new Set(ids)];
                         const text = uniqueIds.join('\n');
                         const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
