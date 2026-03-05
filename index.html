@@ -2637,7 +2637,20 @@
 
         function exportData() {
             const useCidr = $('chk-cidr').checked;
-            const source = state.aggMode === 'split' ? (state.processedRaw || []) : (state.processed || []);
+            // Always use raw (split-level) data for export so every IP is included
+            let source = state.processedRaw;
+            if (!source && state.rawDetailRows && state.rawDetailRows.length > 0) {
+                const rawClicks = state.rawDetailRows.reduce((s, r) => s + r.clicks, 0);
+                const rawConv = state.rawDetailRows.reduce((s, r) => s + r.conv, 0);
+                const rawCost = state.rawDetailRows.reduce((s, r) => s + r.cost, 0);
+                const rawProfit = state.rawDetailRows.reduce((s, r) => s + r.profit, 0);
+                const rawCampaignAvgCR = rawClicks > 0 ? (rawConv / rawClicks) : 0;
+                const rawCampaignAvgPPC = rawClicks > 0 ? (rawProfit / rawClicks) : 0;
+                source = classifyRanges(state.rawDetailRows, state.medianPPC, state.medianCR, rawCampaignAvgCR, rawCampaignAvgPPC, rawCost, rawProfit, state.medianROI);
+                source = detectAnomalies(source, rawCampaignAvgCR);
+                source = assignVolumeTiers(source);
+            }
+            if (!source || !source.length) source = state.processed || [];
 
             const exports = [
                 { id: 'chk-pure', name: 'Pure', pick: r => r.category === 'pure' },
