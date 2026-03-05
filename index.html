@@ -629,7 +629,7 @@
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-cidr" class="chk-input"> CIDR</label>
                     </div>
                     <button onclick="exportData()" class="w-full bg-indigo-600 text-white py-1.5 rounded-lg text-xs font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 transition-colors shadow-sm">
-                        <i data-lucide="download" class="w-3.5 h-3.5"></i> ייצוא TXT <span class="shortcut-key text-indigo-300">E</span>
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i> הורדה TXT <span class="shortcut-key text-indigo-300">E</span>
                     </button>
                 </div>
 
@@ -915,7 +915,7 @@
         <div class="font-bold text-[12px] mb-2 border-b border-slate-600 pb-1">⌨️ קיצורי מקלדת</div>
         <div class="space-y-1">
             <div><span class="shortcut-key">Ctrl+F</span> חיפוש</div>
-            <div><span class="shortcut-key">E</span> ייצוא TXT</div>
+            <div><span class="shortcut-key">E</span> הורדה TXT</div>
             <div><span class="shortcut-key">C</span> העתק מזהים</div>
             <div><span class="shortcut-key">D</span> Dashboard</div>
             <div><span class="shortcut-key">F</span> Focus (טבלה בלבד)</div>
@@ -2639,103 +2639,6 @@
             const useCidr = $('chk-cidr').checked;
             const source = state.aggMode === 'split' ? (state.processedRaw || []) : (state.processed || []);
 
-            const allNonSummary = source.filter(r => !r.isSummary);
-            const blHard = allNonSummary.filter(r => r.category === 'blacklist');
-            const blSoft = allNonSummary.filter(r => r.category === 'blacklist-soft');
-            const blWatch = allNonSummary.filter(r => r.category === 'watch');
-            const allBL = [...blHard, ...blSoft];
-            const pure = allNonSummary.filter(r => r.category === 'pure');
-            const gold = allNonSummary.filter(r => r.category === 'gold');
-            const potential = allNonSummary.filter(r => r.category === 'potential');
-            const testing = allNonSummary.filter(r => r.category === 'testing');
-            const winners = [...pure, ...gold];
-
-            const sum = (arr, key) => arr.reduce((s, r) => s + r[key], 0);
-            const totalProfit = sum(allNonSummary, 'profit');
-            const totalCost = sum(allNonSummary, 'cost');
-            const totalRev = sum(allNonSummary, 'rev');
-            const totalClicks = sum(allNonSummary, 'clicks');
-            const totalConv = sum(allNonSummary, 'conv');
-
-            const blWaste = Math.abs(sum(allBL, 'profit'));
-            const winnersProfit = sum(winners, 'profit');
-            const potentialProfit = sum(potential, 'profit');
-
-            const currentCR = totalClicks > 0 ? (totalConv / totalClicks * 100) : 0;
-            const afterBlockClicks = totalClicks - sum(allBL, 'clicks');
-            const afterBlockConv = totalConv - sum(allBL, 'conv');
-            const afterBlockCR = afterBlockClicks > 0 ? (afterBlockConv / afterBlockClicks * 100) : 0;
-            const afterBlockProfit = totalProfit + blWaste;
-            const afterBlockCost = totalCost - sum(allBL, 'cost');
-            const afterBlockROI = afterBlockCost > 0 ? (afterBlockProfit / afterBlockCost * 100) : 0;
-
-            const wlClicks = sum(winners, 'clicks');
-            const wlConv = sum(winners, 'conv');
-            const wlCR = wlClicks > 0 ? (wlConv / wlClicks * 100) : 0;
-            const wlCost = sum(winners, 'cost');
-            const wlROI = wlCost > 0 ? (winnersProfit / wlCost * 100) : 0;
-
-            let lines = [];
-
-            // === SUMMARY SECTION ===
-            lines.push('========================================');
-            lines.push('          LISTLAB EXPORT SUMMARY');
-            lines.push('========================================');
-            lines.push('');
-            lines.push('--- סיכום כללי ---');
-            lines.push('סה"כ מזהים:\t' + allNonSummary.length);
-            lines.push('סה"כ קליקים:\t' + totalClicks);
-            lines.push('סה"כ המרות:\t' + totalConv);
-            lines.push('סה"כ הכנסה:\t$' + totalRev.toFixed(2));
-            lines.push('סה"כ עלות:\t$' + totalCost.toFixed(2));
-            lines.push('סה"כ רווח:\t$' + totalProfit.toFixed(2) + '\t' + (totalProfit >= 0 ? 'רווחי' : 'הפסד'));
-            lines.push('ROI:\t' + (totalCost > 0 ? (totalProfit / totalCost * 100).toFixed(1) + '%' : 'N/A'));
-            lines.push('CR:\t' + (totalClicks > 0 ? (totalConv / totalClicks * 100).toFixed(3) + '%' : 'N/A'));
-            lines.push('PPC:\t' + (totalClicks > 0 ? '$' + (totalProfit / totalClicks).toFixed(4) : 'N/A'));
-            lines.push('');
-            lines.push('--- חסום ותחסוך ---');
-            lines.push('זונים לחסימה (Hard+Soft):\t' + allBL.length);
-            lines.push('הפסד מצטבר מ-BL:\t$' + blWaste.toFixed(2) + '\tחסום > חסוך סכום זה');
-            lines.push('קליקים מבוזבזים:\t' + sum(allBL, 'clicks').toLocaleString() + '\t' + Math.round(sum(allBL, 'clicks') / totalClicks * 100) + '% מהתנועה');
-            lines.push('עלות מבוזבזת:\t$' + sum(allBL, 'cost').toFixed(2));
-
-            const topLosers = [...allBL].sort((a, b) => a.profit - b.profit).slice(0, 5);
-            if (topLosers.length) {
-                lines.push('');
-                lines.push('TOP הפסדים לחסימה מיידית:');
-                topLosers.forEach((r, i) => {
-                    lines.push('  ' + (i + 1) + '. ' + r.identifier + '\t$' + r.profit.toFixed(2) + '\t' + r.clicks.toLocaleString() + ' clicks, ' + r.conv + ' conv');
-                });
-            }
-
-            lines.push('');
-            lines.push('--- העלה bid ותרוויח יותר ---');
-            lines.push('Pure + Gold זונים:\t' + winners.length);
-            lines.push('רווח נוכחי מ-Winners:\t$' + winnersProfit.toFixed(2));
-            lines.push('רווח מ-Potential:\t$' + potentialProfit.toFixed(2) + '\t' + potential.length + ' זונים שאפשר לקדם');
-
-            const topWinners = [...winners].sort((a, b) => b.profit - a.profit).slice(0, 5);
-            if (topWinners.length) {
-                lines.push('');
-                lines.push('TOP רווחיים להגדלת bid:');
-                topWinners.forEach((r, i) => {
-                    lines.push('  ' + (i + 1) + '. ' + r.identifier + '\t+$' + r.profit.toFixed(2) + '\tROI ' + r.roi.toFixed(0) + '%, CR ' + (r.cr * 100).toFixed(3) + '%');
-                });
-            }
-
-            lines.push('');
-            lines.push('--- Poor & Testing ---');
-            lines.push('זונים ב-Poor:\t' + blWatch.length + '\tביצוע חלש ביחס לקמפיין');
-            lines.push('זונים ב-Testing:\t' + testing.length + '\tאין מספיק דאטה עדיין');
-
-            lines.push('');
-            lines.push('--- השורה התחתונה ---');
-            lines.push('חסום ' + allBL.length + ' זונים\t> חסוך $' + blWaste.toFixed(2) + '\tCR: ' + currentCR.toFixed(3) + '% > ' + afterBlockCR.toFixed(3) + '%  |  ROI: ' + afterBlockROI.toFixed(0) + '%');
-            lines.push('WL על ' + winners.length + ' זונים בלבד\t> רווח $' + winnersProfit.toFixed(2) + '\tCR: ' + wlCR.toFixed(3) + '%  |  ROI: ' + wlROI.toFixed(0) + '%');
-
-            // === CATEGORY DATA SECTIONS ===
-            const headers = ['Identifier', 'Category', 'Volume', 'BL_Severity', 'Score', 'Clicks', 'Conv', 'Revenue', 'Cost', 'Profit', 'ROI%', 'CR%', 'PPC', 'CPC', 'CPA', 'AP', 'CR_Confidence', 'BE_Status', 'BE_Clicks', 'Net_Per_Click', 'Action', 'Anomalies'];
-
             const exports = [
                 { id: 'chk-pure', name: 'Pure', pick: r => r.category === 'pure' },
                 { id: 'chk-gold', name: 'Gold', pick: r => r.category === 'gold' },
@@ -2748,48 +2651,23 @@
                 if ($(exp.id).checked) {
                     const rows = source.filter(r => !r.isSummary && exp.pick(r));
                     if (rows.length) {
-                        lines.push('');
-                        lines.push('========================================');
-                        lines.push('  ' + exp.name.toUpperCase() + ' (' + rows.length + ' items)');
-                        lines.push('========================================');
-                        lines.push(headers.join('\t'));
-                        rows.forEach(r => {
-                            lines.push([
-                                useCidr ? toCIDR(r.identifier) : r.identifier,
-                                r.category,
-                                (r.volumeTier || 'mid').toUpperCase(),
-                                r.blSeverity || '',
-                                r.score.toFixed(2), r.clicks, r.conv,
-                                r.rev.toFixed(2), r.cost.toFixed(2), r.profit.toFixed(2),
-                                r.roi.toFixed(0), (r.cr * 100).toFixed(3), r.ppc.toFixed(4),
-                                (r.cpc || 0).toFixed(4),
-                                r.conv > 0 ? r.cpa.toFixed(2) : '',
-                                r.conv > 0 ? r.ap.toFixed(2) : '',
-                                r.wilson ? r.wilson.confidence : '',
-                                r.breakEven ? r.breakEven.status : '',
-                                r.breakEven && r.breakEven.clicks > 0 ? r.breakEven.clicks : '',
-                                r.breakEven ? r.breakEven.netPerClick.toFixed(4) : '',
-                                r.action,
-                                r.anomalies ? r.anomalies.map(a => a.label).join(', ') : ''
-                            ].join('\t'));
-                        });
+                        const ids = rows.map(r => useCidr ? toCIDR(r.identifier) : r.identifier);
+                        const uniqueIds = [...new Set(ids)];
+                        const text = uniqueIds.join('\n');
+                        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = exp.name + '.txt';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
                         count++;
                     }
                 }
             });
-
-            if (count || lines.length) {
-                const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'ListLab_Export.txt';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                showToast('קובץ TXT יוצא בהצלחה (' + count + ' קטגוריות, כולל סיכום)', 'success');
-            }
+            if (count) { showToast('הורדו ' + count + ' קבצי TXT', 'success'); }
             else alert('בחר לפחות רשימה אחת');
         }
 
