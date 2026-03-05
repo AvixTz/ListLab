@@ -626,7 +626,7 @@
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-potential" checked class="chk-input"> Potential</label>
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-bl" class="chk-input"> Blacklist</label>
                         <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-custom" class="chk-input"> Custom</label>
-                        <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="chk-cidr" class="chk-input"> CIDR</label>
+                        <label class="flex items-center gap-1 cursor-pointer font-bold text-indigo-600"><input type="checkbox" id="chk-cidr" checked class="chk-input"> CIDR</label>
                     </div>
                     <button onclick="exportData()" class="w-full bg-indigo-600 text-white py-1.5 rounded-lg text-xs font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 transition-colors shadow-sm">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i> הורדה TXT <span class="shortcut-key text-indigo-300">E</span>
@@ -1094,7 +1094,7 @@
                     if (s.exportChecks.potential !== undefined) $('chk-potential').checked = s.exportChecks.potential;
                     if (s.exportChecks.bl !== undefined) $('chk-bl').checked = s.exportChecks.bl;
                     if (s.exportChecks.custom !== undefined) $('chk-custom').checked = s.exportChecks.custom;
-                    if (s.exportChecks.cidr !== undefined) $('chk-cidr').checked = s.exportChecks.cidr;
+                    // CIDR always defaults to checked - don't restore from saved settings
                 }
                 if (s.avgPayout) $('avg-payout').value = s.avgPayout;
                 showToast('הגדרות נטענו מהזיכרון', 'info');
@@ -1237,6 +1237,21 @@
         function getIdentifierTypeLabel(type) {
             const labels = { 'ip': '🌐 IP Address', 'zone': '📍 Zone ID', 'subid': '🎯 SubID', 'mixed': '🔀 Mixed', 'unknown': '❓ Unknown' };
             return labels[type] || type;
+        }
+
+        function toExportCIDR(identifier) {
+            const str = String(identifier).trim();
+            if (str.includes('/')) return str;
+            // Full IP: 1.2.3.4 → 1.2.3.0/24
+            if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(str)) {
+                const parts = str.split('.');
+                return parts[0] + '.' + parts[1] + '.' + parts[2] + '.0/24';
+            }
+            // 3-octet: 1.2.3 → 1.2.3.0/24
+            if (/^\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(str)) {
+                return str + '.0/24';
+            }
+            return str;
         }
 
         function toCIDR(identifier) {
@@ -2636,8 +2651,22 @@
         }
 
         function exportData() {
-            const useCidr = $('chk-cidr').checked;
-            const source = state.aggMode === 'split' ? (state.processedRaw || []) : (state.processed || []);
+            const useCidr = $('chk-cidr').checked || $('chk-copy-cidr').checked;
+            console.log('[Export] useCidr:', useCidr, 'chk-cidr:', $('chk-cidr').checked, 'chk-copy-cidr:', $('chk-copy-cidr').checked);
+            // Always use raw (split-level) data for export so every IP is included
+            let source = state.processedRaw;
+            if (!source && state.rawDetailRows && state.rawDetailRows.length > 0) {
+                const rawClicks = state.rawDetailRows.reduce((s, r) => s + r.clicks, 0);
+                const rawConv = state.rawDetailRows.reduce((s, r) => s + r.conv, 0);
+                const rawCost = state.rawDetailRows.reduce((s, r) => s + r.cost, 0);
+                const rawProfit = state.rawDetailRows.reduce((s, r) => s + r.profit, 0);
+                const rawCampaignAvgCR = rawClicks > 0 ? (rawConv / rawClicks) : 0;
+                const rawCampaignAvgPPC = rawClicks > 0 ? (rawProfit / rawClicks) : 0;
+                source = classifyRanges(state.rawDetailRows, state.medianPPC, state.medianCR, rawCampaignAvgCR, rawCampaignAvgPPC, rawCost, rawProfit, state.medianROI);
+                source = detectAnomalies(source, rawCampaignAvgCR);
+                source = assignVolumeTiers(source);
+            }
+            if (!source || !source.length) source = state.processed || [];
 
             const exports = [
                 { id: 'chk-pure', name: 'Pure', pick: r => r.category === 'pure' },
@@ -2646,29 +2675,33 @@
                 { id: 'chk-bl', name: 'Blacklist', pick: r => ['blacklist', 'blacklist-soft'].includes(r.category) },
                 { id: 'chk-custom', name: 'Custom', pick: r => r.matchesCustom || r.category === 'custom' }
             ];
-            let count = 0;
+            const allIds = [];
+            const selectedNames = [];
             exports.forEach(exp => {
                 if ($(exp.id).checked) {
                     const rows = source.filter(r => !r.isSummary && exp.pick(r));
                     if (rows.length) {
-                        const ids = rows.map(r => useCidr ? toCIDR(r.identifier) : r.identifier);
-                        const uniqueIds = [...new Set(ids)];
-                        const text = uniqueIds.join('\n');
-                        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = exp.name + '.txt';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                        count++;
+                        const ids = rows.map(r => useCidr ? toExportCIDR(r.identifier) : r.identifier);
+                        allIds.push(...ids);
+                        selectedNames.push(exp.name);
                     }
                 }
             });
-            if (count) { showToast('הורדו ' + count + ' קבצי TXT', 'success'); }
-            else alert('בחר לפחות רשימה אחת');
+            if (selectedNames.length) {
+                const uniqueIds = [...new Set(allIds)];
+                console.log('[Export] Selected:', selectedNames, 'Total IDs:', allIds.length, 'Unique:', uniqueIds.length, 'Sample:', uniqueIds.slice(0, 3));
+                const text = uniqueIds.join('\n');
+                const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = selectedNames.join('_') + '.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('הורדו ' + uniqueIds.length + ' מזהים (' + selectedNames.join(', ') + ')', 'success');
+            } else alert('בחר לפחות רשימה אחת');
         }
 
         function copyIPs() {
