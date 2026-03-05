@@ -1094,7 +1094,7 @@
                     if (s.exportChecks.potential !== undefined) $('chk-potential').checked = s.exportChecks.potential;
                     if (s.exportChecks.bl !== undefined) $('chk-bl').checked = s.exportChecks.bl;
                     if (s.exportChecks.custom !== undefined) $('chk-custom').checked = s.exportChecks.custom;
-                    if (s.exportChecks.cidr !== undefined) $('chk-cidr').checked = s.exportChecks.cidr;
+                    // CIDR always defaults to checked - don't restore from saved settings
                 }
                 if (s.avgPayout) $('avg-payout').value = s.avgPayout;
                 showToast('הגדרות נטענו מהזיכרון', 'info');
